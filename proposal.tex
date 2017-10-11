@@ -1,0 +1,141 @@
+\documentclass{article}
+\usepackage[tt=false]{libertine}
+\usepackage{hyperref}
+\usepackage{fullpage}
+
+\title{Safe Shared Memory for Concurrent Algol}
+\author{Farzaneh Derakhshan, Klaas Pruiksma, Jonathan Sterling}
+
+\newcommand\Lang[1]{{\sffamily\bfseries{#1}}}
+\newcommand\LangCA{\Lang{CA}}
+\newcommand\LangMA{\Lang{MA}}
+\newcommand\EOf[4]{{#1}\vdash_{#2}{#3}:{#4}}
+\newcommand\MOf[4]{{#1}\vdash_{#2}{#3}\div{#4}}
+\newcommand\IsProc[3]{{#1}\vdash_{#2}{#3}\ \mathsf{proc}}
+\newcommand\IsAction[3]{{#1}\vdash_{#2}{#3}\ \mathsf{action}}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  [Please put some abstract material here.]
+\end{abstract}
+
+\section{Background on programming langauges}
+
+Farzaneh will write some general amterial here.
+
+\section{Modernized and Concurrent Algol}
+
+Our starting point is the language Concurrent Algol (\LangCA) defined
+in Chapter 40 of Harper's \emph{Practical Foundations for Programming
+  Languages}~\cite{harper:2016}. \LangCA{} is itself an extension of
+Harper's Modernized Algol (\LangMA).
+
+\subsection{Algol-family languages}
+
+Algol was one of the earliest practical imperative programming
+languages, and has for many years been considered the quintessential
+``clean room'' core language for the scientific study of sequential,
+imperative programming~\cite{reynolds:1997}; its distinctive features
+has sparked a rich and sophisticated body of developments in
+mathematical semantics of programming
+languages~\cite{mccusker-power:2010}.
+
+Harper's \LangMA{} differs from traditional presentations of
+Algol-family languages in that it surfaces the distinction between
+variables, assignables (mutable resources) and assignable
+references. In \LangMA{}, a variable is a \emph{mathematical
+  variable}, i.e.\ a placeholder for a term; variables are given
+meaning through substitution. On the other hand, an assignable is the
+name of a location in memory; finally, assignable references are a
+device for passing locations in code. By restoring the correct notion
+of variable to its rightful place, Harper's presentation clarifies the
+structure and semantics of Algol-family languages.
+
+\paragraph{The Essence of \LangMA{}}
+
+The language \LangMA{} is based fundamentally on a modal distinction
+between \emph{command} and \emph{expression}. A command is a piece of
+code that can ``do'' something, whereas an expression is a piece of
+code which calculates a value without any side effects. This is what
+sets the Algol family apart from other language families which support
+imperative programming (such as \Lang{C}, \Lang{ML}, \Lang{Go},
+\Lang{Rust}, etc.).
+
+Accordingly, the static semantics of \LangMA{} are organized around
+two forms of assertion:
+
+\begin{enumerate}
+\item $\EOf{\Gamma}{\Sigma}{e}{\tau}$ means that $e$ is an \emph{expression}
+  of type $\tau$ mentioning variables from $\Gamma$ and assignables
+  (memory location names) from $\Sigma$.
+\item $\MOf{\Gamma}{\Sigma}{m}{\tau}$ means that $m$ is a
+  \emph{command} of type $\tau$ mentioning variables from $\Gamma$ and
+  assignables from $\Sigma$.
+\end{enumerate}
+
+An operational semantics is given for \LangMA{}, which specifies how
+expressions evaluate, and how commands compute relative to a heap
+(memory state).
+
+
+
+\subsection{Concurrent Algol}
+
+\LangCA{} is an extension of \LangMA{} with a notion of \emph{process}
+and their concurrent composition, together with a notion of channel
+and message passing. Whilst \LangMA{} had a notion of mutable store,
+\LangCA{} does away with this; Harper argues that mutable store can be
+eschewed because it can be simulated using message passing.
+
+This simplifying assumption is helpful for the development of a clean
+and simple semantics, but it may not be a good idea in practice. While
+shared memory comes with all sorts of disadvantages, it can be very
+important for the sake of performance. Scientists who engineer
+programming languages which are intended to be used in practice must
+account for this.
+
+\paragraph{What does \LangCA{} add?}
+\LangCA{} adds to \LangMA{}'s static semantics the following forms of
+assertion:
+\begin{enumerate}
+\item $\IsProc{\Gamma}{\Sigma}{p}$ means that $p$ is a \emph{process}
+  relative to the variables from $\Gamma$ and the channel names from
+  $\Sigma$.
+\item $\IsAction{\Gamma}{\Sigma}{\alpha}$ means that $\alpha$ is an
+  \emph{action} relative to $\Gamma$, $\Sigma$.
+\end{enumerate}
+
+Processes are inductively defined as the \emph{idle process}, the
+atomic process $\mathtt{run}(m)$ (which executes the command $m$), and
+the concurrent composition of two processes $p_1\otimes p_2$, and
+finally the process $\nu\alpha.p$ which generates a fresh
+communication channel and proceeds with the process $p$.
+
+Whereas the operational semantics of \LangMA{} included a pure
+transition system for expressions and a reduction semantics for
+commands relative to a heap or memory state, \LangCA{} adds to this a
+\emph{labelled transition system} which describes the evolution of a
+system of concurrent processes. Actions $\alpha$ are the labels of
+this transition system, and express the ways in which a process can
+evolve; actions include querying and signalling along channels.
+
+\paragraph{What do we hope to add to \LangCA{}?}
+We hope to add primitives for shared memory to \LangCA{} and show that
+our semantics is simulated by the pure message-passing implementation
+of shared resources from \LangCA{}. Then, we will extend the critical
+safety proofs (for instance, progress for well-typed processes) over
+our extended language.
+
+\section{Our Proposal}
+
+Klaas will write this.
+
+
+\bibliographystyle{abbrv}
+\bibliography{bibtex-references/refs}
+
+\end{document}
