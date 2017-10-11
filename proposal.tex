@@ -20,7 +20,16 @@
 \maketitle
 
 \begin{abstract}
-  [Please put some abstract material here.]
+  Establishing safety properties for code that mixes concurrency with
+  (shared) memory is notoriously difficult; the experience of the past
+  several years suggests that restricted languages can provide a
+  suitable means to achieve general safety results without sacrificing
+  performance. Languages like \Lang{Rust} and \Lang{Go} are a step in
+  the right direction, but are not currently backed by a precise
+  semantics; we will attempt to thoroughly develop the theory and
+  practice of a small Algol-family language featuring concurrency and
+  shared memory, establishing several crucial safety properties at the
+  language level.
 \end{abstract}
 
 \section{Background on programming langauges}
