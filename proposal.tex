@@ -141,7 +141,16 @@ our extended language.
 
 \section{Our Proposal}
 
-Klaas will write this.
+We plan to create a language building on the ideas of \LangCA{} which has primitive concepts for concurrency, shared memory, and locking.
+Our intent is that this language will disallow writing programs with certain classes of errors ranging from the relatively minor (For example, memory leaks or multiple acquisition of the same lock) to more complex ones including data races (potentially with some restrictions) and deadlocks.
+
+Our 75\% goal is to develop this language and provide evidence that it is both practically usable and avoids errors by writing some sample systems.
+
+Our 100\% goal is to strengthen our justification that the language avoids errors by providing proofs (possibly with some conditions) that those errors cannot occur in a well-typed program.
+While we believe that some of these proofs will be easy to complete, we believe that those for more complex classes of errors will lead us to revise the language in order to get them to work or to work with fewer side conditions, justifying the gap between this and the 75\% goal.
+
+Finally, our 125\% goal is to increase ease-of-use of this language by creating a simplified form for use in writing programs which can then be processed into the more expressive but more complex base language.
+Since many of the conditions surrounding the use of shared memory (or just memory in general) and locks can be inferred from the code as written, we believe that it should be feasible to leave large parts of the memory management and lock management up to an elaboration step that preprocesses the simple program to make memory and lock management explicit.
 
 
 \bibliographystyle{abbrv}
