@@ -5,6 +5,9 @@
 \usepackage{amsthm}
 \usepackage{fullpage}
 
+\usepackage{sectsty}
+\allsectionsfont{\sffamily}
+
 \title{Safe Shared Memory for Concurrent Algol}
 \author{Farzaneh Derakhshan, Klaas Pruiksma, Jonathan Sterling}
 
@@ -38,7 +41,7 @@
   language level.
 \end{abstract}
 
-\section{Background on programming langauges}
+\section{What are languages good for?}
 
 A proramming language is specified by explaining both its
 \emph{structure} and its \emph{computational meaning}; these are
@@ -139,9 +142,10 @@ been deployed in the ML5 language for distributed computing, enabling
 one to develop distributed applications within a single unified
 program~\cite{murphy-crary-harper:2008}. Concurrency primitives have
 been added to functional languages such as
-Facile~\cite{giacolone:1989}, Concurrent ML~\cite{reppy:1991,reppy:2007},
-JOCaml~\cite{conchon-fessant:1999}, Concurrent
-Haskell~\cite{jones-gordon-finne:1996} and Concurrent
+Facile~\cite{giacolone:1989}, Concurrent
+ML~\cite{reppy:1991,reppy:2007}, JOCaml~\cite{conchon-fessant:1999},
+Concurrent Haskell~\cite{jones-gordon-finne:1996},
+Rust~\cite{turon:2012}, Go~\cite{donovan:2015} and Concurrent
 Algol~\cite{harper:2016}. In another work, Balzer and Pfenning
 augmented the session-typed linear logic with shared memory, using
 shared channels and shared memory with an acquire-release discipline.
