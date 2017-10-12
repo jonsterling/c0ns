@@ -1,10 +1,16 @@
 \documentclass{article}
 \usepackage[tt=false]{libertine}
 \usepackage{hyperref}
+\usepackage{mathpartir}
+\usepackage{amsthm}
 \usepackage{fullpage}
 
 \title{Safe Shared Memory for Concurrent Algol}
 \author{Farzaneh Derakhshan, Klaas Pruiksma, Jonathan Sterling}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
 
 \newcommand\Lang[1]{{\sffamily\bfseries{#1}}}
 \newcommand\LangCA{\Lang{CA}}
@@ -34,7 +40,114 @@
 
 \section{Background on programming langauges}
 
-Farzaneh will write some general material here.
+A proramming language is specified by explaining both its
+\emph{structure} and its \emph{computational meaning}; these are
+captured in the static and the dynamic semantics respectively. Armed
+with such a definition, it is then possible to prove critical
+correctness and safety properties both for a language as a whole, and
+also for individual programs in this language.
+
+One of these basic safety criteria is called ``type safety'', a
+property which is usually factored into \emph{type preservation}
+(programs do not change their type as they execute) and
+\emph{progress} (any well-typed program can take a step of
+computation, or is a value). These laws may seem quite basic, but
+depending on the definition and sophistication of the language, they
+can imply extremely strong semantic properties such as liveness,
+memory safety, causality~\cite{atkey-mcbride:2013}, and even cost or
+complexity bounds.
+
+To give a very simple example of static and dynamic semantics,
+consider the following arithmetic language, adapted
+from~\cite{harper:2016}:
+
+\newcommand\IsOk[1]{{#1}\ \mathsf{ok}}
+\newcommand\IsVal[1]{{#1}\ \mathsf{val}}
+\newcommand\Step[2]{{#1}\mapsto{#2}}
+\newcommand\Plus[2]{\mathtt{plus} (#1, #2)}
+\newcommand\Num[1]{\mathtt{num}[#1]}
+
+\paragraph{Statics} We define the static semantics by specifying which
+expressions are ``OK'' (well-typed):
+\begin{mathpar}
+  \inferrule{
+  }{
+    \IsOk{\Num{n}}
+  }
+  \and
+  \inferrule{
+    \IsOk{e_1}
+    \\
+    \IsOk{e_2}
+  }{
+    \IsOk{\Plus{e_1}{e_2}}
+  }
+\end{mathpar}
+
+In a more sophisticated language, the static semantics would be given
+by a much more complicated form of judgment than $\IsOk{e}$, as we
+will see later on.
+
+\paragraph{Dynamics}
+The dynamics are given by a transition system, writing $\IsVal{e}$ to
+mean that $e$ is a \emph{value}, and $\Step{e}{e'}$ to mean that the
+program $e$ takes a step to $e'$.
+\begin{mathpar}
+  \inferrule{
+  }{
+    \IsVal{\Num{n}}
+  }
+  \and
+  \inferrule{
+    \Step{e_1}{e_1'}
+  }{
+    \Step{\Plus{e_1}{e_2}}{\Plus{e_1'}{e_2}}
+  }
+  \and
+  \inferrule{
+    \IsVal{e_1}
+    \\
+    \Step{e_2}{e_2'}
+  }{
+    \Step{\Plus{e_1}{e_2}}{\Plus{e_1}{e_2'}}
+  }
+  \and
+  \inferrule{
+    n_1 + n_2 = n_3
+  }{
+    \Step{
+      \Plus{\Num{n_1}}{\Num{n_2}}
+    }{
+      \Num{n_3}
+    }
+  }
+\end{mathpar}
+
+At this point, we can prove the type safety theorem in two lemmas:
+\begin{lemma}[Progress]
+  If $\IsOk{e}$, then either $\IsVal{e}$ or $\Step{e}{e'}$ for some
+  $e'$.
+\end{lemma}
+\begin{lemma}[Preservation]
+  If $\IsOk{e}$ and $\Step{e}{e'}$, then $\IsOk{e'}$.
+\end{lemma}
+
+Of course, this was a very trivial example, but this methodology
+scales up to problems of seemingly arbitrary complexity. For instance,
+a type system inspired by Kripke semantics and the modal logic S5 has
+been deployed in the ML5 language for distributed computing, enabling
+one to develop distributed applications within a single unified
+program~\cite{murphy-crary-harper:2008}. Concurrency primitives have
+been added to functional languages such as
+Facile~\cite{giacolone:1989}, Concurrent ML~\cite{reppy:1991,reppy:2007},
+JOCaml~\cite{conchon-fessant:1999}, Concurrent
+Haskell~\cite{jones-gordon-finne:1996} and Concurrent
+Algol~\cite{harper:2016}. In another work, Balzer and Pfenning
+augmented the session-typed linear logic with shared memory, using
+shared channels and shared memory with an acquire-release discipline.
+
+
+
 
 \section{Modernized and Concurrent Algol}
 
