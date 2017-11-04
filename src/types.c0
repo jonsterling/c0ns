@@ -2,88 +2,88 @@ typedef int type_;
 typedef int qtype; // includes type_
 
 // a host address
-type_ type__A() {
+type_ type_A() {
     return 1;
 }
 
 // an authoritative name server
-type_ type__ns() {
+type_ type_ns() {
     return 2;
 }
 
 // a mail destination (obsolete => mx)
-type_ type__md() {
+type_ type_md() {
     return 3;
 }
 
 // a mail forwarder (obsolete => mx)
-type_ type__mf() {
+type_ type_mf() {
     return 4;
 }
 
 // the canonical name for an alias
-type_ type__cname() {
+type_ type_cname() {
     return 5;
 }
 
 // marks the start of a zone of authority
-type_ type__soa() {
+type_ type_soa() {
     return 6;
 }
 
 // a mailbox domain name (experimental)
-type_ type__mb() {
+type_ type_mb() {
     return 7;
 }
 
 // a mail group member (experimental)
-type_ type__mg() {
+type_ type_mg() {
     return 8;
 }
 
 // a mail rename domain name (experimental)
-type_ type__mr() {
+type_ type_mr() {
     return 9;
 }
 
 // a null RR (experimental)
-type_ type__null() {
+type_ type_null() {
     return 10;
 }
 
 // a well known service description
-type_ type__wks() {
+type_ type_wks() {
     return 11;
 }
 
 // a domain name pointer
-type_ type__ptr() {
+type_ type_ptr() {
     return 12;
 }
 
 // host information
-type_ type__hinfo() {
+type_ type_hinfo() {
     return 13;
 }
 
 // mailbox or mail list information
-type_ type__minfo() {
+type_ type_minfo() {
     return 14;
 }
 
 // mail exchange
-type_ type__mx() {
+type_ type_mx() {
     return 15;
 }
 
-type_ type__txt() {
+type_ type_txt() {
     return 16;
 }
 
 
 // for contracts
-type_ type__max() {
-    return type__txt();
+type_ type_max() {
+    return type_txt();
 }
 
 // a request for a transfer of an entire zone
