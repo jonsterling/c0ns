@@ -1,0 +1,149 @@
+typedef int type_;
+typedef int qtype; // includes type_
+typedef int class;
+typedef int qclass; // includes class
+
+struct resource_record {
+    string rr_name;
+    type_ type_;
+    int rr_class;
+    int rr_ttl;
+    int rr_rd_length;
+    char[] rr_rdata;
+};
+
+// a host address
+type_ type__A() {
+    return 1;
+}
+
+// an authoritative name server
+type_ type__ns() {
+    return 2;
+}
+
+// a mail destination (obsolete => mx)
+type_ type__md() {
+    return 3;
+}
+
+// a mail forwarder (obsolete => mx)
+type_ type__mf() {
+    return 4;
+}
+
+// the canonical name for an alias
+type_ type__cname() {
+    return 5;
+}
+
+// marks the start of a zone of authority
+type_ type__soa() {
+    return 6;
+}
+
+// a mailbox domain name (experimental)
+type_ type__mb() {
+    return 7;
+}
+
+// a mail group member (experimental)
+type_ type__mg() {
+    return 8;
+}
+
+// a mail rename domain name (experimental)
+type_ type__mr() {
+    return 9;
+}
+
+// a null RR (experimental)
+type_ type__null() {
+    return 10;
+}
+
+// a well known service description
+type_ type__wks() {
+    return 11;
+}
+
+// a domain name pointer
+type_ type__ptr() {
+    return 12;
+}
+
+// host information
+type_ type__hinfo() {
+    return 13;
+}
+
+// mailbox or mail list information
+type_ type__minfo() {
+    return 14;
+}
+
+// mail exchange
+type_ type__mx() {
+    return 15;
+}
+
+type_ type__txt() {
+    return 16;
+}
+
+
+// for contracts
+type_ type__max() {
+    return type__txt();
+}
+
+// a request for a transfer of an entire zone
+qtype qtype_axfr() {
+    return 252;
+}
+
+// a request for mailbox-related records (mb, mg, or mr)
+qtype qtype_mailb() {
+    return 253;
+}
+
+// a request for mail agent rrs (obsolete => mx)
+qtype qtype_maila() {
+    return 254;
+}
+
+// a request for all records (*)
+qtype qtype_all() {
+    return 255;
+}
+
+// for contracts
+qtype qtype_max() {
+    return qtype_all();
+}
+
+
+// the internet
+class class_in() {
+    return 1;
+}
+
+// the csnet class (obsolete!)
+class class_cs() {
+    return 2;
+}
+
+// the chaos class
+class class_ch() {
+    return 3;
+}
+
+// Hesiod
+class class_hs() {
+    return 4;
+}
+
+// any class (*)
+qclass qclass_any () {
+    return 255;
+}
