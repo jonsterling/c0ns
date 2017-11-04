@@ -1,0 +1,11 @@
+#use "types.c0"
+#use "class.c0"
+
+struct resource_record {
+    string name;
+    type_ type_;
+    class class;
+    int ttl;
+    int rd_length;
+    char[] rdata;
+};

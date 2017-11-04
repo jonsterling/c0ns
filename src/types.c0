@@ -1,16 +1,5 @@
 typedef int type_;
 typedef int qtype; // includes type_
-typedef int class;
-typedef int qclass; // includes class
-
-struct resource_record {
-    string rr_name;
-    type_ type_;
-    int rr_class;
-    int rr_ttl;
-    int rr_rd_length;
-    char[] rr_rdata;
-};
 
 // a host address
 type_ type__A() {
@@ -120,30 +109,4 @@ qtype qtype_all() {
 // for contracts
 qtype qtype_max() {
     return qtype_all();
-}
-
-
-// the internet
-class class_in() {
-    return 1;
-}
-
-// the csnet class (obsolete!)
-class class_cs() {
-    return 2;
-}
-
-// the chaos class
-class class_ch() {
-    return 3;
-}
-
-// Hesiod
-class class_hs() {
-    return 4;
-}
-
-// any class (*)
-qclass qclass_any () {
-    return 255;
 }

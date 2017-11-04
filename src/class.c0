@@ -1,0 +1,28 @@
+typedef int class;
+typedef int qclass; // includes class
+
+
+// the internet
+class class_in() {
+    return 1;
+}
+
+// the csnet class (obsolete!)
+class class_cs() {
+    return 2;
+}
+
+// the chaos class
+class class_ch() {
+    return 3;
+}
+
+// Hesiod
+class class_hs() {
+    return 4;
+}
+
+// any class (*)
+qclass qclass_any () {
+    return 255;
+}

@@ -1,0 +1,44 @@
+struct header {
+    int id;
+    int qr;
+    int opcode;
+    int aa;
+    int tc;
+    int rd;
+    int ra;
+    int z; // reserved
+    int rcode; // response code
+    int qdcount;
+    int ancount;
+    int nscount;
+    int arcount;
+};
+
+// response codes
+int rcode_no_error() {
+    return 0;
+}
+
+int rcode_format_error() {
+    return 1;
+}
+
+int rcode_server_failure() {
+    return 2;
+}
+
+int rcode_name_error() {
+    return 3;
+}
+
+int rcode_not_implemented() {
+    return 4;
+}
+
+int rcode_refused() {
+    return 5;
+}
+
+bool rcode_is_reserved(int rc) {
+    return rc >= 6 && rc <= 15;
+}
