@@ -1,0 +1,14 @@
+#use <conio>
+#use "message.c0"
+
+int main() {
+    struct header* hd;
+    struct message* m;
+
+    hd = alloc(struct header);
+    m = alloc(struct message);
+    m->header = hd;
+
+    print("hello world\n");
+    return 0;
+}

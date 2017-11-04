@@ -1,0 +1,9 @@
+#use "header.c0"
+#use "resource_record.c0"
+
+struct message {
+    struct header* header;
+    struct resource_record[] answer;
+    struct resource_record[] authority;
+    struct resource_record[] additional;
+};

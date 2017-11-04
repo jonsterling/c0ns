@@ -1,0 +1,8 @@
+#use "types.c0"
+#use "class.c0"
+
+struct question {
+    string[] qname;
+    qtype qtype;
+    qclass qclass;
+};
