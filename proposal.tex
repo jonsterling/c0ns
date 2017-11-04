@@ -270,6 +270,13 @@ While we believe that some of these proofs will be easy to complete, we believe 
 Finally, our 125\% goal is to increase ease-of-use of this language by creating a simplified form for use in writing programs which can then be processed into the more expressive but more complex base language.
 Since many of the conditions surrounding the use of shared memory (or just memory in general) and locks can be inferred from the code as written, we believe that it should be feasible to leave large parts of the memory management and lock management up to an elaboration step that preprocesses the simple program to make memory and lock management explicit.
 
+We believe that each of these is a feasible goal, with the bulk of the work lying in the design and creation of the language, leading us to choose this as the 75\% goal --- without a complete language and some examples, we do not have a complete project.
+However, we believe that the language and examples would suffice as evidence for the feasibility of our goals, and would improve on existing languages by giving formal definitions which allow for the desired properties to be proven, albeit possibly with some modifications to the language.
+Despite this, the proofs in our 100\% goal are much stronger evidence, and make it much more feasible to evaluate the utility of this project.
+We include this as our 100\% goal because it will yield a usable language with provable guarantees, which is what we set out to do in the first place.
+There is little to be done from a correctness perspective past this other than potentially extending to cover more sorts of errors, and so from this, we determined that it made more sense to set our 125\% goal in the direction of increased usability, as described above.
+This is the most concretely-evaluable part of the work, as it allows us to make comparisons such as the amount of our code examples that can be automatically generated, which will serve as a proxy for the ease of writing code in this simplified system compared to the original system.
+
 
 \bibliographystyle{abbrv}
 \bibliography{bibtex-references/refs}
