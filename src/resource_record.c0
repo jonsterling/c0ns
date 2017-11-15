@@ -1,5 +1,6 @@
 #use "types.c0"
 #use "class.c0"
+#use "bit_utils.c0"
 
 struct domain_name {
     string[] labels;
@@ -11,17 +12,12 @@ struct resource_record {
     class class;
     int ttl;
     int rd_length;
-    char[] rdata;
+    int[] rdata; // of octets
 };
 
 
-/*
-int parse_domain_name(int cursor, int[] data, struct domain_name* dest) {
-    // TODO
-    return cursor;
-}
 
-int parse_type(int cursor, int[] data, int* dest) {
+int parse_domain_name(int cursor, int[] data, struct domain_name* dest) {
     // TODO
     return cursor;
 }
@@ -29,9 +25,29 @@ int parse_type(int cursor, int[] data, int* dest) {
 int parse_resource_record(int cursor, int[] data, struct resource_record* dest) {
     struct domain_name* name = alloc(struct domain_name);
     int* type = alloc(int);
+    int* class_ = alloc(int);
+    int* ttl = alloc(int);
+    int* rd_length = alloc(int);
+
 
     cursor = parse_domain_name(cursor, data, name);
-    cursor = parse_type(cursor, data, type);
+    cursor = read_bits(cursor, data, 16, type);
+    cursor = read_bits(cursor, data, 16, class_);
+    cursor = read_bits(cursor, data, 32, ttl);
+    cursor = read_bits(cursor, data, 16, rd_length);
+
+    int[] rdata = alloc_array(int, *rd_length);
+    for (int i = 0; i < *rd_length; i++) {
+        int* octet = alloc(int);
+        cursor = read_bits(cursor, data, 8, octet);
+        rdata[i] = *octet;
+    }
+
+    dest->type = *type;
+    dest->class = *class_;
+    dest->ttl = *ttl;
+    dest->rd_length = *rd_length;
+    dest->rdata = rdata;
+
     return cursor;
 }
-*/

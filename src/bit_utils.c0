@@ -1,4 +1,12 @@
 // isolate 'k' bits starting at offset 'offset' in 'data'
-int extract_bits (int offset, int numBits, int data) {
+int extract_bits(int offset, int numBits, int data) {
     return (((1 << numBits) - 1) & (data >> (offset - 1)));
+}
+
+int read_bits(int cursor, int[] data, int numBits, int* dest)
+// @requires numBits <= 32
+{
+    int index = cursor / 32;
+    *dest = extract_bits(cursor % 32, numBits, data[index]);
+    return cursor + numBits;
 }
