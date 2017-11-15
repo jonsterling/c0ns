@@ -45,50 +45,47 @@ bool rcode_is_reserved(int rc) {
     return rc >= 6 && rc <= 15;
 }
 
-void split_byte(int byte, int* dest1, int* dest2){
-    *dest1 = byte & 0xFFFF;
-    *dest2 = byte >> 8;
-}
 
-void line2split(int line2, struct header* dest){
 
+int extract_bits (int offset, int numBits, int data) {
+    return (((1 << numBits) - 1) & (data >> (offset - 1)));
 }
 
 int parse_header(int offset, int[] data, struct header* dest) {
-  int* line1 = alloc(int);
-  int* line2 = alloc(int);
+    int line12 = data[offset];
+    offset += 1;
 
-  split_byte(data[offset], line1, line2);
-  dest->id = *line1;
-  offset = offset + 1;
+    int line34 = data[offset];
+    offset += 1;
 
-  line2split(*line2, dest);
+    int line56 = data[offset];
+    offset += 1;
 
-  int* line3 = alloc(int);
-  int* line4 = alloc(int);
-  int* line5 = alloc(int);
-  int* line6 = alloc(int);
+    int line1 = extract_bits(0, 16, line12);
+    int line2 = extract_bits(16, 16, line12);
+    int line3 = extract_bits(0, 16, line34);
+    int line4 = extract_bits(16, 16, line34);
+    int line5 = extract_bits(0, 16, line56);
+    int line6 = extract_bits(16, 16, line56);
 
-  split_byte(data[offset], line3, line4);
-  offset = offset + 1;
+    dest->id = line1;
+    dest->qr = extract_bits(0, 1, line2);
+    dest->opcode = extract_bits(1, 4, line2);
+    dest->aa = extract_bits(5, 1, line2);
+    dest->tc = extract_bits(6, 1, line2);
+    dest->rd = extract_bits(7, 1, line2);
+    dest->ra = extract_bits(8, 1, line2);
+    dest->z = extract_bits(9, 3, line2);
+    dest->rcode = extract_bits(12, 4, line2);
 
-  split_byte(data[offset], line5, line6);
-  offset = offset + 1;
+    dest->qdcount = line3;
+    dest->ancount = line4;
+    dest->nscount = line5;
+    dest->arcount = line6;
 
-  dest->qdcount = *line3;
-  dest->ancount = *line4;
-  dest->nscount = *line5;
-  dest->arcount = *line6;
-
-  return offset;
+    return offset;
 }
 
 int main(){
-int x=0xffff;
-int y= 400;
-int z=y&x;
-int w=y>>8;
-printint(w);
-
     return 0;
 }
