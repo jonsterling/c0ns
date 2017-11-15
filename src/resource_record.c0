@@ -1,3 +1,4 @@
+#use <string>
 #use "types.c0"
 #use "class.c0"
 #use "bit_utils.c0"
@@ -50,9 +51,18 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
     }
 
     // case: ordinary label
+    // now '*len' specifies the number of octets in the label
+    char[] chars = alloc_array(char, *len);
+    for (int i = 0; i < *len; i++) {
+        int* octet = alloc(int);
+        cursor = read_bits(cursor, data, 8, octet);
+        chars[i] = char_chr(*octet);
+    }
 
-    // TODO
-    return cursor;
+    string lbl = string_from_chararray(chars);
+
+    *dest = domain_cons(lbl, *dest);
+    return parse_domain_name(cursor, data, dest);
 }
 
 int parse_resource_record(int cursor, int[] data, struct resource_record* dest) {
