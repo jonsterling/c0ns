@@ -10,14 +10,14 @@ struct domain_name {
 typedef struct domain_name* domain_name;
 
 domain_name domain_nil() {
-  return NULL;
+    return NULL;
 }
 
 domain_name domain_cons(string lbl, domain_name name) {
-  domain_name d = alloc(struct domain_name);
-  d->label = lbl;
-  d->next = name;
-  return d;
+    domain_name d = alloc(struct domain_name);
+    d->label = lbl;
+    d->next = name;
+    return d;
 }
 
 
@@ -29,8 +29,6 @@ struct resource_record {
     int rd_length;
     int[] rdata; // of octets
 };
-
-
 
 int parse_domain_name(int cursor, int[] data, domain_name* dest) {
     int* len = alloc(int);
