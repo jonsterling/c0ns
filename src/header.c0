@@ -47,15 +47,18 @@ bool rcode_is_reserved(int rc) {
 }
 
 
-int parse_header(int offset, int[] data, struct header* dest) {
-    int line12 = data[offset];
-    offset += 1;
 
-    int line34 = data[offset];
-    offset += 1;
+// TODO: Currently, the 'cursor' is an index into the data array; but it would be useful if we
+// had a notion cursor in *bits*, rather than in 32-bit intervals. Then, our code can become quite a bit more modular.
+int parse_header(int cursor, int[] data, struct header* dest) {
+    int line12 = data[cursor];
+    cursor += 1;
 
-    int line56 = data[offset];
-    offset += 1;
+    int line34 = data[cursor];
+    cursor += 1;
+
+    int line56 = data[cursor];
+    cursor += 1;
 
     int line1 = extract_bits(0, 16, line12);
     int line2 = extract_bits(16, 16, line12);
@@ -79,7 +82,7 @@ int parse_header(int offset, int[] data, struct header* dest) {
     dest->nscount = line5;
     dest->arcount = line6;
 
-    return offset;
+    return cursor;
 }
 
 int main(){

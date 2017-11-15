@@ -1,11 +1,37 @@
 #use "types.c0"
 #use "class.c0"
 
+struct domain_name {
+    string[] labels;
+};
+
 struct resource_record {
-    string name; (* a domain name, subject to compression *)
-    type_ type_;
+    struct domain_name* name; // a domain name, subject to compression
+    type_ type;
     class class;
     int ttl;
     int rd_length;
     char[] rdata;
 };
+
+
+/*
+int parse_domain_name(int cursor, int[] data, struct domain_name* dest) {
+    // TODO
+    return cursor;
+}
+
+int parse_type(int cursor, int[] data, int* dest) {
+    // TODO
+    return cursor;
+}
+
+int parse_resource_record(int cursor, int[] data, struct resource_record* dest) {
+    struct domain_name* name = alloc(struct domain_name);
+    int* type = alloc(int);
+
+    cursor = parse_domain_name(cursor, data, name);
+    cursor = parse_type(cursor, data, type);
+    return cursor;
+}
+*/
