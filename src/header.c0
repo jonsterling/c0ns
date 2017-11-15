@@ -1,3 +1,6 @@
+#use <conio>
+#use "bit_utils.c0"
+
 struct header {
     int id;
     int qr;
@@ -41,4 +44,42 @@ int rcode_refused() {
 
 bool rcode_is_reserved(int rc) {
     return rc >= 6 && rc <= 15;
+}
+
+
+// The cursor is a *bit* index, not an index into the array.
+int parse_header(int cursor, int[] data, struct header* dest) {
+    int* id = alloc(int);
+    int* qr = alloc(int);
+    int* opcode = alloc(int);
+    int* aa = alloc(int);
+    int* tc = alloc(int);
+    int* rd = alloc(int);
+    int* ra = alloc(int);
+    int* z = alloc(int);
+    int* rcode = alloc(int);
+    int* qdcount = alloc(int);
+    int* ancount = alloc(int);
+    int* nscount = alloc(int);
+    int* arcount = alloc(int);
+
+    cursor = read_bits(cursor, data, 16, id);
+    cursor = read_bits(cursor, data, 1, qr);
+    cursor = read_bits(cursor, data, 4, opcode);
+    cursor = read_bits(cursor, data, 1, aa);
+    cursor = read_bits(cursor, data, 1, tc);
+    cursor = read_bits(cursor, data, 1, rd);
+    cursor = read_bits(cursor, data, 1, ra);
+    cursor = read_bits(cursor, data, 1, z);
+    cursor = read_bits(cursor, data, 1, rcode);
+    cursor = read_bits(cursor, data, 16, qdcount);
+    cursor = read_bits(cursor, data, 16, ancount);
+    cursor = read_bits(cursor, data, 16, nscount);
+    cursor = read_bits(cursor, data, 16, arcount);
+
+    return cursor;
+}
+
+int main(){
+    return 0;
 }
