@@ -1,4 +1,5 @@
 #use <conio>
+#use "bit_utils.c0"
 
 struct header {
     int id;
@@ -45,11 +46,6 @@ bool rcode_is_reserved(int rc) {
     return rc >= 6 && rc <= 15;
 }
 
-
-
-int extract_bits (int offset, int numBits, int data) {
-    return (((1 << numBits) - 1) & (data >> (offset - 1)));
-}
 
 int parse_header(int offset, int[] data, struct header* dest) {
     int line12 = data[offset];

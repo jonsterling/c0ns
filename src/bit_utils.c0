@@ -1,0 +1,4 @@
+// isolate 'k' bits starting at offset 'offset' in 'data'
+int extract_bits (int offset, int numBits, int data) {
+    return (((1 << numBits) - 1) & (data >> (offset - 1)));
+}
