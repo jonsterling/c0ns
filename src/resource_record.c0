@@ -2,7 +2,7 @@
 #use "class.c0"
 
 struct resource_record {
-    string name;
+    string name; (* a domain name, subject to compression *)
     type_ type_;
     class class;
     int ttl;
