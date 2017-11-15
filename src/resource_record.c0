@@ -3,11 +3,26 @@
 #use "bit_utils.c0"
 
 struct domain_name {
-    string[] labels;
+    string label;
+    struct domain_name* next;
 };
 
+typedef struct domain_name* domain_name;
+
+domain_name domain_nil() {
+  return NULL;
+}
+
+domain_name domain_cons(string lbl, domain_name name) {
+  domain_name d = alloc(struct domain_name);
+  d->label = lbl;
+  d->next = name;
+  return d;
+}
+
+
 struct resource_record {
-    struct domain_name* name; // a domain name, subject to compression
+    domain_name name; // a domain name, subject to compression
     type_ type;
     class class;
     int ttl;
@@ -17,13 +32,33 @@ struct resource_record {
 
 
 
-int parse_domain_name(int cursor, int[] data, struct domain_name* dest) {
+int parse_domain_name(int cursor, int[] data, domain_name* dest) {
+    int* len = alloc(int);
+
+    cursor = read_bits(cursor, data, 8, len);
+
+    if (*len == 0) {
+        // case: done
+        *dest = domain_nil();
+        return cursor;
+    }
+
+    if (*len >= 0xc0) {
+        // case: pointer
+        int* ptr = alloc(int);
+        cursor = read_bits(cursor, data, 16, ptr);
+        parse_domain_name(*ptr - 0xc0, data, dest);
+        return cursor;
+    }
+
+    // case: ordinary label
+
     // TODO
     return cursor;
 }
 
 int parse_resource_record(int cursor, int[] data, struct resource_record* dest) {
-    struct domain_name* name = alloc(struct domain_name);
+    domain_name* name = alloc(domain_name);
     int* type = alloc(int);
     int* class_ = alloc(int);
     int* ttl = alloc(int);
@@ -43,6 +78,7 @@ int parse_resource_record(int cursor, int[] data, struct resource_record* dest) 
         rdata[i] = *octet;
     }
 
+    dest->name = *name;
     dest->type = *type;
     dest->class = *class_;
     dest->ttl = *ttl;
