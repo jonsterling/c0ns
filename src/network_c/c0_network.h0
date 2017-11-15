@@ -1,0 +1,32 @@
+#include <poll.h>
+#include <unistd.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int c0_dgram_socket ();
+
+
+/**
+ *  Socket I/O
+ */
+
+int c0_recv_msglen (int sockfd);
+
+// src_sin_family, src_sin_port, src_sin_addr are all returned. Likely only
+// the last two are necessary, but we keep family just in case.
+int c0_recvfrom (int sockfd, int* buf, int len,
+                 int* src_sin_family, int* src_sin_port, int* src_sin_addr);
+
+int c0_sendto (int sockfd, int* buf, int len,
+               int dst_sin_family, int dst_sin_port, int dst_sin_addr);
+
+
+/**
+ *  Polling sockets for readiness.
+ */
+
+// TODO: Timeouts needed?
+int c0_poll_read (int sockfd, int timeout);
+
+int c0_poll_write (int sockfd, int timeout);
