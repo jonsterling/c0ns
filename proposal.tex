@@ -6,6 +6,7 @@
 \usepackage{bytefield}
 %\usepackage{fullpage}
 \usepackage{listings}
+\usepackage{microtype}
 
 \lstset{language=C}
 \lstset{basicstyle=\ttfamily, columns=flexible}
@@ -21,9 +22,7 @@
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
 
-\newcommand\Lang[1]{{\sffamily\bfseries{#1}}}
-\newcommand\LangCA{\Lang{CA}}
-\newcommand\LangMA{\Lang{MA}}
+\newcommand\Kwd[1]{{\sffamily\bfseries{#1}}}
 \newcommand\EOf[4]{{#1}\vdash_{#2}{#3}:{#4}}
 \newcommand\MOf[4]{{#1}\vdash_{#2}{#3}\div{#4}}
 \newcommand\IsProc[3]{{#1}\vdash_{#2}{#3}\ \mathsf{proc}}
@@ -49,7 +48,27 @@ Jon
 Farzaneh.
 
 \subsection{Related Work}
-Jon.
+
+\paragraph{The \Kwd{Fox} Project}
+An earlier example of an implementation of the DNS protocol in a safe
+and formally specified language is given by the \Kwd{Fox} project,
+undertaken at Carnegie Mellon University in the
+1990s~\cite{biagioni-harper-lee-milnes:1994,
+  biagioni-harper-lee:2001}. Their principal artifact was a library
+called \Kwd{FoxNet} which implemented an array of low-level network
+infrastructure, including \Kwd{TCP}, \Kwd{IP}, \Kwd{ARP} and \Kwd{DNS}
+in the \Kwd{Standard ML} language.
+
+Unlike our development, \Kwd{FoxNet} had a highly modular character
+which was enabled by the host language's sophisticated module system
+(at the time, the only language to support signatures, structures and
+generative functors, which are crucial for safe abstraction).
+
+\paragraph{Other implementations} More recently, safe languages like
+\Kwd{Rust} and \Kwd{Go} have been gaining popularity. Both languages
+have hosted implementations of the \Kwd{DNS}
+protocol~\cite{github:trust-dns,github:miekg-dns}
+
 
 \section{Our Project}
 
@@ -57,7 +76,7 @@ Our original project proposal was to develop a language for safe
 concurrent programming with precise formal guarantees; however, the
 negotiation process led us to choose a completely unrelated project,
 which we describe in this section. We will be developing an
-implementation of the DNS protocol in the memory-safe \Lang{C0}
+implementation of the DNS protocol in the memory-safe \Kwd{C0}
 language (see \S\ref{sec:c0}); we have divided our work into two
 principle components.
 
@@ -67,7 +86,7 @@ Klaas.
 
 \subsection{Marshalling and unmarshalling}
 
-Unlike \Lang{C}, the \Lang{C0} language has only a single type of
+Unlike \Kwd{C}, the \Kwd{C0} language has only a single type of
 integers, which are represented internally as 32-bit integers. The
 network interface (see \S\ref{sec:network-interface}) will deal with
 requests and responses formatted as arrays of 32-bit integers; it is
@@ -159,14 +178,14 @@ struct resource_record {
 
 typedef struct resource_record* resource_record_t;
   \end{lstlisting}
-  \caption{Example DNS data structures in our \Lang{C0} implementation.}\label{fig:c0-data-structures}
+  \caption{Example DNS data structures in our \Kwd{C0} implementation.}\label{fig:c0-data-structures}
 \end{figure}
 
 For instance, Figure~\ref{fig:layout-message-header} shows the
 bit-level layout of DNS message headers, and
 Figure~\ref{fig:layout-resource-record} shows the same for resource
 records; Figure~\ref{fig:c0-data-structures} shows how we code these
-structures in our \Lang{C0} implementation. To convert between these
+structures in our \Kwd{C0} implementation. To convert between these
 structured representations and the sequences of words which are used
 at the boundaries of the network
 interface~(\S\ref{sec:network-interface}), we implement functions of
@@ -198,7 +217,7 @@ course, we will also implement the inverses to the above functions.
 Klaas.
 
 
-\nocite{willsey-prabhu-pfenning:2016, biagioni-harper-lee-milnes:1994, biagioni-harper-lee:2001, rfc:1034, rfc:1035}
+\nocite{willsey-prabhu-pfenning:2016, rfc:1034, rfc:1035}
 \bibliographystyle{abbrv}
 \bibliography{bibtex-references/refs,project}
 
