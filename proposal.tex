@@ -8,7 +8,7 @@
 \usepackage{sectsty}
 \allsectionsfont{\sffamily}
 
-\title{Safe Shared Memory for Concurrent Algol}
+\title{Implementing DNS in C0}
 \author{Farzaneh Derakhshan, Klaas Pruiksma, Jonathan Sterling}
 
 \newtheorem{theorem}{Theorem}[section]
@@ -29,254 +29,35 @@
 \maketitle
 
 \begin{abstract}
-  Establishing safety properties for code that mixes concurrency with
-  (shared) memory is notoriously difficult; the experience of the past
-  several years suggests that restricted languages can provide a
-  suitable means to achieve general safety results without sacrificing
-  performance. Languages like \Lang{Rust} and \Lang{Go} are a step in
-  the right direction, but are not currently backed by a precise
-  semantics; we will attempt to thoroughly develop the theory and
-  practice of a small Algol-family language featuring concurrency and
-  shared memory, establishing several crucial safety properties at the
-  language level.
+  Please write an abstract.
 \end{abstract}
 
-\section{What are languages good for?}
+\section{Background and Related Work}
 
-A proramming language is specified by explaining both its
-\emph{structure} and its \emph{computational meaning}; these are
-captured in the static and the dynamic semantics respectively. Armed
-with such a definition, it is then possible to prove critical
-correctness and safety properties both for a language as a whole, and
-also for individual programs in this language.
+\subsection{What is DNS?}
 
-One of these basic safety criteria is called ``type safety'', a
-property which is usually factored into \emph{type preservation}
-(programs do not change their type as they execute) and
-\emph{progress} (any well-typed program can take a step of
-computation, or is a value). These laws may seem quite basic, but
-depending on the definition and sophistication of the language, they
-can imply extremely strong semantic properties such as liveness,
-memory safety, causality~\cite{atkey-mcbride:2013}, and even cost or
-complexity bounds.
+Jon
 
-To give a very simple example of static and dynamic semantics,
-consider the following arithmetic language, adapted
-from~\cite{harper:2016}:
+\subsection{C0 and Concurrent C0}
 
-\newcommand\IsOk[1]{{#1}\ \mathsf{ok}}
-\newcommand\IsVal[1]{{#1}\ \mathsf{val}}
-\newcommand\Step[2]{{#1}\mapsto{#2}}
-\newcommand\Plus[2]{\mathtt{plus} (#1, #2)}
-\newcommand\Num[1]{\mathtt{num}[#1]}
+Farzaneh.
 
-\paragraph{Statics} We define the static semantics by specifying which
-expressions are ``OK'' (well-typed):
-\begin{mathpar}
-  \inferrule{
-  }{
-    \IsOk{\Num{n}}
-  }
-  \and
-  \inferrule{
-    \IsOk{e_1}
-    \\
-    \IsOk{e_2}
-  }{
-    \IsOk{\Plus{e_1}{e_2}}
-  }
-\end{mathpar}
+\subsection{Related Work}
+Jon.
 
-In a more sophisticated language, the static semantics would be given
-by a much more complicated form of judgment than $\IsOk{e}$, as we
-will see later on.
+\section{Our Project}
 
-\paragraph{Dynamics}
-The dynamics are given by a transition system, writing $\IsVal{e}$ to
-mean that $e$ is a \emph{value}, and $\Step{e}{e'}$ to mean that the
-program $e$ takes a step to $e'$.
-\begin{mathpar}
-  \inferrule{
-  }{
-    \IsVal{\Num{n}}
-  }
-  \and
-  \inferrule{
-    \Step{e_1}{e_1'}
-  }{
-    \Step{\Plus{e_1}{e_2}}{\Plus{e_1'}{e_2}}
-  }
-  \and
-  \inferrule{
-    \IsVal{e_1}
-    \\
-    \Step{e_2}{e_2'}
-  }{
-    \Step{\Plus{e_1}{e_2}}{\Plus{e_1}{e_2'}}
-  }
-  \and
-  \inferrule{
-    n_1 + n_2 = n_3
-  }{
-    \Step{
-      \Plus{\Num{n_1}}{\Num{n_2}}
-    }{
-      \Num{n_3}
-    }
-  }
-\end{mathpar}
+\subsection{Network interface}
 
-At this point, we can prove the type safety theorem in two lemmas:
-\begin{lemma}[Progress]
-  If $\IsOk{e}$, then either $\IsVal{e}$ or $\Step{e}{e'}$ for some
-  $e'$.
-\end{lemma}
-\begin{lemma}[Preservation]
-  If $\IsOk{e}$ and $\Step{e}{e'}$, then $\IsOk{e'}$.
-\end{lemma}
+Klaas.
 
-Of course, this was a very trivial example, but this methodology
-scales up to problems of seemingly arbitrary complexity. For instance,
-a type system inspired by Kripke semantics and the modal logic S5 has
-been deployed in the ML5 language for distributed computing, enabling
-one to develop distributed applications within a single unified
-program~\cite{murphy-crary-harper:2008}. Concurrency primitives have
-been added to functional languages such as
-Facile~\cite{giacolone:1989}, Concurrent
-ML~\cite{reppy:1991,reppy:2007}, JOCaml~\cite{conchon-fessant:1999},
-Concurrent Haskell~\cite{jones-gordon-finne:1996},
-Rust~\cite{turon:2012}, Go~\cite{donovan:2015} and Concurrent
-Algol~\cite{harper:2016}. In another work, Balzer and Pfenning
-augmented the session-typed linear logic with shared memory, using
-shared channels and shared memory with an acquire-release
-discipline~\cite{balzer-pfenning:2017}.
+\subsection{Marshalling and unmarshalling}
 
+Jon
 
+\section{Evaluation Plan}
 
-
-\section{Modernized and Concurrent Algol}
-
-Our starting point is the language Concurrent Algol (\LangCA) defined
-in Chapter 40 of Harper's \emph{Practical Foundations for Programming
-  Languages}~\cite{harper:2016}. \LangCA{} is itself an extension of
-Harper's Modernized Algol (\LangMA).
-
-\subsection{Algol-family languages}
-
-Algol was one of the earliest practical imperative programming
-languages, and has for many years been considered the quintessential
-``clean room'' core language for the scientific study of sequential,
-imperative programming~\cite{reynolds:1997}; its distinctive features
-has sparked a rich and sophisticated body of developments in
-mathematical semantics of programming
-languages~\cite{mccusker-power:2010}.
-
-Harper's \LangMA{} differs from traditional presentations of
-Algol-family languages in that it surfaces the distinction between
-variables, assignables (mutable resources) and assignable
-references. In \LangMA{}, a variable is a \emph{mathematical
-  variable}, i.e.\ a placeholder for a term; variables are given
-meaning through substitution. On the other hand, an assignable is the
-name of a location in memory; finally, assignable references are a
-device for passing locations in code. By restoring the correct notion
-of variable to its rightful place, Harper's presentation clarifies the
-structure and semantics of Algol-family languages.
-
-\paragraph{The Essence of \LangMA{}}
-
-The language \LangMA{} is based fundamentally on a modal distinction
-between \emph{command} and \emph{expression}. A command is a piece of
-code that can ``do'' something, whereas an expression is a piece of
-code which calculates a value without any side effects. This is what
-sets the Algol family apart from other language families which support
-imperative programming (such as \Lang{C}, \Lang{ML}, \Lang{Go},
-\Lang{Rust}, etc.).
-
-Accordingly, the static semantics of \LangMA{} are organized around
-two forms of assertion:
-
-\begin{enumerate}
-\item $\EOf{\Gamma}{\Sigma}{e}{\tau}$ means that $e$ is an \emph{expression}
-  of type $\tau$ mentioning variables from $\Gamma$ and assignables
-  (memory location names) from $\Sigma$.
-\item $\MOf{\Gamma}{\Sigma}{m}{\tau}$ means that $m$ is a
-  \emph{command} of type $\tau$ mentioning variables from $\Gamma$ and
-  assignables from $\Sigma$.
-\end{enumerate}
-
-An operational semantics is given for \LangMA{}, which specifies how
-expressions evaluate, and how commands compute relative to a heap
-(memory state).
-
-
-
-\subsection{Concurrent Algol}
-
-\LangCA{} is an extension of \LangMA{} with a notion of \emph{process}
-and their concurrent composition, together with a notion of channel
-and message passing. Whilst \LangMA{} had a notion of mutable store,
-\LangCA{} does away with this; Harper argues that mutable store can be
-eschewed because it can be simulated using message passing.
-
-This simplifying assumption is helpful for the development of a clean
-and simple semantics, but it may not be a good idea in practice. While
-shared memory comes with all sorts of disadvantages, it can be very
-important for the sake of performance. Scientists who engineer
-programming languages which are intended to be used in practice must
-account for this.
-
-\paragraph{What does \LangCA{} add?}
-\LangCA{} adds to \LangMA{}'s static semantics the following forms of
-assertion:
-\begin{enumerate}
-\item $\IsProc{\Gamma}{\Sigma}{p}$ means that $p$ is a \emph{process}
-  relative to the variables from $\Gamma$ and the channel names from
-  $\Sigma$.
-\item $\IsAction{\Gamma}{\Sigma}{\alpha}$ means that $\alpha$ is an
-  \emph{action} relative to $\Gamma$, $\Sigma$.
-\end{enumerate}
-
-Processes are inductively defined as the \emph{idle process}, the
-atomic process $\mathtt{run}(m)$ (which executes the command $m$), and
-the concurrent composition of two processes $p_1\otimes p_2$, and
-finally the process $\nu\alpha.p$ which generates a fresh
-communication channel and proceeds with the process $p$.
-
-Whereas the operational semantics of \LangMA{} included a pure
-transition system for expressions and a reduction semantics for
-commands relative to a heap or memory state, \LangCA{} adds to this a
-\emph{labelled transition system} which describes the evolution of a
-system of concurrent processes. Actions $\alpha$ are the labels of
-this transition system, and express the ways in which a process can
-evolve; actions include querying and signalling along channels.
-
-\paragraph{What do we hope to add to \LangCA{}?}
-We hope to add primitives for shared memory to \LangCA{} and show that
-our semantics is simulated by the pure message-passing implementation
-of shared resources from \LangCA{}. Then, we will extend the critical
-safety proofs (for instance, progress for well-typed processes) over
-our extended language.
-
-\section{Our Proposal}
-
-We plan to create a language building on the ideas of \LangCA{} which has primitive concepts for concurrency, shared memory, and locking.
-Our intent is that this language will disallow writing programs with certain classes of errors ranging from the relatively minor (for example, memory leaks or multiple acquisition of the same lock) to more complex ones including data races (potentially with some restrictions) and deadlocks.
-
-Our 75\% goal is to develop this language and provide evidence that it is both practically usable and avoids errors by writing some sample systems.
-
-Our 100\% goal is to strengthen our justification that the language avoids errors by providing proofs (possibly with some conditions) that those errors cannot occur in a well-typed program.
-While we believe that some of these proofs will be easy to complete, we believe that those for more complex classes of errors will lead us to revise the language in order to get them to work or to work with fewer side conditions, justifying the gap between this and the 75\% goal.
-
-Finally, our 125\% goal is to increase ease-of-use of this language by creating a simplified form for use in writing programs which can then be processed into the more expressive but more complex base language.
-Since many of the conditions surrounding the use of shared memory (or just memory in general) and locks can be inferred from the code as written, we believe that it should be feasible to leave large parts of the memory management and lock management up to an elaboration step that preprocesses the simple program to make memory and lock management explicit.
-
-We believe that each of these is a feasible goal, with the bulk of the work lying in the design and creation of the language, leading us to choose this as the 75\% goal --- without a complete language and some examples, we do not have a complete project.
-However, we believe that the language and examples would suffice as evidence for the feasibility of our goals, and would improve on existing languages by giving formal definitions which allow for the desired properties to be proven, albeit possibly with some modifications to the language.
-Despite this, the proofs in our 100\% goal are much stronger evidence, and make it much more feasible to evaluate the utility of this project.
-We include this as our 100\% goal because it will yield a usable language with provable guarantees, which is what we set out to do in the first place.
-There is little to be done from a correctness perspective past this other than potentially extending to cover more sorts of errors, and so from this, we determined that it made more sense to set our 125\% goal in the direction of increased usability, as described above.
-This is the most concretely-evaluable part of the work, as it allows us to make comparisons such as the amount of our code examples that can be automatically generated, which will serve as a proxy for the ease of writing code in this simplified system compared to the original system.
-
+Klaas.
 
 \bibliographystyle{abbrv}
 \bibliography{bibtex-references/refs}
