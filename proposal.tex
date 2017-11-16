@@ -1,9 +1,15 @@
 \documentclass{article}
 \usepackage[tt=false]{libertine}
-\usepackage{hyperref}
 \usepackage{mathpartir}
 \usepackage{amsthm}
-\usepackage{fullpage}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{bytefield}
+%\usepackage{fullpage}
+\usepackage{listings}
+
+\lstset{language=C}
+\lstset{basicstyle=\ttfamily, columns=flexible}
+
 
 \usepackage{sectsty}
 \allsectionsfont{\sffamily}
@@ -38,7 +44,7 @@
 
 Jon
 
-\subsection{C0 and Concurrent C0}
+\subsection{C0 and Concurrent C0}\label{sec:c0}
 
 Farzaneh.
 
@@ -47,19 +53,197 @@ Jon.
 
 \section{Our Project}
 
-\subsection{Network interface}
+Our original project proposal was to develop a language for safe
+concurrent programming with precise formal guarantees; however, the
+negotiation process led us to choose a completely unrelated project,
+which we describe in this section. We will be developing an
+implementation of the DNS protocol in the memory-safe \Lang{C0}
+language (see \S\ref{sec:c0}); we have divided our work into two
+principle components.
+
+\subsection{Network interface}\label{sec:network-interface}
 
 Klaas.
 
 \subsection{Marshalling and unmarshalling}
 
-Jon
+Unlike \Lang{C}, the \Lang{C0} language has only a single type of
+integers, which are represented internally as 32-bit integers. The
+network interface (see \S\ref{sec:network-interface}) will deal with
+requests and responses formatted as arrays of 32-bit integers; it is
+the responsibility of the marshalling-and-unmarshalling module to
+unpack this data into structured representations of core DNS
+datatypes.
+
+\begin{figure}
+  \centering
+  \begin{bytefield}[bitwidth=1.5em]{16}
+    \wordbox{1}{\texttt{ID}}
+    \\
+    \bitbox{1}{\texttt{QR}}
+    \bitbox{4}{\texttt{Opcode}}
+    \bitbox{1}{\texttt{AA}}
+    \bitbox{1}{\texttt{TC}}
+    \bitbox{1}{\texttt{RD}}
+    \bitbox{1}{\texttt{RA}}
+    \bitbox{3}{\texttt{Z}}
+    \bitbox{4}{\texttt{RCODE}}
+    \\
+    \wordbox{1}{\texttt{QDCOUNT}}
+    \\
+    \wordbox{1}{\texttt{ANCOUNT}}
+    \\
+    \wordbox{1}{\texttt{NSCOUNT}}
+    \\
+    \wordbox{1}{\texttt{ARCOUNT}}
+  \end{bytefield}
+  \caption{The layout specification of message headers in
+    DNS.}\label{fig:layout-message-header}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \begin{bytefield}{16}
+    \wordbox[lrt]{1}{\texttt{NAME}}\\
+    \skippedwords\\
+    \wordbox[lrb]{1}{}\\
+    \wordbox{1}{\texttt{TYPE}}\\
+    \wordbox{1}{\texttt{CLASS}}\\
+    \wordbox{2}{\texttt{TTL}}\\
+    \wordbox[lrt]{1}{\texttt{RDATA}}\\
+    \skippedwords\\
+    \wordbox[lrb]{1}{}
+  \end{bytefield}
+  \caption{The bit layout specification of resource records in
+    DNS.}\label{fig:layout-resource-record}
+\end{figure}
+
+\begin{figure}
+  \begin{lstlisting}[frame=single]
+struct header {
+  int id;
+  int qr;
+  int opcode;
+  int aa;
+  int tc;
+  int rd;
+  int ra;
+  int z;
+  int rcode;
+  int qdcount;
+  int ancount;
+  int nscount;
+  int arcount;
+};
+
+typedef struct header* header_t;
+  \end{lstlisting}
+
+  \begin{lstlisting}[frame=single]
+struct domain_name {
+  string label;
+  struct domain_name* next;
+};
+
+typedef struct domain_name* domain_name_t;
+
+struct resource_record {
+  domain_name_t name;
+  int type;
+  int class;
+  int ttl;
+  int rd_length;
+  int[] rdata;
+};
+
+typedef struct resource_record* resource_record_t;
+  \end{lstlisting}
+  \caption{Example DNS data structures in our \Lang{C0} implementation.}\label{fig:c0-data-structures}
+\end{figure}
+
+For instance, Figure~\ref{fig:layout-message-header} shows the
+bit-level layout of DNS message headers, and
+Figure~\ref{fig:layout-resource-record} shows the same for resource
+records; Figure~\ref{fig:c0-data-structures} shows how we code these
+structures in our \Lang{C0} implementation. To convert between these
+structured representations and the sequences of words which are used
+at the boundaries of the network
+interface~(\S\ref{sec:network-interface}), we implement functions of
+the following kind:
+
+\begin{lstlisting}
+int parse_domain_name(int cursor, int[] msg, domain_name_t dest);
+int parse_resource_record(int cursor, int[] msg, resource_record_t dest);
+int parse_header(int cursor, int[] msg, header_t dest);
+\end{lstlisting}
+
+These functions take as an argument a cursor (an index in bits into
+the message), an array of 32-bit words (the entire input message), and
+pointer to a structure into which to write the parsed data; they
+return a new cursor. It is important for the modularity of our
+development that cursors represent not indices into the 32-bit cells
+of the message, but rather bit-indices; this is because specific parts
+of DNS data structures may only be a few bits long, so their parsers
+cannot move the cursor forward a full word's length.
+%
+A sample of our parsing code can be found in the supplementary
+appendix to this proposal (\S\ref{appendix:decompression}). Of
+course, we will also implement the inverses to the above functions.
+
+
+
+
 
 \section{Evaluation Plan}
 
 Klaas.
 
+
 \bibliographystyle{abbrv}
 \bibliography{bibtex-references/refs}
+
+\clearpage
+\appendix
+\section{Decompressing Domain Names}\label{appendix:decompression}
+
+\begin{lstlisting}
+int parse_domain_name(int cursor, int[] data, domain_name* dest) {
+  int* len = alloc(int);
+
+  int orig_cursor = cursor;
+  cursor = read_bits(cursor, data, 8, len);
+
+  if (*len == 0) {
+    // case: done
+    *dest = domain_nil();
+    return cursor;
+  }
+
+  if (*len >= 0xc0) {
+    // case: pointer
+    int* ptr = alloc(int);
+    // read the remainder of the first 16 bits as a pointer to an offset in octets
+    cursor = read_bits(orig_cursor + 2, data, 14, ptr);
+    // read the last label of the domain name from the pointer:
+    parse_domain_name(*ptr * 8, data, dest);
+    return cursor;
+  }
+
+  // case: ordinary label
+  // now '*len' specifies the number of octets in the label
+  char[] chars = alloc_array(char, *len);
+  for (int i = 0; i < *len; i++) {
+    int* octet = alloc(int);
+    cursor = read_bits(cursor, data, 8, octet);
+    chars[i] = char_chr(*octet);
+  }
+
+  string lbl = string_from_chararray(chars);
+
+  *dest = domain_cons(lbl, *dest);
+  return parse_domain_name(cursor, data, dest);
+}
+\end{lstlisting}
 
 \end{document}
