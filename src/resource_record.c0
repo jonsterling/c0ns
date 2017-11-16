@@ -34,6 +34,7 @@ struct resource_record {
 int parse_domain_name(int cursor, int[] data, domain_name* dest) {
     int* len = alloc(int);
 
+    int orig_cursor = cursor;
     cursor = read_bits(cursor, data, 8, len);
 
     if (*len == 0) {
@@ -45,8 +46,8 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
     if (*len >= 0xc0) {
         // case: pointer
         int* ptr = alloc(int);
-        cursor = read_bits(cursor, data, 16, ptr);
-        parse_domain_name(*ptr - 0xc0, data, dest);// Is this right? is the pointer an offset in octets or in bits?
+        cursor = read_bits(orig_cursor + 2, data, 14, ptr);
+        parse_domain_name(*ptr * 8, data, dest); // Is this right?
         return cursor;
     }
 
