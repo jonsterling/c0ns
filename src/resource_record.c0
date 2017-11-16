@@ -46,8 +46,10 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
     if (*len >= 0xc0) {
         // case: pointer
         int* ptr = alloc(int);
+        // read the remainder of the first 16 bits as a pointer to an offset in octets
         cursor = read_bits(orig_cursor + 2, data, 14, ptr);
-        parse_domain_name(*ptr * 8, data, dest); // Is this right?
+        // read the last label of the domain name from the pointer:
+        parse_domain_name(*ptr * 8, data, dest);
         return cursor;
     }
 
