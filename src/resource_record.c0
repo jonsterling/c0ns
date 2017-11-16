@@ -46,7 +46,7 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
         // case: pointer
         int* ptr = alloc(int);
         cursor = read_bits(cursor, data, 16, ptr);
-        parse_domain_name(*ptr - 0xc0, data, dest);
+        parse_domain_name(*ptr - 0xc0, data, dest);// Is this right? is the pointer an offset in octets or in bits?
         return cursor;
     }
 
