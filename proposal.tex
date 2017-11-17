@@ -16,7 +16,7 @@
 \allsectionsfont{\sffamily}
 
 \title{Implementing DNS in C0}
-\author{Farzaneh Derakhshan, Klaas Pruiksma, Jonathan Sterling}
+\author{Farzaneh Derakhshan \and Klaas Pruiksma \and Jonathan Sterling}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
@@ -106,11 +106,17 @@ negotiation process led us to choose a completely unrelated project,
 which we describe in this section. We will be developing an
 implementation of the DNS protocol in the memory-safe \Kwd{C0}
 language (see \S\ref{sec:c0}); we have divided our work into two
-principle components.
+principal components.
 
 \subsection{Network interface}\label{sec:network-interface}
 
-Klaas.
+In its current state, \Kwd{C0} has a very limited standard library. In particular, while there are libraries for input and output to files and to console, there is no networking library. It may be possible to implement networking using file I/O, but we do not believe that this is reasonable.
+
+As such, we will write a networking library for \Kwd{C0}. Due to limitations of the language, however, this library cannot be written entirely in \Kwd{C0} itself. Instead, we will write a collection of small functions in \Kwd{C} which act as an interface between \Kwd{C0} code and the \Kwd{C} sockets library. On top of this, we can then write the \Kwd{C0} portion of the library, which will provide a higher-level interface for network communication than that provided by the \Kwd{C} portion of the library.
+
+By splitting the library into these two parts, we can keep the \Kwd{C} portion of our codebase limited in scope. In particular, we plan to ensure that we never dynamically allocate memory from \Kwd{C} and that any accesses to \Kwd{C0}-allocated memory are done so safely. The former is easily checked for, simply by checking that there are no calls to malloc or similar functions, while the latter can be achieved (but less easily checked) by using a collection of functions for safe memory access provided to libraries by the \Kwd{C0} runtime. As a result of this and the small size of the \Kwd{C} portion of the codebase, we can easily check all of our code for memory safety, ensuring that any memory safety violations occur outside of our project (e.g. in the \Kwd{C} sockets library or in the OS).
+
+Since this project is limited in scope to \Kwd{DNS}, we will not expose the full functionality of the sockets library in our network interface. We will instead focus on the functions that create and work with datagram-based sockets, as all of the network communication needed for \Kwd{DNS} is done via the datagram protocol \Kwd{UDP}. Additionally, to avoid busy-waiting, we will provide a limited interface to the \texttt{poll} function of the \Kwd{C} standard library in much the same way. We believe that this is sufficient to implement our nameserver, but additional library functionality can be added using these methods if necessary.
 
 \subsection{Marshalling and unmarshalling}
 
@@ -238,7 +244,7 @@ A sample of our parsing code can be found in the supplementary
 appendix to this proposal (\S\ref{appendix:decompression}). Of
 course, we will also implement the inverses to the above functions.
 
-
+\section{Goals and Progress}
 
 \section{Evaluation Plan}
 
