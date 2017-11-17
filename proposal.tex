@@ -68,11 +68,10 @@ deliberately models the client/provider relation.
 
 However, the protocol is also able to characterize processes that are
 not completely sequential, and branch into different sequences as they
-encounter choices. This typing system, also, guarantees that data is
-send and received in the correct order and by the correct processes
-(session fidelity), and that the communication is always one-to-one.
-The \Kwd{CC0} programming language is secure in terms of both memory
-and communication safety.
+encounter choices. This typing discipline also guarantees that data is
+sent and received in the correct order and by the correct processes
+(an invariant called \emph{session fidelity}), and that the
+communication is always one-to-one.
 
 
 
