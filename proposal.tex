@@ -34,14 +34,49 @@
 \maketitle
 
 \begin{abstract}
-  Please write an abstract.
+  We are implementing a \Kwd{DNS} server in the \Kwd{C0} language,
+  which we intend to evaluate for both safety and performance.
 \end{abstract}
 
 \section{Background and Related Work}
 
-\subsection{What is DNS?}
 
-Farzaneh
+\Kwd{Domain Name System} (\Kwd{DNS}) is a hierarchical database that
+maps domain names to IP addresses in a distributed manner augmented
+with caching to achieve a better
+performance~\cite{rfc:1034,rfc:1035,mun-lee:2005}. In fact, there are
+three major parts:
+
+\begin{enumerate}
+\item Domain name space with resource records: The domain name space
+  is a tree-like data structure with a root, and nodes labeled with at
+  most 63 characters. The domain name of a label is the sequence of
+  labels on the path from the node to the root. Each node of the tree,
+  associated with a domain name, has a set of resource records.
+
+\item Name servers keep information about a complete sub-tree of the
+  domain name. They may also cache pointers to other name
+  servers.
+
+\item Resolvers are responsible for sending a query to name servers
+  upon clients request and extract information from them. They may
+  also have some parts of the name space cached themselves.  In fact,
+  their role is to provide an interface between applications and DNS
+  in the process of \emph{name resolution}. Name resolution starts
+  when an application program (the host) sends its query for an IP
+  address to a local name server, continues by the local name server
+  which extracts the information in an iterative/recursive manner from
+  different name servers (If it does not already have it in its own
+  cache), and ends when the local name server returns the IP address
+  to the host.
+\end{enumerate}
+
+The messages exchanged between host and name servers adhere to a
+simple format, which is divided into 5 sections: (1) Header, (2)
+Question, (3) Answer, (4) Authority, and (5) Additional.  Each of
+these sections also has its own special format, some of which will be
+covered in more detail in next parts of this document.
+
 
 \subsection{C0 and Concurrent C0}\label{sec:c0}
 
@@ -246,28 +281,57 @@ course, we will also implement the inverses to the above functions.
 
 \section{Goals and Progress}
 
-\subsection{75\%}
+\subsection*{75\%}
 
 Our 75\% goal is to develop a basic \Kwd{DNS} nameserver in \Kwd{C0}. In order to reduce the scope of this project, we restrict the types of resource data (and by extension, the types of queries) that we handle, and we will only provide support for \Kwd{UDP}-based queries. These two restrictions will simplify implementation, but leave enough functionality that we can evaluate our implementation both for correctness and for performance relative to other DNS implementations, as long as we restrict the test queries to those we have implemented.
 
 The bulk of this goal falls into the two components described in \S\ref{sec:our-project}, along with a small ``main'' component that uses these to actually handle queries. Currently, we have some unmarshalling functions and about a third of the network library implemented. We expect that the remainder of this goal should go fairly quickly --- marshalling is no harder than unmarshalling, and the network interface is relatively straightforward to implement once we have decided on what functions are necessary and what their arguments should be.
 
-\subsection{100\%}
+\subsection*{100\%}
 
 To extend the above to a 100\% goal, we plan to extend the functionality of our nameserver by adding caching of requests and potentially adding to the types of resource data we support. While a nameserver without caching is not particularly useful, we believe that the portion of code most likely to contain memory errors is in some combination of reading data from the network and parsing that data --- in particular, dealing with message compression. As such, the 75\% goal is a proof of concept that demonstrates that these portions can be implemented safely, while the 100\% goal extends that proof of concept to be more useable (though still more limited than commercially available nameservers). We expect that in going from our 75\% version to the 100\% version, performance (and the scope of allowable queries) will increase and that we will be able to leave our arguments for correctness unchanged.
 
-\subsection{125\%}
+\subsection*{125\%}
 
 We have two potential 125\% goals, depending on the outcome of our 100\% goal. If our nameserver has good performance relative to its competitors, we will work to provide better justification for the correctness of our nameserver, ideally arriving at a proof that statically verifies that all of our memory accesses are safe. In doing this, we will be able to safely turn off bounds checking when running our nameserver, increasing performance through verifying correctness. If instead our performance is very poor (or not helped much by turning off bounds checking), we will work to optimize our nameserver based on the results of performance testing. It is difficult to say what specifically we will do, but we plan to take the general approach of using software like \texttt{perf} to determine what portions of our code are bottlenecks, and trying to make those paths faster.
 
 \section{Evaluation Plan}
 
-Our evaluation breaks down into two parts --- one on the safety, and one on performance. As safety is a primary goal of this project, we plan to evaluate our code for safety. A large part of this will come for free from the memory safety guarantees of \Kwd{C0}, with the rest coming from a careful analysis of our \Kwd{C} code. This does have the disadvantage that \Kwd{C0}'s memory safety is checked dynamically, which incurs performance overhead. Ideally, as described in our 125\% goal, we would like to have a more static verification that memory safety holds, both to provide better performance, and as it provides better results than dynamic checking, since if a dynamic check fails, the program halts, which is less than ideal.
+Our evaluation breaks down into two parts --- one on the safety, and
+one on performance. As safety is a primary goal of this project, we
+plan to evaluate our code for safety. A large part of this will come
+for free from the memory safety guarantees of \Kwd{C0}, with the rest
+coming from a careful analysis of our \Kwd{C} code. This does have the
+disadvantage that \Kwd{C0}'s memory safety is checked dynamically,
+which incurs performance overhead. Ideally, as described in our 125\%
+goal, we would like to have a more static verification that memory
+safety holds, both to provide better performance, and as it provides
+better results than dynamic checking, since if a dynamic check fails,
+the program halts, which is less than ideal.
 
-For performance analysis, we plan to evaluate our nameserver for latency and throughput, as these appear to be the most important metrics for \Kwd{DNS} performance. We plan to do this using one of two pieces of software\cite{github:dnsperf1, github:dnsperf2} (confusingly, both named \texttt{dnsperf}), which read queries from a file and then send these requests to a nameserver. The tools mentioned in \cite{github:dnsperf2} seem better-suited to our needs, as those of \cite{github:dnsperf1} appear to not give latency information in a useful fashion. We will compare our results (at various load levels) to existing \Kwd{DNS} software (though we have yet to determine which specific software to take as our baseline). One remaining difficulty in evaluation lies in figuring out what sort of query workload to use --- the performance analysis tools we have looked at suggest using an input file with somewhere on the order of one million queries, which is more than can feasibly be generated by hand. However, there does not appear to be a standard benchmark for this testing as there are for many other systems. We will likely generate large test files in a randomized way, but do not have a good sense of how to make these files accurately reflect realistic usage.
+For performance analysis, we plan to evaluate our nameserver for
+latency and throughput, as these appear to be the most important
+metrics for \Kwd{DNS} performance. We plan to do this using one of two
+pieces of software\cite{github:dnsperf1, github:dnsperf2}
+(confusingly, both named \texttt{dnsperf}), which read queries from a
+file and then send these requests to a nameserver. The tools mentioned
+in~\cite{github:dnsperf2} seem better-suited to our needs, as those
+of~\cite{github:dnsperf1} appear to not give latency information in a
+useful fashion.
+
+We will compare our results (at various load levels) to existing
+\Kwd{DNS} software (though we have yet to determine which specific
+software to take as our baseline). One remaining difficulty in
+evaluation lies in figuring out what sort of query workload to use ---
+the performance analysis tools we have looked at suggest using an
+input file with somewhere on the order of one million queries, which
+is more than can feasibly be generated by hand. However, there does
+not appear to be a standard benchmark for this testing as there are
+for many other systems. We will likely generate large test files in a
+randomized way, but do not have a good sense of how to make these
+files accurately reflect realistic usage.
 
 
-\nocite{rfc:1034, rfc:1035}
 \bibliographystyle{abbrv}
 \bibliography{bibtex-references/refs,project}
 
