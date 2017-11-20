@@ -79,7 +79,3 @@ int parse_header(int cursor, int[] data, struct header* dest) {
 
     return cursor;
 }
-
-int main(){
-    return 0;
-}

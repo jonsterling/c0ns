@@ -286,8 +286,3 @@ int parse_resource_record(int cursor, int[] data, struct resource_record* dest) 
 
     return cursor;
 }
-
-
-int main() {
-    return 0;
-}
