@@ -1,10 +1,7 @@
 #use "header.c0"
 #use "resource_record.c1"
 #use "bit_utils.c0"
-
-// TODO
-struct question {
-};
+#use "question.c0"
 
 // TODO: would be nicer to have arrays of structs rather than arrays of pointers to structs, wasn't
 // sure how to assign to it
@@ -16,10 +13,6 @@ struct message {
     struct resource_record*[] additional;
 };
 
-int parse_question(int cursor, int[] data, struct question* dest) {
-    error("TODO: parse_question");
-    return cursor;
-}
 
 int parse_message(int cursor, int[] data, struct message* dest) {
     struct header* header = alloc(struct header);

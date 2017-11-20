@@ -1,8 +1,25 @@
 #use "types.c0"
 #use "class.c0"
+#use "domain_name.c0"
 
 struct question {
-    string[] qname;
+    domain_name qname;
     qtype qtype;
     qclass qclass;
 };
+
+int parse_question(int cursor, int[] data, struct question* dest) {
+    domain_name* name = alloc(domain_name);
+    qtype* type = alloc(qtype);
+    qclass* cls = alloc(qclass);
+
+    cursor = parse_domain_name(cursor, data, name);
+    cursor = read_bits(cursor, data, 16, type);
+    cursor = read_bits(cursor, data, 16, cls);
+
+    dest->qname = *name;
+    dest->qtype = *type;
+    dest->qclass = *cls;
+
+    return cursor;
+}

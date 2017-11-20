@@ -1,0 +1,56 @@
+#use "bit_utils.c0"
+
+struct domain_name {
+    string label;
+    struct domain_name* next;
+};
+
+typedef struct domain_name* domain_name;
+
+domain_name domain_nil() {
+    return NULL;
+}
+
+domain_name domain_cons(string lbl, domain_name name) {
+    domain_name d = alloc(struct domain_name);
+    d->label = lbl;
+    d->next = name;
+    return d;
+}
+
+int parse_domain_name(int cursor, int[] data, domain_name* dest) {
+    int* len = alloc(int);
+
+    int orig_cursor = cursor;
+    cursor = read_bits(cursor, data, 8, len);
+
+    if (*len == 0) {
+        // case: done
+        *dest = domain_nil();
+        return cursor;
+    }
+
+    if (*len >= 0xc0) {
+        // case: pointer
+        int* ptr = alloc(int);
+        // read the remainder of the first 16 bits as a pointer to an offset in octets
+        cursor = read_bits(orig_cursor + 2, data, 14, ptr);
+        // read the last label of the domain name from the pointer:
+        parse_domain_name(*ptr * 8, data, dest);
+        return cursor;
+    }
+
+    // case: ordinary label
+    // now '*len' specifies the number of octets in the label
+    char[] chars = alloc_array(char, *len);
+    for (int i = 0; i < *len; i++) {
+        int* octet = alloc(int);
+        cursor = read_bits(cursor, data, 8, octet);
+        chars[i] = char_chr(*octet);
+    }
+
+    string lbl = string_from_chararray(chars);
+
+    *dest = domain_cons(lbl, *dest);
+    return parse_domain_name(cursor, data, dest);
+}
