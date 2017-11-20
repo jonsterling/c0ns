@@ -1,0 +1,293 @@
+#use <string>
+#use "types.c0"
+#use "class.c0"
+#use "bit_utils.c0"
+
+struct domain_name {
+    string label;
+    struct domain_name* next;
+};
+
+typedef struct domain_name* domain_name;
+
+domain_name domain_nil() {
+    return NULL;
+}
+
+domain_name domain_cons(string lbl, domain_name name) {
+    domain_name d = alloc(struct domain_name);
+    d->label = lbl;
+    d->next = name;
+    return d;
+}
+
+struct rr_txt {
+    string txt;
+    struct rr_txt* next;
+};
+
+typedef struct rr_txt* rr_txt;
+
+rr_txt rr_txt_nil() {
+    return NULL;
+}
+
+rr_txt rr_txt_cons(string s, rr_txt txt) {
+    rr_txt t = alloc(struct rr_txt);
+    t->txt = s;
+    t->next = txt;
+    return t;
+}
+
+
+
+struct rr_hinfo {
+    string cpu;
+    string os;
+};
+
+struct rr_mx {
+    int preference;
+    domain_name exchange;
+};
+
+struct rr_soa {
+    domain_name mname;
+    domain_name rname;
+    int serial;
+    int refresh;
+    int retry;
+    int expire;
+    int minimum;
+};
+
+
+struct rr_A {
+    int address;
+};
+
+struct rr_wks {
+    int address;
+    int protocol;
+    int[] bitmap;
+};
+
+struct resource_record {
+    domain_name name; // a domain name, subject to compression
+    type_ type;
+    class class;
+    int ttl;
+    int rd_length;
+    void* rdata; // classified by 'type'
+};
+
+int parse_domain_name(int cursor, int[] data, domain_name* dest) {
+    int* len = alloc(int);
+
+    int orig_cursor = cursor;
+    cursor = read_bits(cursor, data, 8, len);
+
+    if (*len == 0) {
+        // case: done
+        *dest = domain_nil();
+        return cursor;
+    }
+
+    if (*len >= 0xc0) {
+        // case: pointer
+        int* ptr = alloc(int);
+        // read the remainder of the first 16 bits as a pointer to an offset in octets
+        cursor = read_bits(orig_cursor + 2, data, 14, ptr);
+        // read the last label of the domain name from the pointer:
+        parse_domain_name(*ptr * 8, data, dest);
+        return cursor;
+    }
+
+    // case: ordinary label
+    // now '*len' specifies the number of octets in the label
+    char[] chars = alloc_array(char, *len);
+    for (int i = 0; i < *len; i++) {
+        int* octet = alloc(int);
+        cursor = read_bits(cursor, data, 8, octet);
+        chars[i] = char_chr(*octet);
+    }
+
+    string lbl = string_from_chararray(chars);
+
+    *dest = domain_cons(lbl, *dest);
+    return parse_domain_name(cursor, data, dest);
+}
+
+
+int parse_char_string(int cursor, int[] data, string* dest) {
+    int* len = alloc(int);
+    cursor = read_bits(cursor, data, 8, len);
+
+    char[] chars = alloc_array(char, *len);
+    for (int i = 0; i < *len; i++) {
+        int* octet = alloc(int);
+        cursor = read_bits(cursor, data, 8, octet);
+        chars[i] = char_chr(*octet);
+    }
+
+    *dest = string_from_chararray(chars);
+    return cursor;
+}
+
+int parse_hinfo(int cursor, int[] data, struct rr_hinfo* dest) {
+    string* cpu = alloc(string);
+    string* os = alloc(string);
+
+    cursor = parse_char_string(cursor, data, cpu);
+    cursor = parse_char_string(cursor, data, os);
+
+    dest->cpu = *cpu;
+    dest->os = *os;
+
+    return cursor;
+}
+
+int parse_mx(int cursor, int[] data, struct rr_mx* dest) {
+    int* pref = alloc(int);
+    domain_name* exch = alloc(domain_name);
+
+    cursor = read_bits(cursor, data, 16, pref);
+    cursor = parse_domain_name(cursor, data, exch);
+
+    dest->preference = *pref;
+    dest->exchange = *exch;
+
+    return cursor;
+}
+
+int parse_soa(int cursor, int[] data, struct rr_soa* dest) {
+    domain_name* mname = alloc(domain_name);
+    domain_name* rname = alloc(domain_name);
+    int* serial = alloc(int);
+    int* refresh = alloc(int);
+    int* retry = alloc(int);
+    int* expire = alloc(int);
+
+    cursor = parse_domain_name(cursor, data, mname);
+    cursor = parse_domain_name(cursor, data, rname);
+    cursor = read_bits(cursor, data, 32, serial);
+    cursor = read_bits(cursor, data, 32, refresh);
+    cursor = read_bits(cursor, data, 32, retry);
+    cursor = read_bits(cursor, data, 32, expire);
+
+    dest->mname = *mname;
+    dest->rname = *rname;
+    dest->serial = *serial;
+    dest->refresh = *refresh;
+    dest->retry = *retry;
+    dest->expire = *expire;
+
+    return cursor;
+}
+
+int parse_txt(int cursor, int end, int[] data, rr_txt* dest) {
+    string* s = alloc(string);
+    int cursor2 = parse_char_string(cursor, data, s);
+
+    if (cursor2 >= end) {
+        *dest = rr_txt_nil();
+        return cursor;
+    }
+
+    cursor = cursor2;
+
+    rr_txt* init = alloc(rr_txt);
+    cursor = parse_txt(cursor, end, data, init);
+
+    *dest = rr_txt_cons(*s, *init);
+
+    return cursor;
+}
+
+int parse_A(int cursor, int[] rdata, struct rr_A* dest) {
+    int* address = alloc(int);
+    cursor = read_bits(cursor, rdata, 32, address);
+    dest->address = *address;
+    return cursor;
+}
+
+int parse_wks(int cursor, int[] rdata, struct rr_wks* dest) {
+    error("TODO: wks not yet supported");
+    return cursor;
+}
+
+int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_record* dest) {
+    if (type == type_cname()) {
+        domain_name* name = alloc(domain_name);
+        cursor = parse_domain_name(cursor, data, name);
+        dest->rdata = (void*)name;
+    }
+    else if (type == type_hinfo()) {
+        struct rr_hinfo* hinfo = alloc(struct rr_hinfo);
+        cursor = parse_hinfo(cursor, data, hinfo);
+        dest->rdata = (void*)hinfo;
+    }
+    else if (type == type_mx()) {
+        struct rr_mx* mx = alloc(struct rr_mx);
+        cursor = parse_mx(cursor, data, mx);
+        dest->rdata = (void*)mx;
+    }
+    else if (type == type_ptr()) {
+        domain_name* name = alloc(domain_name);
+        cursor = parse_domain_name(cursor, data, name);
+        dest->rdata = (void*)name;
+    }
+    else if (type == type_soa()) {
+        struct rr_soa* soa = alloc(struct rr_soa);
+        cursor = parse_soa(cursor, data, soa);
+        dest->rdata = (void*)soa;
+    }
+    else if (type == type_txt()) {
+        rr_txt* txt = alloc(rr_txt);
+        cursor = parse_txt(cursor, cursor + len * 8, data, txt);
+        dest->rdata = (void*)txt;
+    }
+    else if (type == type_A()) {
+        struct rr_A* r = alloc(struct rr_A);
+        cursor = parse_A(cursor, data, r);
+        dest->rdata = (void*)r;
+    }
+    else if (type == type_wks()) {
+        error("TODO: wks");
+    }
+    else {
+        error("Unsupported RR type");
+    }
+
+    return cursor;
+}
+
+int parse_resource_record(int cursor, int[] data, struct resource_record* dest) {
+    domain_name* name = alloc(domain_name);
+    int* type = alloc(int);
+    int* class_ = alloc(int);
+    int* ttl = alloc(int);
+    int* rd_length = alloc(int);
+
+
+    cursor = parse_domain_name(cursor, data, name);
+    cursor = read_bits(cursor, data, 16, type);
+    cursor = read_bits(cursor, data, 16, class_);
+    cursor = read_bits(cursor, data, 32, ttl);
+    cursor = read_bits(cursor, data, 16, rd_length);
+
+    dest->name = *name;
+    dest->type = *type;
+    dest->class = *class_;
+    dest->ttl = *ttl;
+    dest->rd_length = *rd_length;
+
+    cursor = parse_rdata(cursor, data, *type, *rd_length, dest);
+
+    return cursor;
+}
+
+
+int main() {
+    return 0;
+}
