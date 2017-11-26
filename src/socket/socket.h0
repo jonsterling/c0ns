@@ -1,0 +1,58 @@
+/* Socket library */
+/* Provides basic functionality for working with sockets and polling those
+ * sockets.
+ */
+
+#include <limits.h>
+
+typedef int socket_t;
+
+socket_t dgram_socket ()
+//@ensures \result >= 0;
+;
+
+
+/*
+ *  Socket I/O
+ */
+
+int recv_msglen (socket_t sock)
+//@requires sock >= 0;
+//@ensures \result >= 0;
+;
+
+// src_sin_family, src_sin_port, src_sin_addr are all returned. Likely only
+// the last two are necessary, but we keep family just in case.
+int c0_recvfrom (socket_t sock, int[] buf, int len,
+                 int* src_sin_family, int* src_sin_port, int* src_sin_addr)
+//@requires sock >= 0;
+//@requires \length(buf) == ((len + 3) / 4);
+//@ensures \result == len;
+;
+
+int c0_sendto (socket_t sock, int[] buf, int len,
+               int dst_sin_family, int dst_sin_port, int dst_sin_addr)
+//@requires sock >= 0;
+//@requires \length(buf) == ((len + 3) / 4);
+//@requires SHRT_MIN <= dst_sin_family;
+//@requires dst_sin_family <= SHRT_MAX;
+//@requires USHRT_MIN <= dst_sin_port;
+//@requires dst_sin_port <= USHRT_MAX;
+//@ensures \result == len;
+;
+
+
+/**
+ *  Polling sockets for readiness.
+ */
+
+// TODO: Timeouts needed?
+int poll_read (socket_t sock, int timeout)
+//@requires sock >= 0;
+//@ensures \result == 0 || \result == 1;
+;
+
+int poll_write (socket_t sock, int timeout)
+//@requires sock >= 0;
+//@ensures \result == 0 || \result == 1;
+;
