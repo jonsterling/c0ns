@@ -10,6 +10,7 @@ struct question {
 
 int parse_question(int cursor, int[] data, struct question* dest) {
     domain_name* name = alloc(domain_name);
+    *name = NULL; //FARZANEH: last node (with first label) should be pointing to null
     qtype* type = alloc(qtype);
     qclass* cls = alloc(qclass);
 
@@ -21,5 +22,12 @@ int parse_question(int cursor, int[] data, struct question* dest) {
     dest->qtype = *type;
     dest->qclass = *cls;
 
+    return cursor;
+}
+
+int print_question (int cursor, int[] data, struct question* q) {
+    cursor = print_domain_name(cursor, data, q->qname);
+    cursor = write_bits(cursor, data, 16, q->qtype);
+    cursor = write_bits(cursor, data, 16, q->qclass);
     return cursor;
 }

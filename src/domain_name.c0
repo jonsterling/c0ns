@@ -26,7 +26,11 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
 
     if (*len == 0) {
         // case: done
-        *dest = domain_nil();
+        //FARZANEH: TODO: emmm I commented the following line. are we returning NULL after all we did?
+        //and the last dn we built will be unreferenced.
+        // we sare done already, as 'dest' is pointing to the dn with the last label read.
+
+        //*dest = domain_nil();
         return cursor;
     }
 
@@ -54,3 +58,19 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
     *dest = domain_cons(lbl, *dest);
     return parse_domain_name(cursor, data, dest);
 }
+
+int print_domain_name(int cursor, int[] data, domain_name d) {
+ 	domain_name ptr;
+ 	domain_name tail=NULL;
+ 	while (d!=tail) {
+ 		ptr = d;
+ 		while (ptr->next!=tail)
+ 			ptr = ptr -> next;
+ 		cursor = write_string (cursor, data, ptr->label);
+ 		tail = ptr;
+ 	}
+ 	cursor = write_bits(cursor, data, 8, 0); //final label, for root
+ 	return cursor;
+ }
+ 
+ 

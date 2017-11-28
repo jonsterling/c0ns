@@ -77,5 +77,40 @@ int parse_header(int cursor, int[] data, struct header* dest) {
     cursor = read_bits(cursor, data, 16, nscount);
     cursor = read_bits(cursor, data, 16, arcount);
 
+    dest->id = *id;
+    dest->qr = *qr;
+    dest->opcode = *opcode;
+    dest->aa = *aa;
+    dest->tc = *tc;
+    dest->rd = *rd;
+    dest->ra = *ra;
+    dest->z = *z;
+    dest->rcode = *rcode;
+    dest->qdcount = *qdcount;
+    dest->ancount = *ancount;
+    dest->nscount = *nscount;
+    dest->arcount = *arcount;
+
+   
     return cursor;
 }
+
+int print_header(int cursor, int[] data, struct header* input){
+
+ cursor = write_bits(cursor, data, 16, input->id );
+ cursor = write_bits(cursor, data, 1, input->qr );
+ cursor = write_bits(cursor, data, 4, input->opcode );
+ cursor = write_bits(cursor, data, 1, input->aa );
+ cursor = write_bits(cursor, data, 1, input->tc );
+ cursor = write_bits(cursor, data, 1, input->rd );
+ cursor = write_bits(cursor, data, 1, input->ra );
+ cursor = write_bits(cursor, data, 1, input->z );
+ cursor = write_bits(cursor, data, 1, input->rcode );
+ cursor = write_bits(cursor, data, 16, input->qdcount );
+ cursor = write_bits(cursor, data, 16, input->ancount );
+ cursor = write_bits(cursor, data, 16, input->nscount );
+ cursor = write_bits(cursor, data, 16, input->arcount );
+ 
+return cursor;
+}
+

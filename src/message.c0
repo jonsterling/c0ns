@@ -5,6 +5,7 @@
 
 // TODO: would be nicer to have arrays of structs rather than arrays of pointers to structs, wasn't
 // sure how to assign to it
+// FARZANEH: why? 
 struct message {
     struct header* header;
     struct question*[] question;
@@ -13,7 +14,17 @@ struct message {
     struct resource_record*[] additional;
 };
 
-
+/* FARZANEH: TODO: who calls parse_message? and why does it take cursor and dest? 
+  shouldn't we have it defined like this instead:
+    struct message* parse_message(int[] data) {
+        struct message* dest = alloc(struct message);
+        int cursor = 0;
+        .
+        .
+        .
+        return  dest;
+    }
+*/    
 int parse_message(int cursor, int[] data, struct message* dest) {
     struct header* header = alloc(struct header);
 
@@ -22,38 +33,39 @@ int parse_message(int cursor, int[] data, struct message* dest) {
     int qdcount = header->qdcount;
     struct question*[] questions = alloc_array(struct question*, qdcount);
 
+    //FARZANEH: I commented out the local pointers, and now we write to arrays directly.
+
     for (int i = 0; i < qdcount; i++) {
-        struct question* q = alloc(struct question);
-        cursor = parse_question(cursor, data, q);
-        questions[i] = q;
+        //struct question* q = alloc(struct question);
+        cursor = parse_question(cursor, data, questions[i]);
+        //questions[i] = q;
     }
 
     int ancount = header->ancount;
     struct resource_record*[] answers = alloc_array(struct resource_record*, ancount);
 
     for (int i = 0; i < ancount; i++) {
-        struct resource_record* rr = alloc(struct resource_record);
-        cursor = parse_resource_record(cursor, data, rr);
-        answers[i] = rr;
+        //struct resource_record* rr = alloc(struct resource_record);
+        cursor = parse_resource_record(cursor, data, answers[i]);
+        //answers[i] = rr;
     }
 
     int nscount = header->nscount;
     struct resource_record*[] auths = alloc_array(struct resource_record*, nscount);
 
     for (int i = 0; i < nscount; i++) {
-        struct resource_record* rr = alloc(struct resource_record);
-        cursor = parse_resource_record(cursor, data, rr);
-        auths[i] = rr;
+        //struct resource_record* rr = alloc(struct resource_record);
+        cursor = parse_resource_record(cursor, data, auths[i]);
+        //auths[i] = rr;
     }
-
 
     int arcount = header->arcount;
     struct resource_record*[] additionals = alloc_array(struct resource_record*, arcount);
 
     for (int i = 0; i < arcount; i++) {
-        struct resource_record* rr = alloc(struct resource_record);
-        cursor = parse_resource_record(cursor, data, rr);
-        additionals[i] = rr;
+        //struct resource_record* rr = alloc(struct resource_record);
+        cursor = parse_resource_record(cursor, data, additionals[i]);
+        //additionals[i] = rr;
     }
 
     dest->header = header;
@@ -63,6 +75,46 @@ int parse_message(int cursor, int[] data, struct message* dest) {
     dest->additional = additionals;
 
     return cursor;
+}
+
+int[] write_message(struct message* input){
+    int qdcount = input -> header -> qdcount;
+    int ancount = input -> header -> ancount;
+    int nscount = input -> header -> nscount;
+    int arcount = input -> header -> arcount;
+    int numBits = 0;
+
+    for (int i = 0; i < qdcount; i++) {
+        numBits += countBitsQuestion(input -> question[i]);
+    }
+    for (int i = 0; i < ancount; i++) {
+        numBits += countBitsRR(input -> answer[i]);
+    }
+    for (int i = 0; i < nscount; i++) {
+        numBits += countBitsRR(input -> authority[i]);
+    }
+    for (int i = 0; i < arcount; i++) {
+        numBits += countBitsRR(input -> additional[i]);
+    }
+
+    int[] destData = alloc_array(int, numBits/32);
+    int cursor = 0;
+
+    cursor = print_header (cursor, destData, input -> header);
+    for (int i = 0; i < qdcount; i++) {
+        cursor = print_question (cursor, destData, input -> question[i]);
+    }
+    for (int i = 0; i < ancount; i++) {
+        cursor = print_resource_record (cursor, destData, input -> answer[i]);
+    }
+    for (int i = 0; i < nscount; i++) {
+        cursor = print_resource_record (cursor, destData, input -> authority[i]);
+    }
+    for (int i = 0; i < arcount; i++) {
+        cursor = print_resource_record (cursor, destData, input -> additional[i]);
+    }
+    
+    return destData;
 }
 
 int main() {
