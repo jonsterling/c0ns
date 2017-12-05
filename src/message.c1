@@ -176,7 +176,9 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2) {
     int l1 = bs1->length;
     int l2 = bs2->length;
 
-    assert(l1 == l2);
+    if (l1 != l2) {
+        error("Byte arrays of different lengths");
+    }
 
     for (int i = 0; i < l1; i++) {
         int x1 = bs1->bytes[i];
