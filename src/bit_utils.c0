@@ -1,7 +1,8 @@
 #use <string>
 // isolate 'k' bits starting at offset 'cursor' in 'data'
 int extract_bits(int cursor, int numBits, int data) {
-    return (((1 << numBits) - 1) & (data >> (cursor - 1)));
+    int mask = ((1 << numBits) - 1) << cursor;
+    return data & mask;
 }
 
 int read_bits(int cursor, int[] data, int numBits, int* dest)
