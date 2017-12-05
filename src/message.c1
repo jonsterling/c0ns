@@ -94,7 +94,9 @@ bytearray write_message(struct message* input){
     int ancount = input -> header -> ancount;
     int nscount = input -> header -> nscount;
     int arcount = input -> header -> arcount;
-    int numBits = 0;
+
+    int headerBits = 6 * 16;
+    int numBits = headerBits;
 
     for (int i = 0; i < qdcount; i++) {
         numBits += countBitsQuestion(input -> question[i]);
