@@ -37,39 +37,29 @@ struct message* parse_message(int[] data) {
     int qdcount = header->qdcount;
     struct question*[] questions = alloc_array(struct question*, qdcount);
 
-    //FARZANEH: I commented out the local pointers, and now we write to arrays directly.
-
     for (int i = 0; i < qdcount; i++) {
-        //struct question* q = alloc(struct question);
         cursor = parse_question(cursor, data, questions[i]);
-        //questions[i] = q;
     }
 
     int ancount = header->ancount;
     struct resource_record*[] answers = alloc_array(struct resource_record*, ancount);
 
     for (int i = 0; i < ancount; i++) {
-        //struct resource_record* rr = alloc(struct resource_record);
         cursor = parse_resource_record(cursor, data, answers[i]);
-        //answers[i] = rr;
     }
 
     int nscount = header->nscount;
     struct resource_record*[] auths = alloc_array(struct resource_record*, nscount);
 
     for (int i = 0; i < nscount; i++) {
-        //struct resource_record* rr = alloc(struct resource_record);
         cursor = parse_resource_record(cursor, data, auths[i]);
-        //auths[i] = rr;
     }
 
     int arcount = header->arcount;
     struct resource_record*[] additionals = alloc_array(struct resource_record*, arcount);
 
     for (int i = 0; i < arcount; i++) {
-        //struct resource_record* rr = alloc(struct resource_record);
         cursor = parse_resource_record(cursor, data, additionals[i]);
-        //additionals[i] = rr;
     }
 
     dest->header = header;
