@@ -1,3 +1,5 @@
+#use <conio>
+
 #use "header.c0"
 #use "resource_record.c1"
 #use "bit_utils.c0"
@@ -5,7 +7,7 @@
 
 // TODO: would be nicer to have arrays of structs rather than arrays of pointers to structs, wasn't
 // sure how to assign to it
-// FARZANEH: why? 
+// FARZANEH: why?
 struct message {
     struct header* header;
     struct question*[] question;
@@ -14,7 +16,7 @@ struct message {
     struct resource_record*[] additional;
 };
 
-/* FARZANEH: TODO: who calls parse_message? and why does it take cursor and dest? 
+/* FARZANEH: TODO: who calls parse_message? and why does it take cursor and dest?
   shouldn't we have it defined like this instead:
     struct message* parse_message(int[] data) {
         struct message* dest = alloc(struct message);
@@ -24,8 +26,10 @@ struct message {
         .
         return  dest;
     }
-*/    
-int parse_message(int cursor, int[] data, struct message* dest) {
+*/
+struct message* parse_message(int[] data) {
+    int cursor = 0;
+    struct message* dest = alloc(struct message);
     struct header* header = alloc(struct header);
 
     cursor = parse_header(cursor, data, header);
@@ -74,10 +78,18 @@ int parse_message(int cursor, int[] data, struct message* dest) {
     dest->authority = auths;
     dest->additional = additionals;
 
-    return cursor;
+    return dest;
 }
 
-int[] write_message(struct message* input){
+// For arrays where we need to know the length.
+struct bytearray {
+    int length;
+    int[] bytes;
+};
+
+typedef struct bytearray* bytearray;
+
+bytearray write_message(struct message* input){
     int qdcount = input -> header -> qdcount;
     int ancount = input -> header -> ancount;
     int nscount = input -> header -> nscount;
@@ -114,9 +126,34 @@ int[] write_message(struct message* input){
     for (int i = 0; i < arcount; i++) {
         cursor = print_resource_record (cursor, destData, input -> additional[i]);
     }
-    
-    return destData;
+
+    bytearray dest = alloc(struct bytearray);
+    dest->length = numBits/32;
+    dest->bytes = destData;
+
+    return dest;
 }
+
+
+void assert_bytes_eq(bytearray bs1, bytearray bs2) {
+    int l1 = bs1->length;
+    int l2 = bs2->length;
+
+    assert(bs1->length == bs2->length);
+
+    for (int i = 0; i < l1; i++) {
+        assert(bs1->bytes[i] == bs2->bytes[i]);
+    }
+}
+
+void test_roundtrip(struct message* message) {
+    bytearray bs = write_message(message);
+    struct message* message2 = parse_message(bs->bytes);
+    bytearray bs2 = write_message(message2);
+
+    assert_bytes_eq(bs, bs2);
+}
+
 
 int main() {
     return 0;
