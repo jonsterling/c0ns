@@ -13,30 +13,25 @@ int read_bits(int cursor, int[] data, int numBits, int* dest)
     return cursor + numBits;
 }
 
-//int strlen(string a);
-//string string_from_chararray(char[] a);
-//char[] chararray_from_string(string a);
-//int int_from_char(char a);
-//char char_chr(int a);
 
 
 int write_bits(int cursor, int[] destData, int numBits, int headerPart){
-	int index = cursor / 32;
-	int offset = cursor % 32;
-	headerPart = headerPart & ((1<<numBits)-1); //force zeroing preceding bits in source data
+    int index = cursor / 32;
+    int offset = cursor % 32;
+    headerPart = headerPart & ((1<<numBits)-1); //force zeroing preceding bits in source data
 //	destData[index]	= destData[index] ^ (((destData[index]>>offset)&((1<<numBits)-1))<<offset);	//force zeroing target bits before copying
-	destData[index]	= destData[index] & (~(((1<<numBits)-1)<<offset));	//force zeroing target bits before copying
-	destData[index] = destData[index] | headerPart<<(offset);
+    destData[index]	= destData[index] & (~(((1<<numBits)-1)<<offset));	//force zeroing target bits before copying
+    destData[index] = destData[index] | headerPart<<(offset);
     return cursor + numBits;
 }
 
 int write_string(int cursor, int[] data, string str) {
- 	int len = string_length(str);
- 	cursor = write_bits(cursor, data, 8, len);
+    int len = string_length(str);
+    cursor = write_bits(cursor, data, 8, len);
 
- 	char[] chars = string_to_chararray(str);
-	for (int i = 0; i < len; i++) {
-		int octet= char_ord(chars[i]);
+    char[] chars = string_to_chararray(str);
+    for (int i = 0; i < len; i++) {
+        int octet= char_ord(chars[i]);
         cursor = write_bits(cursor, data, 8, octet);
     }
     return cursor;
