@@ -1,4 +1,5 @@
 #use <string>
+
 // isolate 'k' bits starting at offset 'cursor' in 'data'
 int extract_bits(int cursor, int numBits, int data) {
     int mask = ((1 << numBits) - 1) << cursor;

@@ -137,20 +137,70 @@ bytearray write_message(struct message* input){
 }
 
 
+struct header* example_header() {
+    struct header* h = alloc(struct header);
+    h->id = 1;
+    h->qr = 3;
+    h->tc = 2;
+    h->ra = 3;
+    h->qdcount = 0;
+    h->ancount = 0;
+    h->nscount = 0;
+    h->arcount = 0;
+    return h;
+}
+
+struct message* example_message() {
+    struct message* m = alloc(struct message);
+    m->header = example_header();
+    return m;
+}
+
+void print_bytearray(bytearray bs) {
+    print("[");
+    for (int i = 0; i < bs->length; i++) {
+        if (i != 0) {
+            print(" | ");
+        }
+        else {
+            print(" ");
+        }
+
+        printint(bs->bytes[i]);
+    }
+    print(" ]");
+    flush();
+}
+
 void assert_bytes_eq(bytearray bs1, bytearray bs2) {
     int l1 = bs1->length;
     int l2 = bs2->length;
 
-    assert(bs1->length == bs2->length);
+    assert(l1 == l2);
 
     for (int i = 0; i < l1; i++) {
-        assert(bs1->bytes[i] == bs2->bytes[i]);
+        int x1 = bs1->bytes[i];
+        int x2 = bs2->bytes[i];
+
+        if (x1 != x2) {
+            print("Equating following two byte arrays: \n    ");
+            print_bytearray(bs1);
+            print("\nvs.\n    ");
+            print_bytearray(bs2);
+            print("\n");
+
+            error("Test failed");
+            break;
+        }
     }
 }
 
+
 void test_roundtrip(struct message* message) {
     bytearray bs = write_message(message);
+
     struct message* message2 = parse_message(bs->bytes);
+
     bytearray bs2 = write_message(message2);
 
     assert_bytes_eq(bs, bs2);
@@ -158,5 +208,6 @@ void test_roundtrip(struct message* message) {
 
 
 int main() {
+    test_roundtrip(example_message());
     return 0;
 }
