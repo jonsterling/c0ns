@@ -31,3 +31,9 @@ int print_question (int cursor, int[] data, struct question* q) {
     cursor = write_bits(cursor, data, 16, q->qclass);
     return cursor;
 }
+//Qsize: size of a question in bits
+int countBitsQuestion(struct question* q){
+    int Qsize= q->qname->size+ 32;
+    return Qsize;
+}   
+

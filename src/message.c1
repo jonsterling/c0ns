@@ -97,7 +97,8 @@ int[] write_message(struct message* input){
         numBits += countBitsRR(input -> additional[i]);
     }
 
-    int[] destData = alloc_array(int, numBits/32);
+    // multiplied by 2 just in case ;-)
+    int[] destData = alloc_array(int, (numBits/32)*2);
     int cursor = 0;
 
     cursor = print_header (cursor, destData, input -> header);

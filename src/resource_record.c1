@@ -249,39 +249,35 @@ int print_rr_txt (int cursor, int[] data, rr_txt t) {
  }
  
  
-int print_rdata (int cursor, int[] data, type_ type, void* rdata, int* final_rd_length) {
-    int len=0;
-
+int print_rdata (int cursor, int[] data, type_ type, void* rdata) {
     //TODO: this block needs to be checked
     if (type == type_cname()) {
         cursor = print_domain_name(cursor, data, *((domain_name*)rdata));
     }
     else if (type == type_hinfo()) {
-        cursor = write_string(cursor, data, ((rr_hinfo*)rdata)->cpu);
-        cursor = write_string(cursor, data, ((rr_hinfo*)rdata)->os);_
+        cursor = write_string(cursor, data, ((struct rr_hinfo*)rdata)->cpu);
+        cursor = write_string(cursor, data, ((struct rr_hinfo*)rdata)->os);
     }
     else if (type == type_mx()) {
-        cursor = write_bits(cursor, data, 16, ((rr_mx*)rdata)->preference);
-        cursor = print_domain_name(cursor, data, ((rr_mx*)rdata)->exchange);
+        cursor = write_bits(cursor, data, 16, (( struct rr_mx*)rdata)->preference);
+        cursor = print_domain_name(cursor, data, ((struct rr_mx*)rdata)->exchange);
     }
     else if (type == type_ptr()) {
         cursor = print_domain_name(cursor, data, *((domain_name*)rdata));
     }
     else if (type == type_soa()) {
-        cursor = print_domain_name(cursor, data, ((rr_soa*)rdata)->mname);
-        cursor = print_domain_name(cursor, data, ((rr_soa*)rdata)->rname);
-        cursor = write_bits(cursor, data, 32, ((rr_soa*)rdata)->serial);
-        cursor = write_bits(cursor, data, 32, ((rr_soa*)rdata)->refresh);
-        cursor = write_bits(cursor, data, 32, ((rr_soa*)rdata)->retry);
-        cursor = write_bits(cursor, data, 32, ((rr_soa*)rdata)->expire);
+        cursor = print_domain_name(cursor, data, ((struct rr_soa*)rdata)->mname);
+        cursor = print_domain_name(cursor, data, ((struct rr_soa*)rdata)->rname);
+        cursor = write_bits(cursor, data, 32, ((struct rr_soa*)rdata)->serial);
+        cursor = write_bits(cursor, data, 32, ((struct rr_soa*)rdata)->refresh);
+        cursor = write_bits(cursor, data, 32, ((struct rr_soa*)rdata)->retry);
+        cursor = write_bits(cursor, data, 32, ((struct rr_soa*)rdata)->expire);
     }
     else if (type == type_txt()) {
-        int savedCursor = cursor;
-        cursor = print_rr_txt(cursor, data, *((rr_txt*)rdata));
-        len = cursor - savedCursor; //*final_rd_length is updated later
+        cursor = print_rr_txt(cursor, data, *(( rr_txt*)rdata));
     }
     else if (type == type_A()) {
-        cursor = write_bits(cursor, data, 32, ((rr_A*)rdata)->address);
+        cursor = write_bits(cursor, data, 32, ((struct rr_A*)rdata)->address);
     }
     else if (type == type_wks()) {
         error("TODO: wks");
@@ -290,7 +286,6 @@ int print_rdata (int cursor, int[] data, type_ type, void* rdata, int* final_rd_
         error("Unsupported RR type");
     }
 
-    *final_rd_length = len;
     return cursor;
 }
 
@@ -298,15 +293,15 @@ int print_resource_record(int cursor, int[] data, struct resource_record* rr) {
     cursor = print_domain_name (cursor, data, rr->name);
     cursor = write_bits(cursor, data, 16, rr->type);
     cursor = write_bits(cursor, data, 16, rr->class);
-    cursor = write_bits(cursor, data, 32, rr->ttl);    
- //TODO: check for correction
-    int savedCursor = cursor;
-    cursor = write_bits(cursor, data, 16, 0); //temporarily, to keep the cursor going
-
-    int* final_rd_length = alloc(int);
-    cursor = print_rdata(cursor, data, rr->type, rr->rdata, final_rd_length);
-
-    write_bits(savedCursor, data, 16, final_rd_length);
+    cursor = write_bits(cursor, data, 32, rr->ttl);  
+    cursor = write_bits(cursor, data, 16, rr->rd_length);
+    cursor = print_rdata(cursor, data, rr->type, rr->rdata);
 
     return cursor;
+}
+
+int countBitsRR(struct resource_record* rr){
+    //Rsize is in bits
+    int Rsize=rr->name->size+16+16+32+16+(rr->rd_length*8);
+    return Rsize;
 }
