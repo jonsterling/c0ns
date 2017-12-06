@@ -28,7 +28,10 @@ domain_name domain_cons(string lbl, int len, domain_name name) {
     return d;
 }
 
-domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data) {
+domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
+//@requires cursor != NULL;
+//@requires *cursor < \length(data) * 32;
+{
     int* len = alloc(int);
 
     int orig_cursor = *cursor;
@@ -70,11 +73,16 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data) {
 }
 
 
-domain_name parse_domain_name(int* cursorOut, int[] data) {
+domain_name parse_domain_name(int* cursorOut, int[] data)
+//@requires cursorOut != NULL;
+//@requires *cursorOut < \length(data) * 32;
+{
     return parse_domain_name_aux(domain_nil(), cursorOut, data);
 }
 
-int print_domain_name(int cursor, int[] data, domain_name d) {
+int print_domain_name(int cursor, int[] data, domain_name d)
+//@requires cursor < \length(data) * 32;
+{
     domain_name ptr;
     domain_name tail=NULL;
     int x=0;

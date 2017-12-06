@@ -63,7 +63,10 @@ struct resource_record {
 };
 
 
-int parse_char_string(int cursor, int[] data, string* dest) {
+int parse_char_string(int cursor, int[] data, string* dest)
+//@requires dest != NULL;
+//@requires cursor <= \length(data) * 32;
+{
     int* len = alloc(int);
     cursor = read_bits(cursor, data, 8, len);
 
@@ -78,7 +81,9 @@ int parse_char_string(int cursor, int[] data, string* dest) {
     return cursor;
 }
 
-int parse_hinfo(int cursor, int[] data, struct rr_hinfo* dest) {
+int parse_hinfo(int cursor, int[] data, struct rr_hinfo* dest)
+//@requires cursor <= \length(data) * 32;
+{
     string* cpu = alloc(string);
     string* os = alloc(string);
 
@@ -91,7 +96,9 @@ int parse_hinfo(int cursor, int[] data, struct rr_hinfo* dest) {
     return cursor;
 }
 
-int parse_mx(int cursor, int[] data, struct rr_mx* dest) {
+int parse_mx(int cursor, int[] data, struct rr_mx* dest)
+//@requires cursor <= \length(data) * 32;
+{
     int* pref = alloc(int);
 
     cursor = read_bits(cursor, data, 16, pref);
@@ -106,7 +113,9 @@ int parse_mx(int cursor, int[] data, struct rr_mx* dest) {
     return cursor;
 }
 
-int parse_soa(int cursor, int[] data, struct rr_soa* dest) {
+int parse_soa(int cursor, int[] data, struct rr_soa* dest)
+//@requires cursor <= \length(data) * 32;
+{
     int* serial = alloc(int);
     int* refresh = alloc(int);
     int* retry = alloc(int);
@@ -132,7 +141,9 @@ int parse_soa(int cursor, int[] data, struct rr_soa* dest) {
     return cursor;
 }
 
-int parse_txt(int cursor, int end, int[] data, rr_txt* dest) {
+int parse_txt(int cursor, int end, int[] data, rr_txt* dest)
+//@requires cursor <= \length(data) * 32;
+{
     string* s = alloc(string);
     int cursor2 = parse_char_string(cursor, data, s);
 
@@ -151,19 +162,26 @@ int parse_txt(int cursor, int end, int[] data, rr_txt* dest) {
     return cursor;
 }
 
-int parse_A(int cursor, int[] rdata, struct rr_A* dest) {
+int parse_A(int cursor, int[] rdata, struct rr_A* dest)
+//@requires cursor <= \length(rdata) * 32;
+{
     int* address = alloc(int);
     cursor = read_bits(cursor, rdata, 32, address);
     dest->address = *address;
     return cursor;
 }
 
-int parse_wks(int cursor, int[] rdata, struct rr_wks* dest) {
+int parse_wks(int cursor, int[] rdata, struct rr_wks* dest)
+//@requires cursor <= \length(rdata) * 32;
+{
 //    error("TODO: wks not yet supported");
     return cursor;
 }
 
-int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_record* dest) {
+int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_record* dest)
+//@requires dest != NULL;
+//@requires cursor + len <= \length(data) * 32;
+{
     if (type == type_cname()) {
         int* cursorOut = alloc(int);
         *cursorOut = cursor;
@@ -212,7 +230,10 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
     return cursor;
 }
 
-int parse_resource_record(int cursor, int[] data, struct resource_record* dest) {
+int parse_resource_record(int cursor, int[] data, struct resource_record* dest)
+//@requires dest != NULL;
+//@requires cursor <= \length(data) * 32;
+{
     int* type = alloc(int);
     int* class_ = alloc(int);
     int* ttl = alloc(int);
@@ -239,7 +260,9 @@ int parse_resource_record(int cursor, int[] data, struct resource_record* dest) 
 }
 
 
-int print_rr_txt (int cursor, int[] data, rr_txt t) {
+int print_rr_txt (int cursor, int[] data, rr_txt t)
+//@requires cursor <= \length(data) * 32;
+{
     rr_txt ptr;
     rr_txt tail=NULL;
     while (t!=tail) {
@@ -255,7 +278,9 @@ int print_rr_txt (int cursor, int[] data, rr_txt t) {
  }
 
 
-int print_rdata (int cursor, int[] data, type_ type, void* rdata) {
+int print_rdata (int cursor, int[] data, type_ type, void* rdata)
+//@requires cursor <= \length(data) * 32;
+{
     //TODO: this block needs to be checked
     if (type == type_cname()) {
         cursor = print_domain_name(cursor, data, *((domain_name*)rdata));
@@ -295,7 +320,10 @@ int print_rdata (int cursor, int[] data, type_ type, void* rdata) {
     return cursor;
 }
 
-int print_resource_record(int cursor, int[] data, struct resource_record* rr) {
+int print_resource_record(int cursor, int[] data, struct resource_record* rr)
+//@requires rr != NULL;
+//@requires cursor <= \length(data) * 32;
+{
     cursor = print_domain_name (cursor, data, rr->name);
     cursor = write_bits(cursor, data, 16, rr->type);
     cursor = write_bits(cursor, data, 16, rr->class);
@@ -306,7 +334,9 @@ int print_resource_record(int cursor, int[] data, struct resource_record* rr) {
     return cursor;
 }
 
-int countBitsRR(struct resource_record* rr){
+int countBitsRR(struct resource_record* rr)
+//@requires rr != NULL;
+{
     //Rsize is in bits
     int Rsize=rr->name->size+16+16+32+16+(rr->rd_length*8);
     return Rsize;
