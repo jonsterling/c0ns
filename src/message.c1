@@ -103,6 +103,7 @@ bytearray write_message(struct message* input)
     }
   
     // multiplied by 2 just in case ;-)
+    int destDataLen=(numBits/32)*2;
     int[] destData = alloc_array(int, (numBits/32)*2);
     int cursor = 0;
     cursor = print_header (cursor, destData, input -> header);
@@ -119,9 +120,18 @@ bytearray write_message(struct message* input)
     for (int i = 0; i < arcount; i++) {
         cursor = print_resource_record (cursor, destData, input -> additional[i]);
     }
-
+  int position=0;
+    for(int i=0; i<destDataLen;i++){
+        if(destData[i]==0 && position==0){
+            position=i;
+        }
+        else if(destData[i]!=0){
+            position=0;
+        }
+    }
     bytearray dest = alloc(struct bytearray);
-    dest->length = numBits/32;
+    //dest->length = numBits/32;
+    dest->length = position/32;
     dest->bytes = destData;
 
     return dest;

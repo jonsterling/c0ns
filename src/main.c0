@@ -27,7 +27,7 @@ int main() {
 
 
 
-    test_domain_name();
+    test_domain_name(); 
 
     struct message* m0 = test_case0();
     test_roundtrip(m0);
