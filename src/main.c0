@@ -3,6 +3,16 @@
 #use "testcases.c0"
 
 int main() {
+
+    int[] data = alloc_array(int, 30);
+    write_bits(2, data, 8, 7);
+    int* out = alloc(int);
+    read_bits(2, data, 8, out);
+    assert(*out == 7);
+
+    println("\n*read/write bits sanity check passed\n");
+
+
     test_domain_name();
 //    struct header* hd;
     struct message* m=test_case1();
