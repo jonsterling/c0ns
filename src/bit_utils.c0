@@ -3,18 +3,21 @@
 
 int get_mask(int index, int size)
 //@requires size <= 32;
+//@requires index < 32;
 {
     return ((1 << size) - 1) << index;
 }
 
 int extract_bits(int index, int size, int data)
 //@requires size <= 32;
+//@requires index < 32;
 {
     return (data & get_mask(index, size)) >> index;
 }
 
 int pack_bits(int data, int index, int size, int value)
 //@requires size <= 32;
+//@requires index < 32;
 {
     return (data & ~(get_mask(index, size))) | (value << index);
 }
@@ -65,4 +68,5 @@ int write_string(int cursor, int[] data, string str)
         cursor = write_bits(cursor, data, 8, octet);
 
     }
-    return cursor;}
+    return cursor;
+}
