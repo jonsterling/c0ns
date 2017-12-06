@@ -55,23 +55,13 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
         return parse_domain_name_aux(name, ptrCursor, data);
     }
 
-    // char arrays by convention must end in a null cell, so we allocate *len + 1.
-    char[] chars = alloc_array(char, *len + 1);
+    // now we parse an ordinary label; we retreat by one octet so that read_string can see the length cell
+    string* lbl = alloc(string);
 
-    // case: ordinary label
-    // now '*len' specifies the number of octets in the label
-    for (int i = 0; i < *len; i++) {
-        int* octet = alloc(int);
-        *cursor = read_bits(*cursor, data, 8, octet);
+    *cursor = *cursor - 8;
+    *cursor = read_string(*cursor, data, lbl);
 
-        // This should never be negative! WTF?
-        assert(*octet >= 0);
-        chars[i] = char_chr(*octet);
-    }
-
-
-    string lbl = string_from_chararray(chars);
-    return parse_domain_name_aux(domain_cons(lbl, name), cursor, data);
+    return parse_domain_name_aux(domain_cons(*lbl, name), cursor, data);
 }
 
 
