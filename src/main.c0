@@ -3,6 +3,7 @@
 #use "testcases.c0"
 
 int main() {
+    test_domain_name();
 //    struct header* hd;
     struct message* m=test_case1();
 //print("hello world\n");
@@ -11,6 +12,6 @@ int main() {
 //  	  m->header = hd;
 
 test_roundtrip(m);
-    
+
     return 0;
 }

@@ -90,3 +90,26 @@ int print_domain_name(int cursor, int[] data, domain_name d) {
     cursor = write_bits(cursor, data, 8, 0); //final label, for root
     return cursor;
 }
+
+void assert_domain_eq(domain_name dn1, domain_name dn2) {
+    if (dn1 == NULL){
+        assert(dn2 == NULL);
+        return;
+    }
+
+    assert(string_equal(dn1->label, dn2->label));
+    assert_domain_eq(dn2->next, dn2->next);
+}
+
+void test_domain_name() {
+    domain_name dn = domain_cons("ab", 2, domain_nil());
+    int[] data = alloc_array(int, 30);
+    int cursor = print_domain_name(0, data, dn);
+
+    int* cursorOut = alloc(int);
+    domain_name dn2 = parse_domain_name(cursorOut, data);
+
+    assert_domain_eq(dn, dn2);
+
+    println("\n* test_domain_name passed\n");
+}
