@@ -62,8 +62,10 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
     // now '*len' specifies the number of octets in the label
     for (int i = 0; i < *len; i++) {
         int* octet = alloc(int);
-
         *cursor = read_bits(*cursor, data, 8, octet);
+
+        // This should never be negative! WTF?
+        assert(*octet >= 0);
         chars[i] = char_chr(*octet);
     }
 
