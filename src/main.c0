@@ -12,16 +12,14 @@ int main() {
 
     println("* read/write bits sanity check passed");
 
-
     test_domain_name();
-//    struct header* hd;
-    struct message* m=test_case1();
-//print("hello world\n");
- //   hd = alloc(struct header);
- 	  //m = alloc(struct message);
-//  	  m->header = hd;
 
-    test_roundtrip(m);
+    struct message* m0 = test_case0();
+    test_roundtrip(m0);
+    println("* test_case0 passed");
+
+    struct message* m1 = test_case1();
+    test_roundtrip(m1);
     println("* test_case1 passed");
 
     return 0;

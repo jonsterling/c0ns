@@ -111,5 +111,5 @@ void test_domain_name() {
 
     assert_domain_eq(dn, dn2);
 
-    println("\n* test_domain_name passed\n");
+    println("* test_domain_name passed");
 }
