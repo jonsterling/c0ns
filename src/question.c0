@@ -15,7 +15,9 @@ int parse_question(int cursor, int[] data, struct question* dest)
     qclass* cls = alloc(qclass);
 
     int* cursorOut = alloc(int);
-    dest->qname = parse_domain_name(cursorOut, data);
+    *cursorOut = cursor;
+
+    dest->qname = parse_domain_name("parse_question", cursorOut, data);
     cursor = *cursorOut;
 
     cursor = read_bits(cursor, data, 16, type);
