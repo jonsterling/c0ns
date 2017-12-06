@@ -25,7 +25,7 @@ int read_bits(int cursor, int[] data, int numBits, int* dest)
 {
     int index = cursor / 32;
     if(numBits<32)
-    *dest = extract_bits(cursor % 32, numBits, data[index]);
+        *dest = extract_bits(cursor % 32, numBits, data[index]);
     else
         *dest=data[index];
     return cursor + numBits;
@@ -35,16 +35,16 @@ int read_bits(int cursor, int[] data, int numBits, int* dest)
 
 int write_bits(int cursor, int[] destData, int numBits, int data)
 //@requires numBits <= 32;
-{   
+{
     int index = cursor / 32;
     int offset = cursor % 32;
 
 
 //    data = data & ((1<<numBits)-1); //force zeroing preceding bits in source data
     if(numBits<32)
-    destData[index] = pack_bits(destData[index], offset, numBits, data);
+        destData[index] = pack_bits(destData[index], offset, numBits, data);
     else
-    destData[index]=data;
+        destData[index]=data;
 
 //destData[index] & (~(((1<<numBits)-1)<<offset));	//force zeroing target bits before copying
 //    destData[index] = destData[index] | data<<(offset);
@@ -63,6 +63,6 @@ int write_string(int cursor, int[] data, string str)
     for (int i = 0; i < len; i++) {
         int octet= char_ord(chars[i]);
         cursor = write_bits(cursor, data, 8, octet);
-       
+
     }
     return cursor;}
