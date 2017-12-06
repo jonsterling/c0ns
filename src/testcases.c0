@@ -218,29 +218,13 @@ struct message* test_case4(){
 /*question part*/
     struct question*[] questions = alloc_array(struct question*, 2);
     struct question* q1 = alloc(struct question);
-    domain_name name1 = alloc(struct domain_name);
-    domain_name name2 = alloc(struct domain_name);
-    name2->label="e";
-    name2->size=8;
-    name2->next=NULL;
-    name1->label="c";
-    name1->size=8;
-    name1->next=name2;
-    q1->qname=name1;
+    q1->qname=domain_cons("c", domain_cons("e", domain_nil()));
     q1->qtype=14;
     q1->qclass=1;
     questions[0]=q1;
 
     struct question* q2 = alloc(struct question);
-    domain_name name3 = alloc(struct domain_name);
-    domain_name name4 = alloc(struct domain_name);
-    name4->label="b";
-    name4->size=8;
-    name4->next=NULL;
-    name3->label="d";
-    name3->size=8;
-    name3->next=name4;
-    q2->qname=name3;
+    q2->qname=domain_cons("d", domain_cons("b", domain_nil()));
     q2->qtype=14;
     q2->qclass=1;
     questions[1]=q2;
