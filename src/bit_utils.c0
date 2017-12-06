@@ -70,3 +70,21 @@ int write_string(int cursor, int[] data, string str)
     }
     return cursor;
 }
+
+int read_string(int cursor, int[] data, string* dest)
+//@requires cursor < \length(data) * 32;
+{
+    int* len = alloc(int);
+    cursor = read_bits(cursor, data, 8, len);
+
+    char[] chars = alloc_array(char, *len + 1);
+
+    for (int i = 0; i < *len; i++) {
+        int* octet = alloc(int);
+        cursor = read_bits(cursor, data, 8, octet);
+        chars[i] = char_chr(*octet);
+    }
+
+    *dest = string_from_chararray(chars);
+    return cursor;
+}

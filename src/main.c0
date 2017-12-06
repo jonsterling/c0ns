@@ -5,12 +5,27 @@
 int main() {
 
     int[] data = alloc_array(int, 30);
-    write_bits(2, data, 8, 7);
+    write_bits(2, data, 8, char_ord('1'));
     int* out = alloc(int);
     read_bits(2, data, 8, out);
-    assert(*out == 7);
+    assert(char_chr(*out) == '1');
 
     println("* read/write bits sanity check passed");
+
+
+
+    int[] strdata = alloc_array(int, 5000);
+    write_string(5, strdata, "hello world! 1234");
+
+    string* str = alloc(string);
+    read_string(5, strdata, str);
+    assert(string_equal(*str, "hello world! 1234"));
+
+    println("* read/write string sanity check passed");
+
+
+
+
 
     test_domain_name();
 
