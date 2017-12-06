@@ -16,7 +16,7 @@ int extract_bits(int index, int size, int data)
 int pack_bits(int data, int index, int size, int value)
 // @requires size <= 32
 {
-    return data & (~(get_mask(index, size)) | (value << index));
+    return (data & ~(get_mask(index, size))) | (value << index);
 
 }
 
