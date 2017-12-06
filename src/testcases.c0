@@ -131,10 +131,10 @@ struct message* test_case2(){
 	  struct question* q = alloc(struct question);
 	  domain_name name1 = alloc(struct domain_name);
 	  domain_name name2 = alloc(struct domain_name);
-	  name2->label="e";
+	  name2->label="edu";
 	  name2->size=24;
 	  name2->next=NULL;
-	  name1->label="c";
+	  name1->label="cmu";
 	  name1->size=24;
 	  name1->next=name2;
 	  q->qname=name1;
