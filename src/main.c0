@@ -1,6 +1,6 @@
 #use <conio>
 #use "message.c1"
-#use "testcases.c0"
+#use "testcases.c1"
 
 int main() {
 
@@ -35,7 +35,9 @@ int main() {
     test_roundtrip(m4);
     println("* test_case4 passed");
 
-
+   struct message* m5 = test_case5();
+    test_roundtrip(m5);
+    println("* test_case5 passed");
 
     return 0;
 }

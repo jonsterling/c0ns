@@ -324,6 +324,7 @@ int print_resource_record(int cursor, int[] data, struct resource_record* rr)
 //@requires rr != NULL;
 //@requires cursor <= \length(data) * 32;
 {
+
     cursor = print_domain_name (cursor, data, rr->name);
     cursor = write_bits(cursor, data, 16, rr->type);
     cursor = write_bits(cursor, data, 16, rr->class);
