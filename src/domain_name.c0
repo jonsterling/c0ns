@@ -84,6 +84,7 @@ domain_name parse_domain_name(int* cursorOut, int[] data)
 
 int print_domain_name(int cursor, int[] data, domain_name d)
 //@requires cursor < \length(data) * 32;
+//@requires cursor % 8 == 0;
 {
     domain_name ptr;
     domain_name tail=NULL;

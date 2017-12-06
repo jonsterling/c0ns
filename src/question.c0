@@ -34,6 +34,7 @@ int parse_question(int cursor, int[] data, struct question* dest)
 int print_question (int cursor, int[] data, struct question* q)
 //@requires q != NULL;
 //@requires cursor < \length(data) * 32;
+//@requires cursor % 8 == 0;
 {
     cursor = print_domain_name(cursor, data, q->qname);
     cursor = write_bits(cursor, data, 16, q->qtype);

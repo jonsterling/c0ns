@@ -15,10 +15,10 @@ int main() {
 
 
     int[] strdata = alloc_array(int, 5000);
-    write_string(5, strdata, "hello world! 1234");
+    write_string(8, strdata, "hello world! 1234");
 
     string* str = alloc(string);
-    read_string(5, strdata, str);
+    read_string(8, strdata, str);
     assert(string_equal(*str, "hello world! 1234"));
 
     println("* read/write string sanity check passed");

@@ -57,6 +57,7 @@ int write_bits(int cursor, int[] destData, int numBits, int data)
 
 
 int write_string(int cursor, int[] data, string str)
+//@requires cursor % 8 == 0;
 //@requires (\length(data) * 32) - cursor >= string_length(str) * 8;
 {
     int len = string_length(str);
@@ -72,6 +73,7 @@ int write_string(int cursor, int[] data, string str)
 }
 
 int read_string(int cursor, int[] data, string* dest)
+//@requires cursor % 8 == 0;
 //@requires cursor < \length(data) * 32;
 {
     int* len = alloc(int);
