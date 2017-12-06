@@ -63,32 +63,14 @@ struct resource_record {
 };
 
 
-int parse_char_string(int cursor, int[] data, string* dest)
-//@requires dest != NULL;
-//@requires cursor <= \length(data) * 32;
-{
-    int* len = alloc(int);
-    cursor = read_bits(cursor, data, 8, len);
-
-    char[] chars = alloc_array(char, *len + 1);
-    for (int i = 0; i < *len; i++) {
-        int* octet = alloc(int);
-        cursor = read_bits(cursor, data, 8, octet);
-        chars[i] = char_chr(*octet);
-    }
-
-    *dest = string_from_chararray(chars);
-    return cursor;
-}
-
 int parse_hinfo(int cursor, int[] data, struct rr_hinfo* dest)
 //@requires cursor <= \length(data) * 32;
 {
     string* cpu = alloc(string);
     string* os = alloc(string);
 
-    cursor = parse_char_string(cursor, data, cpu);
-    cursor = parse_char_string(cursor, data, os);
+    cursor = read_string(cursor, data, cpu);
+    cursor = read_string(cursor, data, os);
 
     dest->cpu = *cpu;
     dest->os = *os;
@@ -145,7 +127,7 @@ int parse_txt(int cursor, int end, int[] data, rr_txt* dest)
 //@requires cursor <= \length(data) * 32;
 {
     string* s = alloc(string);
-    int cursor2 = parse_char_string(cursor, data, s);
+    int cursor2 = read_string(cursor, data, s);
 
     if (cursor2 >= end) {
         *dest = rr_txt_nil();
