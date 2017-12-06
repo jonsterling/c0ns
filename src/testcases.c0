@@ -79,7 +79,7 @@ struct message* test_case1(){
 	 struct question*[] questions = alloc_array(struct question*, 1);
 	  struct question* q = alloc(struct question);
 	  domain_name name = alloc(struct domain_name);
-	  name->label="257";
+	  name->label="AA";
 	  name->size=16;
 	  name->next=NULL;
 	  q->qname=name;
