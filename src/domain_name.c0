@@ -28,31 +28,28 @@ domain_name domain_cons(string lbl, domain_name name, int len) {
     return d;
 }
 
-
-int parse_domain_name(int cursor, int[] data, domain_name* dest) {
+domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data) {
     int* len = alloc(int);
 
-    int orig_cursor = cursor;
-    cursor = read_bits(cursor, data, 8, len);
+    int orig_cursor = *cursor;
+
+    *cursor = read_bits(*cursor, data, 8, len);
 
     if (*len == 0) {
-        // case: done
-        //FARZANEH: TODO: emmm I commented the following line. are we returning NULL after all we did?
-        //and the last dn we built will be unreferenced.
-        // we sare done already, as 'dest' is pointing to the dn with the last label read.
-
-        //*dest = domain_nil();
-        return cursor;
+        return name;
     }
 
     if (*len >= 0xc0) {
         // case: pointer
         int* ptr = alloc(int);
         // read the remainder of the first 16 bits as a pointer to an offset in octets
-        cursor = read_bits(orig_cursor + 2, data, 14, ptr);
+        *cursor = read_bits(orig_cursor + 2, data, 14, ptr);
         // read the last label of the domain name from the pointer:
-        parse_domain_name(*ptr * 8, data, dest);
-        return cursor;
+
+        int* ptrCursor = alloc(int);
+        *ptrCursor = *ptr * 8;
+
+        return parse_domain_name_aux(name, ptrCursor, data);
     }
 
     // char arrays by convention must end in a null cell, so we allocate *len + 1.
@@ -62,32 +59,37 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
     // now '*len' specifies the number of octets in the label
     for (int i = 0; i < *len; i++) {
         int* octet = alloc(int);
-        cursor = read_bits(cursor, data, 8, octet);
+
+        *cursor = read_bits(*cursor, data, 8, octet);
         chars[i] = char_chr(*octet);
     }
 
-    string lbl = string_from_chararray(chars);
 
-    *dest = domain_cons(lbl, *dest, *len*8);
-    
-    return parse_domain_name(cursor, data, dest);
+    string lbl = string_from_chararray(chars);
+    return parse_domain_name_aux(domain_cons(lbl, name, *len*8), cursor, data);
+}
+
+
+int parse_domain_name(int cursor, int[] data, domain_name* dest) {
+    int* cursorOut = alloc(int);
+    *cursorOut = cursor;
+    *dest = parse_domain_name_aux(domain_nil(), cursorOut, data);
+    return *cursorOut;
 }
 
 int print_domain_name(int cursor, int[] data, domain_name d) {
- 	domain_name ptr;
- 	domain_name tail=NULL;
+    domain_name ptr;
+    domain_name tail=NULL;
     int x=0;
- 	while (d!=tail) {
- 		ptr = d;
- 		while (ptr->next!=tail)
- 			ptr = ptr -> next;
- 		cursor = write_string (cursor, data, ptr->label);
+    while (d!=tail) {
+        ptr = d;
+        while (ptr->next!=tail)
+            ptr = ptr -> next;
+        cursor = write_string (cursor, data, ptr->label);
         x= ptr->size;
- 		tail = ptr;
- 	}
-     
- 	cursor = write_bits(cursor, data, 8, 0); //final label, for root
- 	return cursor;
- }
- 
- 
+        tail = ptr;
+    }
+
+    cursor = write_bits(cursor, data, 8, 0); //final label, for root
+    return cursor;
+}
