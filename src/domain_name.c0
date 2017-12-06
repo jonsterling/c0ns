@@ -109,6 +109,17 @@ void assert_domain_eq(domain_name dn1, domain_name dn2) {
     assert_domain_eq(dn2->next, dn2->next);
 }
 
+void debug_domain_name(domain_name dn) {
+    if (dn == NULL) {
+        print("[]");
+    }
+    else {
+        print(dn->label);
+        print(".");
+        debug_domain_name(dn->next);
+    }
+}
+
 void test_domain_name() {
     domain_name dn = domain_cons("ab", domain_nil());
     int[] data = alloc_array(int, 30);
