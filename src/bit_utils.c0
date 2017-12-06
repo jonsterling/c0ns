@@ -48,8 +48,10 @@ int write_bits(int cursor, int[] destData, int numBits, int data)
 
 //destData[index] & (~(((1<<numBits)-1)<<offset));	//force zeroing target bits before copying
 //    destData[index] = destData[index] | data<<(offset);
+
     return cursor + numBits;
 }
+
 
 int write_string(int cursor, int[] data, string str)
 //@requires (\length(data) * 32) - cursor >= string_length(str) * 8;
@@ -61,6 +63,6 @@ int write_string(int cursor, int[] data, string str)
     for (int i = 0; i < len; i++) {
         int octet= char_ord(chars[i]);
         cursor = write_bits(cursor, data, 8, octet);
+       
     }
-    return cursor;
-}
+    return cursor;}

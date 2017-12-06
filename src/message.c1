@@ -187,6 +187,7 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
 void test_roundtrip(struct message* message)
 //@requires message != NULL;
 {
+
     bytearray bs = write_message(message);
     struct message* message2 = parse_message(bs->bytes);
     bytearray bs2 = write_message(message2);

@@ -39,5 +39,10 @@ int main() {
     test_roundtrip(m5);
     println("* test_case5 passed");
 
+    struct message* m6 = test_case6();
+    test_roundtrip(m6);
+    println("* test_case6 passed");
+
+
     return 0;
 }
