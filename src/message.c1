@@ -18,13 +18,13 @@ struct message {
 };
 
 
-struct message* parse_message(int[] data) {
+struct message* parse_message(int[] data)
+//@ensures \result != NULL;
+{
     int cursor = 0;
     struct message* dest = alloc(struct message);
     struct header* header = alloc(struct header);
     cursor = parse_header(cursor, data, header);
-
-
 
     int qdcount = header->qdcount;
     struct question*[] questions = alloc_array(struct question*, qdcount);
@@ -127,7 +127,9 @@ bytearray write_message(struct message* input)
 }
 
 
-void print_bytearray(bytearray bs) {
+void print_bytearray(bytearray bs)
+//@requires bs != NULL;
+{
     print("[");
     for (int i = 0; i < bs->length; i++) {
         if (i != 0) {
@@ -143,7 +145,9 @@ void print_bytearray(bytearray bs) {
     flush();
 }
 
-void assert_bytes_eq(bytearray bs1, bytearray bs2) {
+void assert_bytes_eq(bytearray bs1, bytearray bs2)
+//@requires bs1 != NULL && bs2 != NULL;
+{
     int l1 = bs1->length;
     int l2 = bs2->length;
 
@@ -169,7 +173,9 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2) {
 }
 
 
-void test_roundtrip(struct message* message) {
+void test_roundtrip(struct message* message)
+//@requires message != NULL;
+{
     bytearray bs = write_message(message);
     struct message* message2 = parse_message(bs->bytes);
     bytearray bs2 = write_message(message2);
