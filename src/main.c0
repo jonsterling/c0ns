@@ -27,8 +27,13 @@ int main() {
     println("* test_case2 passed");
 
 
+    struct message* m4 = test_case4();
+    test_roundtrip(m4);
+    println("* test_case4 passed");
+
 	struct message* m3 = test_case3();
     test_roundtrip(m3);
     println("* test_case3 passed");
+
     return 0;
 }
