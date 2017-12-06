@@ -76,7 +76,10 @@ struct bytearray {
 
 typedef struct bytearray* bytearray;
 
-bytearray write_message(struct message* input){
+bytearray write_message(struct message* input)
+//@requires input != NULL;
+//@ensures \result != NULL;
+{
     int qdcount = input -> header -> qdcount;
     int ancount = input -> header -> ancount;
     int nscount = input -> header -> nscount;
