@@ -45,6 +45,6 @@ int print_question (int cursor, int[] data, struct question* q)
 int countBitsQuestion(struct question* q)
 //@requires q != NULL;
 {
-    int Qsize = q->qname->size+ 32;
+    int Qsize = q->qname->size * 8 + 32;
     return Qsize;
 }
