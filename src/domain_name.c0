@@ -8,6 +8,14 @@ struct domain_name {
 
 typedef struct domain_name* domain_name;
 
+int domain_size(domain_name name) {
+    if (name == NULL) {
+        return 0;
+    }
+
+    return name->size;
+}
+
 domain_name domain_nil() {
     return NULL;
 }
@@ -16,8 +24,8 @@ domain_name domain_cons(string lbl, domain_name name, int len) {
     domain_name d = alloc(struct domain_name);
     d->label = lbl;
     d->next = name;
-    d->size= name->size+len;
-     return d;
+    d->size = domain_size(name) + len;
+    return d;
 }
 
 
