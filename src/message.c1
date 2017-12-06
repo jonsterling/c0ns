@@ -152,7 +152,17 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
     int l2 = bs2->length;
 
     if (l1 != l2) {
-        error("Byte arrays of different lengths");
+        print("Equating following two byte arrays: \n    ");
+        print_bytearray(bs1);
+        print("\nvs.\n    ");
+        print_bytearray(bs2);
+        print("\n");
+
+        string msg = "Byte arrays of different lengths: ";
+        msg = string_join(msg, string_fromint(l1));
+        msg = string_join(msg, " vs. ");
+        msg = string_join(msg, string_fromint(l2));
+        error(msg);
     }
 
     for (int i = 0; i < l1; i++) {
