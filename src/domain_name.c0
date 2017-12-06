@@ -47,9 +47,11 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
         return cursor;
     }
 
+    // char arrays by convention must end in a null cell, so we allocate *len + 1.
+    char[] chars = alloc_array(char, *len + 1);
+
     // case: ordinary label
     // now '*len' specifies the number of octets in the label
-    char[] chars = alloc_array(char, *len);
     for (int i = 0; i < *len; i++) {
         int* octet = alloc(int);
         cursor = read_bits(cursor, data, 8, octet);
