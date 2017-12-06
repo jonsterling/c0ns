@@ -280,10 +280,10 @@ struct message* test_case5(){
     struct resource_record* a1 = alloc(struct resource_record);
     a1->name=domain_cons("com", domain_cons("google", domain_nil()));
     //type_A
-    a1->type=1;
+    a1->type=type_A();
     a1->class=1;
     a1->ttl=1;
-    a1->rd_length=1;
+    a1->rd_length=4;
     struct rr_A* r = alloc(struct rr_A);
 
     r->address=2333334;
