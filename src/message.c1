@@ -32,7 +32,6 @@ struct message* parse_message(int[] data) {
     int cursor = 0;
     struct message* dest = alloc(struct message);
     struct header* header = alloc(struct header);
-
     cursor = parse_header(cursor, data, header);
 
     int qdcount = header->qdcount;
@@ -105,6 +104,7 @@ bytearray write_message(struct message* input){
     for (int i = 0; i < ancount; i++) {
         numBits += countBitsRR(input -> answer[i]);
     }
+
     for (int i = 0; i < nscount; i++) {
         numBits += countBitsRR(input -> authority[i]);
     }
@@ -115,7 +115,6 @@ bytearray write_message(struct message* input){
     // multiplied by 2 just in case ;-)
     int[] destData = alloc_array(int, (numBits/32)*2);
     int cursor = 0;
-
     cursor = print_header (cursor, destData, input -> header);
     for (int i = 0; i < qdcount; i++) {
         cursor = print_question (cursor, destData, input -> question[i]);

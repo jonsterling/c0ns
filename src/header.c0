@@ -107,6 +107,12 @@ int print_header(int cursor, int[] data, struct header* input){
  cursor = write_bits(cursor, data, 1, input->z );
  cursor = write_bits(cursor, data, 1, input->rcode );
  cursor = write_bits(cursor, data, 16, input->qdcount );
+for (int j=0; j<3;j++){
+ printint(data[j]);
+print("\n");
+}
+print("end\n");
+
  cursor = write_bits(cursor, data, 16, input->ancount );
  cursor = write_bits(cursor, data, 16, input->nscount );
  cursor = write_bits(cursor, data, 16, input->arcount );

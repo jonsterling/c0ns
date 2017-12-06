@@ -9,6 +9,7 @@ struct question {
 };
 
 int parse_question(int cursor, int[] data, struct question* dest) {
+    
     domain_name* name = alloc(domain_name);
     *name = NULL; //FARZANEH: last node (with first label) should be pointing to null
     qtype* type = alloc(qtype);

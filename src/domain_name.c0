@@ -17,7 +17,7 @@ domain_name domain_cons(string lbl, domain_name name, int len) {
     d->label = lbl;
     d->next = name;
     d->size= name->size+len;
-    return d;
+     return d;
 }
 
 
@@ -66,13 +66,16 @@ int parse_domain_name(int cursor, int[] data, domain_name* dest) {
 int print_domain_name(int cursor, int[] data, domain_name d) {
  	domain_name ptr;
  	domain_name tail=NULL;
+    int x=0;
  	while (d!=tail) {
  		ptr = d;
  		while (ptr->next!=tail)
  			ptr = ptr -> next;
  		cursor = write_string (cursor, data, ptr->label);
+        x= ptr->size;
  		tail = ptr;
  	}
+     
  	cursor = write_bits(cursor, data, 8, 0); //final label, for root
  	return cursor;
  }
