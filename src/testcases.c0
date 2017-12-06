@@ -9,202 +9,202 @@
 // The query with no entries in it.
 struct message* test_case0(){
 
-	struct message* test = alloc(struct message);
-	struct header* header = alloc(struct header);
-	test->header=header;
-	/*header part*/
-	test->header->id=0;
-	//This message is a query.
-	test->header->qr=0;
-	//standard query
-	test->header->opcode=0;
-	//just valid in answers
-	test->header->aa=0;
-	//not truncated
-	test->header->tc=0;
+    struct message* test = alloc(struct message);
+    struct header* header = alloc(struct header);
+    test->header=header;
+    /*header part*/
+    test->header->id=0;
+    //This message is a query.
+    test->header->qr=0;
+    //standard query
+    test->header->opcode=0;
+    //just valid in answers
+    test->header->aa=0;
+    //not truncated
+    test->header->tc=0;
 
-	//no recursion
-	test->header->rd=0;
-	test->header->ra=0;
-	test->header->z=0;
-	//just for responses
-	test->header->rcode=0;
-	test->header->qdcount=0;
-	test->header->ancount=0;
-	test->header->nscount=0;
-	test->header->arcount=0;
+    //no recursion
+    test->header->rd=0;
+    test->header->ra=0;
+    test->header->z=0;
+    //just for responses
+    test->header->rcode=0;
+    test->header->qdcount=0;
+    test->header->ancount=0;
+    test->header->nscount=0;
+    test->header->arcount=0;
 
-	/*question part*/
-	 struct question*[] questions = alloc_array(struct question*, 0);
-	 test->question= questions;
-	/*answer part*/
-	struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
-	 test->answer= answers;
-	 /*authority part*/
-	 struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
-	 test->authority= authorities;
-	 /*additional part*/
-	 struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
-	 test->additional= additionals;
-	return test;
+    /*question part*/
+    struct question*[] questions = alloc_array(struct question*, 0);
+    test->question= questions;
+    /*answer part*/
+    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    test->answer= answers;
+    /*authority part*/
+    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    test->authority= authorities;
+    /*additional part*/
+    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    test->additional= additionals;
+    return test;
 }
 
 struct message* test_case1(){
 
-	struct message* test = alloc(struct message);
-	struct header* header = alloc(struct header);
-	test->header=header;
-	/*header part*/
-	test->header->id=1;
-	//This message is a query.
-	test->header->qr=0;
-	//standard query
-	test->header->opcode=0;
-	//just valid in answers
-	test->header->aa=0;
-	//not truncated
-	test->header->tc=0;
-	//no recursion
-	test->header->rd=0;
-	test->header->ra=0;
-	test->header->z=0;
-	//just for responses
-	test->header->rcode=0;
-	test->header->qdcount=1;
-	test->header->ancount=0;
-	test->header->nscount=0;
-	test->header->arcount=0;
+    struct message* test = alloc(struct message);
+    struct header* header = alloc(struct header);
+    test->header=header;
+    /*header part*/
+    test->header->id=1;
+    //This message is a query.
+    test->header->qr=0;
+    //standard query
+    test->header->opcode=0;
+    //just valid in answers
+    test->header->aa=0;
+    //not truncated
+    test->header->tc=0;
+    //no recursion
+    test->header->rd=0;
+    test->header->ra=0;
+    test->header->z=0;
+    //just for responses
+    test->header->rcode=0;
+    test->header->qdcount=1;
+    test->header->ancount=0;
+    test->header->nscount=0;
+    test->header->arcount=0;
 
 /*question part*/
-	 struct question*[] questions = alloc_array(struct question*, 1);
-	  struct question* q = alloc(struct question);
-	  domain_name name = alloc(struct domain_name);
-	  name->label="A";
-	  name->size=8;
-	  name->next=NULL;
-	  q->qname=name;
-	  q->qtype=14; 
-	  q->qclass=1;
-	  questions[0]=q;
-	  test->question= questions;
+    struct question*[] questions = alloc_array(struct question*, 1);
+    struct question* q = alloc(struct question);
+    domain_name name = alloc(struct domain_name);
+    name->label="A";
+    name->size=8;
+    name->next=NULL;
+    q->qname=name;
+    q->qtype=14;
+    q->qclass=1;
+    questions[0]=q;
+    test->question= questions;
 
 /*answer part*/
-	struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
-	 test->answer= answers;
- /*authority part*/
-	 struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
-	 test->authority= authorities;
- /*additional part*/
-	 struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
-	 test->additional= additionals;
-	return test;
+    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    test->answer= answers;
+    /*authority part*/
+    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    test->authority= authorities;
+    /*additional part*/
+    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    test->additional= additionals;
+    return test;
 }
 
 struct message* test_case2(){
 
-	struct message* test = alloc(struct message);
-	struct header* header = alloc(struct header);
-	test->header=header;
-	/*header part*/
-	test->header->id=2;
-	//This message is a query.
-	test->header->qr=0;
-	//standard query
-	test->header->opcode=0;
-	//just valid in answers
-	test->header->aa=0;
-	//not truncated
-	test->header->tc=0;
-	//no recursion
-	test->header->rd=0;
-	test->header->ra=0;
-	test->header->z=0;
-	//just for responses
-	test->header->rcode=0;
-	test->header->qdcount=1;
-	test->header->ancount=0;
-	test->header->nscount=0;
-	test->header->arcount=0;
+    struct message* test = alloc(struct message);
+    struct header* header = alloc(struct header);
+    test->header=header;
+    /*header part*/
+    test->header->id=2;
+    //This message is a query.
+    test->header->qr=0;
+    //standard query
+    test->header->opcode=0;
+    //just valid in answers
+    test->header->aa=0;
+    //not truncated
+    test->header->tc=0;
+    //no recursion
+    test->header->rd=0;
+    test->header->ra=0;
+    test->header->z=0;
+    //just for responses
+    test->header->rcode=0;
+    test->header->qdcount=1;
+    test->header->ancount=0;
+    test->header->nscount=0;
+    test->header->arcount=0;
 
 /*question part*/
-	 struct question*[] questions = alloc_array(struct question*, 1);
-	  struct question* q = alloc(struct question);
-	  domain_name name1 = alloc(struct domain_name);
-	  domain_name name2 = alloc(struct domain_name);
-	  name2->label="e";
-	  name2->size=24;
-	  name2->next=NULL;
-	  name1->label="c";
-	  name1->size=24;
-	  name1->next=name2;
-	  q->qname=name1;
-	  q->qtype=14; 
-	  q->qclass=1;
-	  questions[0]=q;
-	  test->question= questions;
+    struct question*[] questions = alloc_array(struct question*, 1);
+    struct question* q = alloc(struct question);
+    domain_name name1 = alloc(struct domain_name);
+    domain_name name2 = alloc(struct domain_name);
+    name2->label="e";
+    name2->size=24;
+    name2->next=NULL;
+    name1->label="c";
+    name1->size=24;
+    name1->next=name2;
+    q->qname=name1;
+    q->qtype=14;
+    q->qclass=1;
+    questions[0]=q;
+    test->question= questions;
 
 /*answer part*/
-	struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
-	 test->answer= answers;
- /*authority part*/
-	 struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
-	 test->authority= authorities;
- /*additional part*/
-	 struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
-	 test->additional= additionals;
-	return test;
+    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    test->answer= answers;
+    /*authority part*/
+    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    test->authority= authorities;
+    /*additional part*/
+    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    test->additional= additionals;
+    return test;
 }
 struct message* test_case3(){
 
-	struct message* test = alloc(struct message);
-	struct header* header = alloc(struct header);
-	test->header=header;
-	/*header part*/
-	test->header->id=2;
-	//This message is a query.
-	test->header->qr=0;
-	//standard query
-	test->header->opcode=0;
-	//just valid in answers
-	test->header->aa=0;
-	//not truncated
-	test->header->tc=0;
-	//no recursion
-	test->header->rd=0;
-	test->header->ra=0;
-	test->header->z=0;
-	//just for responses
-	test->header->rcode=0;
-	test->header->qdcount=1;
-	test->header->ancount=0;
-	test->header->nscount=0;
-	test->header->arcount=0;
+    struct message* test = alloc(struct message);
+    struct header* header = alloc(struct header);
+    test->header=header;
+    /*header part*/
+    test->header->id=2;
+    //This message is a query.
+    test->header->qr=0;
+    //standard query
+    test->header->opcode=0;
+    //just valid in answers
+    test->header->aa=0;
+    //not truncated
+    test->header->tc=0;
+    //no recursion
+    test->header->rd=0;
+    test->header->ra=0;
+    test->header->z=0;
+    //just for responses
+    test->header->rcode=0;
+    test->header->qdcount=1;
+    test->header->ancount=0;
+    test->header->nscount=0;
+    test->header->arcount=0;
 
 /*question part*/
-	 struct question*[] questions = alloc_array(struct question*, 1);
-	  struct question* q = alloc(struct question);
-	  domain_name name1 = alloc(struct domain_name);
-	  domain_name name2 = alloc(struct domain_name);
-	  name2->label="edu";
-	  name2->size=24;
-	  name2->next=NULL;
-	  name1->label="cmu";
-	  name1->size=24;
-	  name1->next=name2;
-	  q->qname=name1;
-	  q->qtype=14; 
-	  q->qclass=1;
-	  questions[0]=q;
-	  test->question= questions;
+    struct question*[] questions = alloc_array(struct question*, 1);
+    struct question* q = alloc(struct question);
+    domain_name name1 = alloc(struct domain_name);
+    domain_name name2 = alloc(struct domain_name);
+    name2->label="edu";
+    name2->size=24;
+    name2->next=NULL;
+    name1->label="cmu";
+    name1->size=24;
+    name1->next=name2;
+    q->qname=name1;
+    q->qtype=14;
+    q->qclass=1;
+    questions[0]=q;
+    test->question= questions;
 
 /*answer part*/
-	struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
-	 test->answer= answers;
- /*authority part*/
-	 struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
-	 test->authority= authorities;
- /*additional part*/
-	 struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
-	 test->additional= additionals;
-	return test;
+    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    test->answer= answers;
+    /*authority part*/
+    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    test->authority= authorities;
+    /*additional part*/
+    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    test->additional= additionals;
+    return test;
 }
