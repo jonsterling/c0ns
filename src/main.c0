@@ -1,14 +1,16 @@
 #use <conio>
-#use "message.c0"
+#use "message.c1"
+#use "testcases.c0"
 
 int main() {
-    struct header* hd;
-    struct message* m;
+//    struct header* hd;
+    struct message* m=test_case0();
+print("hello world\n");
+ //   hd = alloc(struct header);
+ 	  //m = alloc(struct message);
+//  	  m->header = hd;
 
-    hd = alloc(struct header);
-    m = alloc(struct message);
-    m->header = hd;
-
-    print("hello world\n");
+test_roundtrip(m);
+    
     return 0;
 }
