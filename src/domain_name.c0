@@ -20,7 +20,7 @@ domain_name domain_nil() {
     return NULL;
 }
 
-domain_name domain_cons(string lbl, domain_name name, int len) {
+domain_name domain_cons(string lbl, int len, domain_name name) {
     domain_name d = alloc(struct domain_name);
     d->label = lbl;
     d->next = name;
@@ -66,7 +66,7 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data) {
 
 
     string lbl = string_from_chararray(chars);
-    return parse_domain_name_aux(domain_cons(lbl, name, *len*8), cursor, data);
+    return parse_domain_name_aux(domain_cons(lbl, *len*8, name), cursor, data);
 }
 
 

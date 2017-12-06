@@ -93,7 +93,6 @@ int parse_hinfo(int cursor, int[] data, struct rr_hinfo* dest) {
 
 int parse_mx(int cursor, int[] data, struct rr_mx* dest) {
     int* pref = alloc(int);
-    domain_name* exch = alloc(domain_name);
 
     cursor = read_bits(cursor, data, 16, pref);
 
