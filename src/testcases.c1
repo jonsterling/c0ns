@@ -247,37 +247,37 @@ struct message* test_case4(){
 
 struct message* test_case5(){
 
-	struct message* test = alloc(struct message);
-	struct header* header = alloc(struct header);
-	test->header=header;
-	/*header part*/
-	test->header->id=5;
-	//This message is a response.
-	test->header->qr=1;
-	//standard query
-	test->header->opcode=1;
-	//just valid in answers
-	test->header->aa=1;
-	//not truncated
-	test->header->tc=0;
-	//no recursion
-	test->header->rd=0;
-	test->header->ra=0;
-	test->header->z=0;
-	//just for responses
-	test->header->rcode=0;
-	test->header->qdcount=0;
-	test->header->ancount=1;
-	test->header->nscount=0;
-	test->header->arcount=0;
+    struct message* test = alloc(struct message);
+    struct header* header = alloc(struct header);
+    test->header=header;
+    /*header part*/
+    test->header->id=5;
+    //This message is a response.
+    test->header->qr=1;
+    //standard query
+    test->header->opcode=1;
+    //just valid in answers
+    test->header->aa=1;
+    //not truncated
+    test->header->tc=0;
+    //no recursion
+    test->header->rd=0;
+    test->header->ra=0;
+    test->header->z=0;
+    //just for responses
+    test->header->rcode=0;
+    test->header->qdcount=0;
+    test->header->ancount=1;
+    test->header->nscount=0;
+    test->header->arcount=0;
 
 /*question part*/
-	 struct question*[] questions = alloc_array(struct question*, 0);
-	 test->question= questions;
+    struct question*[] questions = alloc_array(struct question*, 0);
+    test->question= questions;
 
 /*answer part*/
-	struct resource_record*[] answers = alloc_array(struct resource_record*, 1);
-	  struct resource_record* a1 = alloc(struct resource_record);
+    struct resource_record*[] answers = alloc_array(struct resource_record*, 1);
+    struct resource_record* a1 = alloc(struct resource_record);
     a1->name=domain_cons("com", domain_cons("google", domain_nil()));
     //type_A
     a1->type=1;
@@ -286,19 +286,19 @@ struct message* test_case5(){
     a1->rd_length=1;
     struct rr_A* r = alloc(struct rr_A);
 
-       r->address=2333334;
-       a1->rdata = (void*)r;
+    r->address=2333334;
+    a1->rdata = (void*)r;
     answers[0]=a1;
 
-	test->answer= answers;
- /*authority part*/
-	 struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
-	 test->authority= authorities;
- /*additional part*/
-	 struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
-	 test->additional= additionals;
+    test->answer= answers;
+    /*authority part*/
+    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    test->authority= authorities;
+    /*additional part*/
+    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    test->additional= additionals;
 
-	return test;
+    return test;
 
 
 }
@@ -330,12 +330,12 @@ struct message* test_case6(){
     test->header->arcount=0;
 
 /*question part*/
-     struct question*[] questions = alloc_array(struct question*, 0);
-     test->question= questions;
+    struct question*[] questions = alloc_array(struct question*, 0);
+    test->question= questions;
 
 /*answer part*/
     struct resource_record*[] answers = alloc_array(struct resource_record*, 1);
-      struct resource_record* a1 = alloc(struct resource_record);
+    struct resource_record* a1 = alloc(struct resource_record);
     a1->name=domain_cons("com", domain_cons("google", domain_nil()));
 
     //type_txt
@@ -343,25 +343,23 @@ struct message* test_case6(){
     a1->class=255;
     a1->ttl=52;
     a1->rd_length=2;
-   // struct rr_A* r = alloc(struct rr_A);
-rr_txt* txt = alloc(rr_txt);
-        *txt = rr_txt_cons("c", rr_txt_cons("g", rr_txt_nil()));
+    // struct rr_A* r = alloc(struct rr_A);
+    rr_txt* txt = alloc(rr_txt);
+    *txt = rr_txt_cons("c", rr_txt_cons("g", rr_txt_nil()));
 
-         //FARZANEH: last node (with first string) should be pointing to null
-        //cursor = parse_txt(cursor, cursor + len * 8, data, txt);
-        a1->rdata = (void*)txt;
-            
+    //FARZANEH: last node (with first string) should be pointing to null
+    //cursor = parse_txt(cursor, cursor + len * 8, data, txt);
+    a1->rdata = (void*)txt;
+
     answers[0]=a1;
 
     test->answer= answers;
- /*authority part*/
-     struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
-     test->authority= authorities;
- /*additional part*/
-     struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
-     test->additional= additionals;
+    /*authority part*/
+    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    test->authority= authorities;
+    /*additional part*/
+    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    test->additional= additionals;
 
     return test;
-
-
 }
