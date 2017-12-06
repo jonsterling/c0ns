@@ -78,10 +78,7 @@ struct message* test_case1(){
 /*question part*/
     struct question*[] questions = alloc_array(struct question*, 1);
     struct question* q = alloc(struct question);
-    domain_name name = alloc(struct domain_name);
-    name->label="A";
-    name->size=8;
-    name->next=NULL;
+    domain_name name = domain_cons("A", domain_nil());
     q->qname=name;
     q->qtype=14;
     q->qclass=1;
@@ -129,15 +126,7 @@ struct message* test_case2(){
 /*question part*/
     struct question*[] questions = alloc_array(struct question*, 1);
     struct question* q = alloc(struct question);
-    domain_name name1 = alloc(struct domain_name);
-    domain_name name2 = alloc(struct domain_name);
-    name2->label="e";
-    name2->size=24;
-    name2->next=NULL;
-    name1->label="c";
-    name1->size=24;
-    name1->next=name2;
-    q->qname=name1;
+    q->qname=domain_cons("c", domain_cons("e", domain_nil()));
     q->qtype=14;
     q->qclass=1;
     questions[0]=q;
@@ -209,15 +198,7 @@ struct message* test_case3(){
 /*question part*/
     struct question*[] questions = alloc_array(struct question*, 1);
     struct question* q = alloc(struct question);
-    domain_name name1 = alloc(struct domain_name);
-    domain_name name2 = alloc(struct domain_name);
-    name2->label="edu";
-    name2->size=24;
-    name2->next=NULL;
-    name1->label="cmu";
-    name1->size=24;
-    name1->next=name2;
-    q->qname=name1;
+    q->qname=domain_cons("cmu",domain_cons("edu",domain_nil()));
     q->qtype=14;
     q->qclass=1;
     questions[0]=q;
