@@ -96,31 +96,35 @@ int parse_mx(int cursor, int[] data, struct rr_mx* dest) {
     domain_name* exch = alloc(domain_name);
 
     cursor = read_bits(cursor, data, 16, pref);
-    cursor = parse_domain_name(cursor, data, exch);
+
+    int* cursorOut = alloc(int);
+    *cursorOut = cursor;
 
     dest->preference = *pref;
-    dest->exchange = *exch;
+    dest->exchange = parse_domain_name(cursorOut, data);
+    cursor = *cursorOut;
 
     return cursor;
 }
 
 int parse_soa(int cursor, int[] data, struct rr_soa* dest) {
-    domain_name* mname = alloc(domain_name);
-    domain_name* rname = alloc(domain_name);
     int* serial = alloc(int);
     int* refresh = alloc(int);
     int* retry = alloc(int);
     int* expire = alloc(int);
 
-    cursor = parse_domain_name(cursor, data, mname);
-    cursor = parse_domain_name(cursor, data, rname);
+    int* cursorOut = alloc(int);
+    *cursorOut = cursor;
+
+    dest->mname = parse_domain_name(cursorOut, data);
+    dest->rname = parse_domain_name(cursorOut, data);
+    cursor = *cursorOut;
+
     cursor = read_bits(cursor, data, 32, serial);
     cursor = read_bits(cursor, data, 32, refresh);
     cursor = read_bits(cursor, data, 32, retry);
     cursor = read_bits(cursor, data, 32, expire);
 
-    dest->mname = *mname;
-    dest->rname = *rname;
     dest->serial = *serial;
     dest->refresh = *refresh;
     dest->retry = *retry;
@@ -134,7 +138,7 @@ int parse_txt(int cursor, int end, int[] data, rr_txt* dest) {
     int cursor2 = parse_char_string(cursor, data, s);
 
     if (cursor2 >= end) {
-        *dest = rr_txt_nil(); 
+        *dest = rr_txt_nil();
         return cursor;
     }
 
@@ -162,9 +166,10 @@ int parse_wks(int cursor, int[] rdata, struct rr_wks* dest) {
 
 int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_record* dest) {
     if (type == type_cname()) {
-        domain_name* name = alloc(domain_name);
-        cursor = parse_domain_name(cursor, data, name);
-        dest->rdata = (void*)name;
+        int* cursorOut = alloc(int);
+        *cursorOut = cursor;
+        dest->rdata = (void*)parse_domain_name(cursorOut, data);
+        cursor = *cursorOut;
     }
     else if (type == type_hinfo()) {
         struct rr_hinfo* hinfo = alloc(struct rr_hinfo);
@@ -177,9 +182,10 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
         dest->rdata = (void*)mx;
     }
     else if (type == type_ptr()) {
-        domain_name* name = alloc(domain_name);
-        cursor = parse_domain_name(cursor, data, name);
-        dest->rdata = (void*)name;
+        int* cursorOut = alloc(int);
+        *cursorOut = cursor;
+        dest->rdata = (void*)parse_domain_name(cursorOut, data);
+        cursor = *cursorOut;
     }
     else if (type == type_soa()) {
         struct rr_soa* soa = alloc(struct rr_soa);
@@ -208,20 +214,21 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
 }
 
 int parse_resource_record(int cursor, int[] data, struct resource_record* dest) {
-    domain_name* name = alloc(domain_name);
     int* type = alloc(int);
     int* class_ = alloc(int);
     int* ttl = alloc(int);
     int* rd_length = alloc(int);
 
+    int* cursorOut = alloc(int);
+    *cursorOut = cursor;
+    dest->name = parse_domain_name(cursorOut, data);
+    cursor = *cursorOut;
 
-    cursor = parse_domain_name(cursor, data, name);
     cursor = read_bits(cursor, data, 16, type);
     cursor = read_bits(cursor, data, 16, class_);
     cursor = read_bits(cursor, data, 32, ttl);
     cursor = read_bits(cursor, data, 16, rd_length);
 
-    dest->name = *name;
     dest->type = *type;
     dest->class = *class_;
     dest->ttl = *ttl;
@@ -247,8 +254,8 @@ int print_rr_txt (int cursor, int[] data, rr_txt t) {
     //cursor = write_bits(cursor, data, 8, 0); //final label, for root
     return cursor;
  }
- 
- 
+
+
 int print_rdata (int cursor, int[] data, type_ type, void* rdata) {
     //TODO: this block needs to be checked
     if (type == type_cname()) {
@@ -293,7 +300,7 @@ int print_resource_record(int cursor, int[] data, struct resource_record* rr) {
     cursor = print_domain_name (cursor, data, rr->name);
     cursor = write_bits(cursor, data, 16, rr->type);
     cursor = write_bits(cursor, data, 16, rr->class);
-    cursor = write_bits(cursor, data, 32, rr->ttl);  
+    cursor = write_bits(cursor, data, 32, rr->ttl);
     cursor = write_bits(cursor, data, 16, rr->rd_length);
     cursor = print_rdata(cursor, data, rr->type, rr->rdata);
 

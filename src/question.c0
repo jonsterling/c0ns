@@ -8,33 +8,39 @@ struct question {
     qclass qclass;
 };
 
-int parse_question(int cursor, int[] data, struct question* dest) {
-    
-    domain_name* name = alloc(domain_name);
-    *name = NULL; //FARZANEH: last node (with first label) should be pointing to null
+int parse_question(int cursor, int[] data, struct question* dest)
+//@requires dest != NULL;
+{
     qtype* type = alloc(qtype);
     qclass* cls = alloc(qclass);
 
-    cursor = parse_domain_name(cursor, data, name);
+    int* cursorOut = alloc(int);
+    dest->qname = parse_domain_name(cursorOut, data);
+    cursor = *cursorOut;
+
     cursor = read_bits(cursor, data, 16, type);
     cursor = read_bits(cursor, data, 16, cls);
 
-    dest->qname = *name;
     dest->qtype = *type;
     dest->qclass = *cls;
+
 
     return cursor;
 }
 
-int print_question (int cursor, int[] data, struct question* q) {
+int print_question (int cursor, int[] data, struct question* q)
+//@requires q != NULL;
+{
     cursor = print_domain_name(cursor, data, q->qname);
     cursor = write_bits(cursor, data, 16, q->qtype);
     cursor = write_bits(cursor, data, 16, q->qclass);
     return cursor;
 }
-//Qsize: size of a question in bits
-int countBitsQuestion(struct question* q){
-    int Qsize= q->qname->size+ 32;
-    return Qsize;
-}   
 
+//Qsize: size of a question in bits
+int countBitsQuestion(struct question* q)
+//@requires q != NULL;
+{
+    int Qsize = q->qname->size+ 32;
+    return Qsize;
+}
