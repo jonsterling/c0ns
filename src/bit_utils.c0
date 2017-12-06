@@ -2,27 +2,26 @@
 
 
 int get_mask(int index, int size)
-// @requires size <= 32
+//@requires size <= 32;
 {
     return ((1 << size) - 1) << index;
 }
 
 int extract_bits(int index, int size, int data)
-// @requires size <= 32
+//@requires size <= 32;
 {
     return (data & get_mask(index, size)) >> index;
 }
 
 int pack_bits(int data, int index, int size, int value)
-// @requires size <= 32
+//@requires size <= 32;
 {
     return (data & ~(get_mask(index, size))) | (value << index);
-
 }
 
 
 int read_bits(int cursor, int[] data, int numBits, int* dest)
-// @requires numBits <= 32
+//@requires numBits <= 32;
 {
     int index = cursor / 32;
     *dest = extract_bits(cursor % 32, numBits, data[index]);
@@ -31,7 +30,9 @@ int read_bits(int cursor, int[] data, int numBits, int* dest)
 
 
 
-int write_bits(int cursor, int[] destData, int numBits, int data) {
+int write_bits(int cursor, int[] destData, int numBits, int data)
+//@requires numBits <= 32;
+{
     int index = cursor / 32;
     int offset = cursor % 32;
 //    data = data & ((1<<numBits)-1); //force zeroing preceding bits in source data
@@ -41,7 +42,9 @@ int write_bits(int cursor, int[] destData, int numBits, int data) {
     return cursor + numBits;
 }
 
-int write_string(int cursor, int[] data, string str) {
+int write_string(int cursor, int[] data, string str)
+//@requires (\length(data) * 32) - cursor >= string_length(str) * 8;
+{
     int len = string_length(str);
     cursor = write_bits(cursor, data, 8, len);
 
