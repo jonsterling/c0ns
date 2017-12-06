@@ -163,6 +163,7 @@ int parse_wks(int cursor, int[] rdata, struct rr_wks* dest)
 int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_record* dest)
 //@requires dest != NULL;
 //@requires cursor <= \length(data) * 32;
+//@requires cursor % 8 == 0;
 {
     if (type == type_cname()) {
         int* cursorOut = alloc(int);
@@ -215,6 +216,7 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
 int parse_resource_record(int cursor, int[] data, struct resource_record* dest)
 //@requires dest != NULL;
 //@requires cursor <= \length(data) * 32;
+//@requires cursor % 32 == 0;
 {
 
     int* type = alloc(int);
