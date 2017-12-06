@@ -10,7 +10,7 @@ int main() {
     read_bits(2, data, 8, out);
     assert(*out == 7);
 
-    println("\n*read/write bits sanity check passed\n");
+    println("* read/write bits sanity check passed");
 
 
     test_domain_name();
@@ -21,7 +21,8 @@ int main() {
  	  //m = alloc(struct message);
 //  	  m->header = hd;
 
-test_roundtrip(m);
+    test_roundtrip(m);
+    println("* test_case1 passed");
 
     return 0;
 }
