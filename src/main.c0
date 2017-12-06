@@ -22,18 +22,20 @@ int main() {
     test_roundtrip(m1);
     println("* test_case1 passed");
 
-	struct message* m2 = test_case2();
+    struct message* m2 = test_case2();
     test_roundtrip(m2);
     println("* test_case2 passed");
 
+
+    struct message* m3 = test_case3();
+    test_roundtrip(m3);
+    println("* test_case3 passed");
 
     struct message* m4 = test_case4();
     test_roundtrip(m4);
     println("* test_case4 passed");
 
-	struct message* m3 = test_case3();
-    test_roundtrip(m3);
-    println("* test_case3 passed");
+
 
     return 0;
 }
