@@ -218,7 +218,6 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
 int parse_resource_record(int cursor, int[] data, struct resource_record* dest)
 //@requires dest != NULL;
 //@requires cursor <= \length(data) * 32;
-//@requires cursor % 32 == 0;
 {
 
     int* type = alloc(int);
