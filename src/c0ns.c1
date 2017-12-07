@@ -5,6 +5,8 @@
 
 #define ROUND_TO_4(x) ((((x) + 3) / 4) * 4)
 
+#define TIMEOUT (1000)
+
 int main () {
     /* Parse arguments:
      * -remoteip "xxx.xxx.xxx.xxx" as string, then parse string
@@ -25,7 +27,7 @@ int main () {
     while(true) {
         // Receive client message
         // TODO: What should the timeout be?
-        if(poll_read(client_sock, 1000) == 0) {
+        if(poll_read(client_sock, TIMEOUT) == 0) {
             continue;
         }
         
@@ -49,7 +51,7 @@ int main () {
 
     
         // Send remote message
-        while(poll_write(remote_sock, 1000) != 1);
+        while(poll_write(remote_sock, TIMEOUT) != 1);
         int send_msglen = c0_sendto(remote_sock, msg_to_remote->bytes,
                                     msg_to_remote->length,
                                     remote_family, remote_port, remote_ip);
@@ -57,7 +59,7 @@ int main () {
 
 
         // Receive remote message
-        while(poll_read(remote_sock, 1000) != 1);
+        while(poll_read(remote_sock, TIMEOUT) != 1);
         msg_bytes = recv_msglen(remote_sock);
         msg_words = ROUND_TO_4(msg_bytes) / 4;
 
@@ -79,7 +81,7 @@ int main () {
 
 
         // Send client message
-        while(poll_write(client_sock, 1000) != 1);
+        while(poll_write(client_sock, TIMEOUT) != 1);
         send_msglen = c0_sendto(client_sock, msg_to_client->bytes,
                                 msg_to_client->length,
                                 *src_sin_family, *src_sin_port, *src_sin_addr);
