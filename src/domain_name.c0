@@ -29,12 +29,12 @@ domain_name domain_cons(string lbl, domain_name name) {
     return d;
 }
 
-domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
-//@requires cursor != NULL;
-//@requires *cursor < \length(data) * 32;
+domain_name parse_domain_name_aux(domain_name name, int* cur, int[] data)
+//@requires cur != NULL;
+//@requires *cur < \length(data) * 32;
 {
-    int orig_cursor = *cursor;
-    int len = read_bits(cursor, data, 8);
+    int orig_cur = *cur;
+    int len = read_bits(cur, data, 8);
 
     if (len == 0) {
         return name;
@@ -43,8 +43,8 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
     if (len >= 0xc0) {
         // case: pointer
         // read the last 14 bits of this byte as a pointer into the message (in octets)
-        *cursor = orig_cursor + 2;
-        int ptr = read_bits(cursor, data, 14);
+        *cur = orig_cur + 2;
+        int ptr = read_bits(cur, data, 14);
 
         int* ptrCursor = alloc(int);
         *ptrCursor = ptr * 8;
@@ -53,23 +53,23 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
     }
 
     // now we parse an ordinary label; we retreat by one octet so that read_string can see the length cell
-    *cursor = *cursor - 8;
-    string lbl = read_string(cursor, data);
-    return parse_domain_name_aux(domain_cons(lbl, name), cursor, data);
+    *cur = *cur - 8;
+    string lbl = read_string(cur, data);
+    return parse_domain_name_aux(domain_cons(lbl, name), cur, data);
 }
 
 
-domain_name parse_domain_name(int* cursor, int[] data)
-//@requires cursor != NULL;
-//@requires *cursor < \length(data) * 32;
-//@requires *cursor % 8 == 0;
+domain_name parse_domain_name(int* cur, int[] data)
+//@requires cur != NULL;
+//@requires *cur < \length(data) * 32;
+//@requires *cur % 8 == 0;
 {
-    return parse_domain_name_aux(domain_nil(), cursor, data);
+    return parse_domain_name_aux(domain_nil(), cur, data);
 }
 
-int print_domain_name(int cursor, int[] data, domain_name d)
-//@requires cursor < \length(data) * 32;
-//@requires cursor % 8 == 0;
+int print_domain_name(int cur, int[] data, domain_name d)
+//@requires cur < \length(data) * 32;
+//@requires cur % 8 == 0;
 {
     domain_name ptr;
     domain_name tail=NULL;
@@ -78,13 +78,13 @@ int print_domain_name(int cursor, int[] data, domain_name d)
         ptr = d;
         while (ptr->next!=tail)
             ptr = ptr -> next;
-        cursor = write_string (cursor, data, ptr->label);
+        cur = write_string (cur, data, ptr->label);
         x= ptr->size;
         tail = ptr;
     }
 
-    cursor = write_bits(cursor, data, 8, 0); //final label, for root
-    return cursor;
+    cur = write_bits(cur, data, 8, 0); //final label, for root
+    return cur;
 }
 
 void assert_domain_eq(domain_name dn1, domain_name dn2) {
@@ -111,10 +111,10 @@ void debug_domain_name(domain_name dn) {
 void test_domain_name() {
     domain_name dn = domain_cons("ab", domain_nil());
     int[] data = alloc_array(int, 30);
-    int cursor = print_domain_name(0, data, dn);
+    int cur = print_domain_name(0, data, dn);
 
-    int* cursorOut = alloc(int);
-    domain_name dn2 = parse_domain_name(cursorOut, data);
+    int* curOut = alloc(int);
+    domain_name dn2 = parse_domain_name(curOut, data);
 
     assert_domain_eq(dn, dn2);
 

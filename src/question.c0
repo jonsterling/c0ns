@@ -10,26 +10,26 @@ struct question {
 
 typedef struct question* question;
 
-question parse_question(int* cursor, int[] data)
+question parse_question(int* cur, int[] data)
 //@ensures \result != NULL;
-//@requires *cursor < \length(data) * 32;
+//@requires *cur < \length(data) * 32;
 {
     question qu = alloc(struct question);
-    qu->qname = parse_domain_name(cursor, data);
-    qu->qtype = read_bits(cursor, data, 16);
-    qu->qclass = read_bits(cursor, data, 16);
+    qu->qname = parse_domain_name(cur, data);
+    qu->qtype = read_bits(cur, data, 16);
+    qu->qclass = read_bits(cur, data, 16);
     return qu;
 }
 
-int print_question (int cursor, int[] data, struct question* q)
+int print_question (int cur, int[] data, struct question* q)
 //@requires q != NULL;
-//@requires cursor < \length(data) * 32;
-//@requires cursor % 8 == 0;
+//@requires cur < \length(data) * 32;
+//@requires cur % 8 == 0;
 {
-    cursor = print_domain_name(cursor, data, q->qname);
-    cursor = write_bits(cursor, data, 16, q->qtype);
-    cursor = write_bits(cursor, data, 16, q->qclass);
-    return cursor;
+    cur = print_domain_name(cur, data, q->qname);
+    cur = write_bits(cur, data, 16, q->qtype);
+    cur = write_bits(cur, data, 16, q->qclass);
+    return cur;
 }
 
 //Qsize: size of a question in bits

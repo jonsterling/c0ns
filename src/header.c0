@@ -49,44 +49,44 @@ bool rcode_is_reserved(int rc) {
 }
 
 
-// The cursor is a *bit* index, not an index into the array.
-header parse_header(int* cursor, int[] data) {
+// The cur is a *bit* index, not an index into the array.
+header parse_header(int* cur, int[] data) {
     header hd = alloc(struct header);
 
-    hd->id = read_bits(cursor, data, 16);
-    hd->qr = read_bits(cursor, data, 1);
-    hd->opcode = read_bits(cursor, data, 4);
-    hd->aa = read_bits(cursor, data, 1);
-    hd->tc = read_bits(cursor, data, 1);
-    hd->rd = read_bits(cursor, data, 1);
-    hd->ra = read_bits(cursor, data, 1);
-    hd->z = read_bits(cursor, data, 3);
-    hd->rcode = read_bits(cursor, data, 4);
+    hd->id = read_bits(cur, data, 16);
+    hd->qr = read_bits(cur, data, 1);
+    hd->opcode = read_bits(cur, data, 4);
+    hd->aa = read_bits(cur, data, 1);
+    hd->tc = read_bits(cur, data, 1);
+    hd->rd = read_bits(cur, data, 1);
+    hd->ra = read_bits(cur, data, 1);
+    hd->z = read_bits(cur, data, 3);
+    hd->rcode = read_bits(cur, data, 4);
 
-    hd->qdcount = read_bits(cursor, data, 16);
-    hd->ancount = read_bits(cursor, data, 16);
-    hd->nscount = read_bits(cursor, data, 16);
-    hd->arcount = read_bits(cursor, data, 16);
+    hd->qdcount = read_bits(cur, data, 16);
+    hd->ancount = read_bits(cur, data, 16);
+    hd->nscount = read_bits(cur, data, 16);
+    hd->arcount = read_bits(cur, data, 16);
 
     return hd;
 }
 
-int print_header(int cursor, int[] data, struct header* input){
+int print_header(int cur, int[] data, struct header* input){
 
-    cursor = write_bits(cursor, data, 16, input->id );
-    cursor = write_bits(cursor, data, 1, input->qr );
-    cursor = write_bits(cursor, data, 4, input->opcode );
-    cursor = write_bits(cursor, data, 1, input->aa );
-    cursor = write_bits(cursor, data, 1, input->tc );
-    cursor = write_bits(cursor, data, 1, input->rd );
-    cursor = write_bits(cursor, data, 1, input->ra );
-    cursor = write_bits(cursor, data, 3, input->z );
-    cursor = write_bits(cursor, data, 4, input->rcode );
-    cursor = write_bits(cursor, data, 16, input->qdcount );
+    cur = write_bits(cur, data, 16, input->id );
+    cur = write_bits(cur, data, 1, input->qr );
+    cur = write_bits(cur, data, 4, input->opcode );
+    cur = write_bits(cur, data, 1, input->aa );
+    cur = write_bits(cur, data, 1, input->tc );
+    cur = write_bits(cur, data, 1, input->rd );
+    cur = write_bits(cur, data, 1, input->ra );
+    cur = write_bits(cur, data, 3, input->z );
+    cur = write_bits(cur, data, 4, input->rcode );
+    cur = write_bits(cur, data, 16, input->qdcount );
 
-    cursor = write_bits(cursor, data, 16, input->ancount );
-    cursor = write_bits(cursor, data, 16, input->nscount );
-    cursor = write_bits(cursor, data, 16, input->arcount );
+    cur = write_bits(cur, data, 16, input->ancount );
+    cur = write_bits(cur, data, 16, input->nscount );
+    cur = write_bits(cur, data, 16, input->arcount );
 
-    return cursor;
+    return cur;
 }

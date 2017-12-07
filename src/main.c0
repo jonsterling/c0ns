@@ -1,14 +1,14 @@
 #use <conio>
-#use "message.c0"
+#use "message.c1"
 #use "testcases.c1"
 
 int main() {
 
     int[] data = alloc_array(int, 30);
     write_bits(2, data, 8, char_ord('1'));
-    int* cursor = alloc(int);
-    *cursor = 2;
-    int out = read_bits(cursor, data, 8);
+    int* cur = alloc(int);
+    *cur = 2;
+    int out = read_bits(cur, data, 8);
     assert(char_chr(out) == '1');
 
     println("* read/write bits sanity check passed");
@@ -18,14 +18,11 @@ int main() {
     int[] strdata = alloc_array(int, 5000);
     write_string(8, strdata, "hello world! 1234");
 
-    *cursor = 8;
-    string str = read_string(cursor, strdata);
+    *cur = 8;
+    string str = read_string(cur, strdata);
     assert(string_equal(str, "hello world! 1234"));
 
     println("* read/write string sanity check passed");
-
-
-
 
 
     test_domain_name();

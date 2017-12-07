@@ -4,7 +4,7 @@
 #use "resource_record.c1"
 #use "bit_utils.c0"
 #use "question.c0"
-#use "message.c0"
+#use "message.c1"
 
 
 // The query with no entries in it.

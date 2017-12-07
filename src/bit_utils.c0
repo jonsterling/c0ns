@@ -21,13 +21,13 @@ int pack_bits(int data, int index, int size, int value)
     return (data & ~(get_mask(index, size))) | (value << index);
 }
 
-int read_bits(int* cursor, int[] data, int numBits)
+int read_bits(int* cur, int[] data, int numBits)
 //@requires numBits <= 32;
 {
-    int index = *cursor / 32;
-    int rem = *cursor % 32;
+    int index = *cur / 32;
+    int rem = *cur % 32;
 
-    *cursor = *cursor + numBits;
+    *cur = *cur + numBits;
 
     if(numBits<32)
         return extract_bits(rem, numBits, data[index]);
@@ -37,47 +37,47 @@ int read_bits(int* cursor, int[] data, int numBits)
 
 
 
-int write_bits(int cursor, int[] destData, int numBits, int data)
+int write_bits(int cur, int[] destData, int numBits, int data)
 //@requires numBits <= 32;
 {
-    int index = cursor / 32;
-    int offset = cursor % 32;
+    int index = cur / 32;
+    int offset = cur % 32;
 
     if(numBits<32)
         destData[index] = pack_bits(destData[index], offset, numBits, data);
     else
         destData[index]=data;
 
-    return cursor + numBits;
+    return cur + numBits;
 }
 
 
-int write_string(int cursor, int[] data, string str)
-//@requires cursor % 8 == 0;
-//@requires (\length(data) * 32) - cursor >= string_length(str) * 8;
+int write_string(int cur, int[] data, string str)
+//@requires cur % 8 == 0;
+//@requires (\length(data) * 32) - cur >= string_length(str) * 8;
 {
     int len = string_length(str);
-    cursor = write_bits(cursor, data, 8, len);
+    cur = write_bits(cur, data, 8, len);
 
     char[] chars = string_to_chararray(str);
     for (int i = 0; i < len; i++) {
         int octet = char_ord(chars[i]);
-        cursor = write_bits(cursor, data, 8, octet);
+        cur = write_bits(cur, data, 8, octet);
 
     }
-    return cursor;
+    return cur;
 }
 
-string read_string(int* cursor, int[] data)
-//@requires cursor != NULL;
-//@requires *cursor % 8 == 0;
-//@requires *cursor < \length(data) * 32;
+string read_string(int* cur, int[] data)
+//@requires cur != NULL;
+//@requires *cur % 8 == 0;
+//@requires *cur < \length(data) * 32;
 {
-    int len = read_bits(cursor, data, 8);
+    int len = read_bits(cur, data, 8);
 
     char[] chars = alloc_array(char, len + 1);
     for (int i = 0; i < len; i++) {
-        chars[i] = char_chr(read_bits(cursor, data, 8));
+        chars[i] = char_chr(read_bits(cur, data, 8));
     }
 
     return string_from_chararray(chars);
