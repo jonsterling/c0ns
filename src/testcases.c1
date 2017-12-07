@@ -412,17 +412,17 @@ struct message* test_case7(){
     a1->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
-    a1->type=16;
+    a1->type=5;
     a1->class=4;
     a1->ttl=2147483648;
     //221626252;
     a1->rd_length=16;
     // struct rr_A* r = alloc(struct rr_A);
-    rr_txt* txt = alloc(rr_txt);
-    *txt = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
+    domain_name* dname = alloc(domain_name);
+   *dname= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
- 
-    a1->rdata = (void*)txt;
+    a1->rdata = (void*) dname;
+dname=(domain_name*)a1->rdata;
 
     answers[0]=a1;
 
@@ -438,7 +438,7 @@ struct message* test_case7(){
     rr_txt* txt1 = alloc(rr_txt);
     *txt1 = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
-    a2->rdata = (void*)txt;
+    a2->rdata = (void*)txt1;
 
     answers[1]=a2;
 
@@ -457,7 +457,7 @@ struct message* test_case7(){
     rr_txt* txtu = alloc(rr_txt);
     *txtu = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
-    u1->rdata = (void*)txt;
+    u1->rdata = (void*)txtu;
 
     authorities[0]=u1;
 
@@ -473,7 +473,7 @@ struct message* test_case7(){
     rr_txt* txtu1 = alloc(rr_txt);
     *txtu1 = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
-    u2->rdata = (void*)txt;
+    u2->rdata = (void*)txtu1;
 
     authorities[1]=u2;
 
@@ -494,7 +494,7 @@ struct message* test_case7(){
     rr_txt* txtd = alloc(rr_txt);
     *txtd = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
-    d1->rdata = (void*)txt;
+    d1->rdata = (void*)txtd;
 
     additionals[0]=d1;
 
@@ -507,11 +507,11 @@ struct message* test_case7(){
     d2->ttl=216;
     d2->rd_length=6;
 
-   domain_name* dname = alloc(domain_name);
-   *dname= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
+   domain_name* dname1 = alloc(domain_name);
+   *dname1= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
-    d2->rdata = (void*) dname;
-dname=(domain_name*)d2->rdata;
+    d2->rdata = (void*) dname1;
+dname1=(domain_name*)d2->rdata;
 
 
     additionals[1]=d2;

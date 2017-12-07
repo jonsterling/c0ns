@@ -167,7 +167,9 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
     if (type == type_cname()) {
         int* cursorOut = alloc(int);
         *cursorOut = cursor;
-        dest->rdata = (void*)parse_domain_name(cursorOut, data);
+        domain_name* result=alloc(domain_name);
+        *result=parse_domain_name(cursorOut, data);
+        dest->rdata = (void*)result;
         cursor = *cursorOut;
     }
     else if (type == type_hinfo()) {
