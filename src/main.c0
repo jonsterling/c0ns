@@ -27,7 +27,7 @@ int main() {
 
 
 
-    test_domain_name(); 
+    test_domain_name();
 
     struct message* m0 = test_case0();
     test_roundtrip(m0);
@@ -50,7 +50,7 @@ int main() {
     test_roundtrip(m4);
     println("* test_case4 passed");
 
-   struct message* m5 = test_case5();
+    struct message* m5 = test_case5();
     test_roundtrip(m5);
     println("* test_case5 passed");
 

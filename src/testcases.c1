@@ -347,7 +347,7 @@ struct message* test_case6(){
     rr_txt* txt = alloc(rr_txt);
     *txt = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
- 
+
     a1->rdata = (void*)txt;
 
     answers[0]=a1;
@@ -390,7 +390,7 @@ struct message* test_case7(){
     test->header->arcount=2;
 
 /*question part*/
-        struct question*[] questions = alloc_array(struct question*, 2);
+    struct question*[] questions = alloc_array(struct question*, 2);
     struct question* q1 = alloc(struct question);
     q1->qname=domain_cons("com", domain_cons("google", domain_nil()));
     q1->qtype=14;
@@ -419,14 +419,14 @@ struct message* test_case7(){
     a1->rd_length=16;
     // struct rr_A* r = alloc(struct rr_A);
     domain_name* dname = alloc(domain_name);
-   *dname= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
+    *dname= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     a1->rdata = (void*) dname;
-dname=(domain_name*)a1->rdata;
+    dname=(domain_name*)a1->rdata;
 
     answers[0]=a1;
 
-  struct resource_record* a2 = alloc(struct resource_record);
+    struct resource_record* a2 = alloc(struct resource_record);
     a2->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -461,7 +461,7 @@ dname=(domain_name*)a1->rdata;
 
     authorities[0]=u1;
 
-  struct resource_record* u2 = alloc(struct resource_record);
+    struct resource_record* u2 = alloc(struct resource_record);
     u2->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -477,7 +477,7 @@ dname=(domain_name*)a1->rdata;
 
     authorities[1]=u2;
 
-  
+
     test->authority= authorities;
     /*additional part*/
     struct resource_record*[] additionals = alloc_array(struct resource_record*, 2);
@@ -498,7 +498,7 @@ dname=(domain_name*)a1->rdata;
 
     additionals[0]=d1;
 
-  struct resource_record* d2 = alloc(struct resource_record);
+    struct resource_record* d2 = alloc(struct resource_record);
     d2->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -507,11 +507,11 @@ dname=(domain_name*)a1->rdata;
     d2->ttl=216;
     d2->rd_length=6;
 
-   domain_name* dname1 = alloc(domain_name);
-   *dname1= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
+    domain_name* dname1 = alloc(domain_name);
+    *dname1= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     d2->rdata = (void*) dname1;
-dname1=(domain_name*)d2->rdata;
+    dname1=(domain_name*)d2->rdata;
 
 
     additionals[1]=d2;
