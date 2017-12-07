@@ -65,8 +65,8 @@ struct resource_record {
 typedef struct resource_record* resource_record;
 
 
-struct rr_hinfo* parse_hinfo(int* cur, int[] data)
-//@requires *cur <= \length(data) * 32;
+struct rr_hinfo* parse_hinfo(cursor cur, int[] data)
+//@requires cursor_get(cur) <= \length(data) * 32;
 {
     struct rr_hinfo* dest = alloc(struct rr_hinfo);
     dest->cpu = read_string(cur, data);
@@ -75,8 +75,8 @@ struct rr_hinfo* parse_hinfo(int* cur, int[] data)
     return dest;
 }
 
-struct rr_mx* parse_mx(int *cur, int[] data)
-//@requires *cur <= \length(data) * 32;
+struct rr_mx* parse_mx(cursor cur, int[] data)
+//@requires cursor_get(cur) <= \length(data) * 32;
 {
     struct rr_mx* dest = alloc(struct rr_mx);
     dest->preference = read_bits(cur, data, 16);
@@ -84,8 +84,8 @@ struct rr_mx* parse_mx(int *cur, int[] data)
     return dest;
 }
 
-struct rr_soa* parse_soa(int *cur, int[] data)
-//@requires *cur <= \length(data) * 32;
+struct rr_soa* parse_soa(cursor cur, int[] data)
+//@requires cursor_get(cur) <= \length(data) * 32;
 {
     struct rr_soa* dest = alloc(struct rr_soa);
     dest->mname = parse_domain_name(cur, data);
@@ -97,13 +97,13 @@ struct rr_soa* parse_soa(int *cur, int[] data)
     return dest;
 }
 
-struct rr_txt* parse_txt(int *cur, int end, int[] data)
-//@requires *cur <= \length(data) * 32;
+struct rr_txt* parse_txt(cursor cur, int end, int[] data)
+//@requires cursor_get(cur) <= \length(data) * 32;
 {
-    int origCursor = *cur;
+    int origIx = cursor_get(cur);
     string s = read_string(cur, data);
-    if (*cur >= end) {
-        *cur = origCursor;
+    if (cursor_get(cur) >= end) {
+        cursor_set(cur, origIx);
         return rr_txt_nil();
     }
 
@@ -111,24 +111,24 @@ struct rr_txt* parse_txt(int *cur, int end, int[] data)
     return rr_txt_cons(s, init);
 }
 
-struct rr_A* parse_A(int* cur, int[] rdata)
-//@requires *cur <= \length(rdata) * 32;
+struct rr_A* parse_A(cursor cur, int[] rdata)
+//@requires cursor_get(cur) <= \length(rdata) * 32;
 {
     struct rr_A* dest = alloc(struct rr_A);
     dest->address = read_bits(cur, rdata, 32);
     return dest;
 }
 
-struct rr_wks* parse_wks(int *cur, int[] rdata)
-//@requires *cur <= \length(rdata) * 32;
+struct rr_wks* parse_wks(cursor cur, int[] rdata)
+//@requires cursor_get(cur) <= \length(rdata) * 32;
 {
     error("TODO: wks not yet supported");
 }
 
-void* parse_rdata(int* cur, int[] data, type_ type, int len)
+void* parse_rdata(cursor cur, int[] data, type_ type, int len)
 //@ensures \result != NULL;
-//@requires *cur <= \length(data) * 32;
-//@requires *cur % 8 == 0;
+//@requires cursor_get(cur) <= \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
 {
     if (type == type_cname()) {
         return (void*)parse_domain_name(cur, data);
@@ -146,7 +146,7 @@ void* parse_rdata(int* cur, int[] data, type_ type, int len)
         return (void*)parse_soa(cur, data);
     }
     else if (type == type_txt()) {
-        return (void*)parse_txt(cur, *cur + len * 8, data);
+        return (void*)parse_txt(cur, cursor_get(cur) + len * 8, data);
     }
     else if (type == type_A()) {
         return (void*)parse_A(cur, data);
@@ -159,9 +159,9 @@ void* parse_rdata(int* cur, int[] data, type_ type, int len)
     }
 }
 
-resource_record parse_resource_record(int* cur, int[] data)
+resource_record parse_resource_record(cursor cur, int[] data)
 //@ensures \result != NULL;
-//@requires *cur <= \length(data) * 32;
+//@requires cursor_get(cur) <= \length(data) * 32;
 {
     resource_record dest = alloc(struct resource_record);
     dest->name = parse_domain_name(cur, data);

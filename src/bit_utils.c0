@@ -1,4 +1,5 @@
 #use <string>
+#use "cursor.c0"
 
 int get_mask(int index, int size)
 //@requires size <= 32;
@@ -21,13 +22,15 @@ int pack_bits(int data, int index, int size, int value)
     return (data & ~(get_mask(index, size))) | (value << index);
 }
 
-int read_bits(int* cur, int[] data, int numBits)
+int read_bits(cursor cur, int[] data, int numBits)
 //@requires numBits <= 32;
 {
-    int index = *cur / 32;
-    int rem = *cur % 32;
+    int indexBits = cursor_get(cur);
 
-    *cur = *cur + numBits;
+    int index = indexBits / 32;
+    int rem = indexBits % 32;
+
+    cursor_advance(cur, numBits);
 
     if(numBits<32)
         return extract_bits(rem, numBits, data[index]);
@@ -68,10 +71,10 @@ int write_string(int cur, int[] data, string str)
     return cur;
 }
 
-string read_string(int* cur, int[] data)
+string read_string(cursor cur, int[] data)
 //@requires cur != NULL;
-//@requires *cur % 8 == 0;
-//@requires *cur < \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
+//@requires cursor_get(cur) < \length(data) * 32;
 {
     int len = read_bits(cur, data, 8);
 

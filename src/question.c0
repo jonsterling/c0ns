@@ -10,9 +10,9 @@ struct question {
 
 typedef struct question* question;
 
-question parse_question(int* cur, int[] data)
+question parse_question(cursor cur, int[] data)
 //@ensures \result != NULL;
-//@requires *cur < \length(data) * 32;
+//@requires cursor_get(cur) < \length(data) * 32;
 {
     question qu = alloc(struct question);
     qu->qname = parse_domain_name(cur, data);

@@ -49,8 +49,7 @@ bool rcode_is_reserved(int rc) {
 }
 
 
-// The cur is a *bit* index, not an index into the array.
-header parse_header(int* cur, int[] data) {
+header parse_header(cursor cur, int[] data) {
     header hd = alloc(struct header);
 
     hd->id = read_bits(cur, data, 16);

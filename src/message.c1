@@ -4,7 +4,7 @@
 #use "resource_record.c1"
 #use "bit_utils.c0"
 #use "question.c0"
-
+#use "cursor.c0"
 
 struct message {
     header header;
@@ -20,8 +20,7 @@ typedef struct message* message;
 message parse_message(int[] data)
 //@ensures \result != NULL;
 {
-    int* cur = alloc(int);
-    *cur = 0;
+    cursor cur = cursor_new(0);
 
     message dest = alloc(struct message);
     header hd = parse_header(cur, data);
