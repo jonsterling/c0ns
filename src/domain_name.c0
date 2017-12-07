@@ -1,4 +1,5 @@
 #use "bit_utils.c0"
+#use <conio>
 
 struct domain_name {
     string label;
@@ -56,21 +57,19 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
     }
 
     // now we parse an ordinary label; we retreat by one octet so that read_string can see the length cell
-    string* lbl = alloc(string);
-
     *cursor = *cursor - 8;
-    *cursor = read_string(*cursor, data, lbl);
+    string lbl = read_string(cursor, data);
 
-    return parse_domain_name_aux(domain_cons(*lbl, name), cursor, data);
+    return parse_domain_name_aux(domain_cons(lbl, name), cursor, data);
 }
 
 
-domain_name parse_domain_name(int* cursorOut, int[] data)
-//@requires cursorOut != NULL;
-//@requires *cursorOut < \length(data) * 32;
-//@requires *cursorOut % 8 == 0;
+domain_name parse_domain_name(int* cursor, int[] data)
+//@requires cursor != NULL;
+//@requires *cursor < \length(data) * 32;
+//@requires *cursor % 8 == 0;
 {
-    return parse_domain_name_aux(domain_nil(), cursorOut, data);
+    return parse_domain_name_aux(domain_nil(), cursor, data);
 }
 
 int print_domain_name(int cursor, int[] data, domain_name d)

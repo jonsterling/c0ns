@@ -17,6 +17,8 @@ struct header {
     int arcount;
 };
 
+typedef struct header* header;
+
 // response codes
 int rcode_no_error() {
     return 0;
@@ -48,51 +50,25 @@ bool rcode_is_reserved(int rc) {
 
 
 // The cursor is a *bit* index, not an index into the array.
-int parse_header(int cursor, int[] data, struct header* dest) {
-    int* id = alloc(int);
-    int* qr = alloc(int);
-    int* opcode = alloc(int);
-    int* aa = alloc(int);
-    int* tc = alloc(int);
-    int* rd = alloc(int);
-    int* ra = alloc(int);
-    int* z = alloc(int);
-    int* rcode = alloc(int);
-    int* qdcount = alloc(int);
-    int* ancount = alloc(int);
-    int* nscount = alloc(int);
-    int* arcount = alloc(int);
+header parse_header(int* cursor, int[] data) {
+    header hd = alloc(struct header);
 
-    cursor = read_bits(cursor, data, 16, id);
-    cursor = read_bits(cursor, data, 1, qr);
-    cursor = read_bits(cursor, data, 4, opcode);
-    cursor = read_bits(cursor, data, 1, aa);
-    cursor = read_bits(cursor, data, 1, tc);
-    cursor = read_bits(cursor, data, 1, rd);
-    cursor = read_bits(cursor, data, 1, ra);
-    cursor = read_bits(cursor, data, 3, z);
-    cursor = read_bits(cursor, data, 4, rcode);
-    cursor = read_bits(cursor, data, 16, qdcount);
-    cursor = read_bits(cursor, data, 16, ancount);
-    cursor = read_bits(cursor, data, 16, nscount);
-    cursor = read_bits(cursor, data, 16, arcount);
+    hd->id = read_bits2(cursor, data, 16);
+    hd->qr = read_bits2(cursor, data, 1);
+    hd->opcode = read_bits2(cursor, data, 4);
+    hd->aa = read_bits2(cursor, data, 1);
+    hd->tc = read_bits2(cursor, data, 1);
+    hd->rd = read_bits2(cursor, data, 1);
+    hd->ra = read_bits2(cursor, data, 1);
+    hd->z = read_bits2(cursor, data, 3);
+    hd->rcode = read_bits2(cursor, data, 4);
 
-    dest->id = *id;
-    dest->qr = *qr;
-    dest->opcode = *opcode;
-    dest->aa = *aa;
-    dest->tc = *tc;
-    dest->rd = *rd;
-    dest->ra = *ra;
-    dest->z = *z;
-    dest->rcode = *rcode;
-    dest->qdcount = *qdcount;
-    dest->ancount = *ancount;
-    dest->nscount = *nscount;
-    dest->arcount = *arcount;
+    hd->qdcount = read_bits2(cursor, data, 16);
+    hd->ancount = read_bits2(cursor, data, 16);
+    hd->nscount = read_bits2(cursor, data, 16);
+    hd->arcount = read_bits2(cursor, data, 16);
 
-
-    return cursor;
+    return hd;
 }
 
 int print_header(int cursor, int[] data, struct header* input){

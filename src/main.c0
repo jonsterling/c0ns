@@ -1,5 +1,5 @@
 #use <conio>
-#use "message.c1"
+#use "message.c0"
 #use "testcases.c1"
 
 int main() {
@@ -17,9 +17,10 @@ int main() {
     int[] strdata = alloc_array(int, 5000);
     write_string(8, strdata, "hello world! 1234");
 
-    string* str = alloc(string);
-    read_string(8, strdata, str);
-    assert(string_equal(*str, "hello world! 1234"));
+    int* cursor = alloc(int);
+    *cursor = 8;
+    string str = read_string(cursor, strdata);
+    assert(string_equal(str, "hello world! 1234"));
 
     println("* read/write string sanity check passed");
 

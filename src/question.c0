@@ -8,27 +8,25 @@ struct question {
     qclass qclass;
 };
 
-int parse_question(int cursor, int[] data, struct question* dest)
-//@requires dest != NULL;
-//@requires cursor < \length(data) * 32;
+typedef struct question* question;
+
+question parse_question(int* cursor, int[] data)
+//@ensures \result != NULL;
+//@requires *cursor < \length(data) * 32;
 {
+    question qu = alloc(struct question);
     qtype* type = alloc(qtype);
     qclass* cls = alloc(qclass);
 
-    int* cursorOut = alloc(int);
-    *cursorOut = cursor;
+    qu->qname = parse_domain_name(cursor, data);
 
-    dest->qname = parse_domain_name(cursorOut, data);
-    cursor = *cursorOut;
+    *cursor = read_bits(*cursor, data, 16, type);
+    *cursor = read_bits(*cursor, data, 16, cls);
 
-    cursor = read_bits(cursor, data, 16, type);
-    cursor = read_bits(cursor, data, 16, cls);
+    qu->qtype = *type;
+    qu->qclass = *cls;
 
-    dest->qtype = *type;
-    dest->qclass = *cls;
-
-
-    return cursor;
+    return qu;
 }
 
 int print_question (int cursor, int[] data, struct question* q)

@@ -1,6 +1,5 @@
 #use <string>
 
-
 int get_mask(int index, int size)
 //@requires size <= 32;
 //@requires index < 32;
@@ -34,6 +33,20 @@ int read_bits(int cursor, int[] data, int numBits, int* dest)
     return cursor + numBits;
 }
 
+int read_bits2(int* cursor, int[] data, int numBits)
+//@requires numBits <= 32;
+{
+    int index = *cursor / 32;
+    int rem = *cursor % 32;
+
+    *cursor = *cursor + numBits;
+
+    if(numBits<32)
+        return extract_bits(rem, numBits, data[index]);
+    else
+        return data[index];
+}
+
 
 
 int write_bits(int cursor, int[] destData, int numBits, int data)
@@ -42,15 +55,10 @@ int write_bits(int cursor, int[] destData, int numBits, int data)
     int index = cursor / 32;
     int offset = cursor % 32;
 
-
-//    data = data & ((1<<numBits)-1); //force zeroing preceding bits in source data
     if(numBits<32)
         destData[index] = pack_bits(destData[index], offset, numBits, data);
     else
         destData[index]=data;
-
-//destData[index] & (~(((1<<numBits)-1)<<offset));	//force zeroing target bits before copying
-//    destData[index] = destData[index] | data<<(offset);
 
     return cursor + numBits;
 }
@@ -65,28 +73,28 @@ int write_string(int cursor, int[] data, string str)
 
     char[] chars = string_to_chararray(str);
     for (int i = 0; i < len; i++) {
-        int octet= char_ord(chars[i]);
+        int octet = char_ord(chars[i]);
         cursor = write_bits(cursor, data, 8, octet);
 
     }
     return cursor;
 }
 
-int read_string(int cursor, int[] data, string* dest)
-//@requires cursor % 8 == 0;
-//@requires cursor < \length(data) * 32;
+string read_string(int* cursor, int[] data)
+//@requires cursor != NULL;
+//@requires *cursor % 8 == 0;
+//@requires *cursor < \length(data) * 32;
 {
     int* len = alloc(int);
-    cursor = read_bits(cursor, data, 8, len);
+    *cursor = read_bits(*cursor, data, 8, len);
 
     char[] chars = alloc_array(char, *len + 1);
 
+    int* octet = alloc(int);
     for (int i = 0; i < *len; i++) {
-        int* octet = alloc(int);
-        cursor = read_bits(cursor, data, 8, octet);
+        *cursor = read_bits(*cursor, data, 8, octet);
         chars[i] = char_chr(*octet);
     }
 
-    *dest = string_from_chararray(chars);
-    return cursor;
+    return string_from_chararray(chars);
 }
