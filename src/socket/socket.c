@@ -99,14 +99,13 @@ c0_int c0_sendto (socket_t sock, c0_array buf, c0_int len,
     assert(SHRT_MIN <= dst_sin_family);
     assert(dst_sin_family <= SHRT_MAX);
 
-    // TODO: USHRT_MIN?
     assert(0 <= dst_sin_port);
     assert(dst_sin_port <= USHRT_MAX);
 
     // dst_sin_addr, being a 32-bit c0_int, is necessarily the same size as a
     // uint32_t, which dst_addr.sin_addr.s_addr is.
 
-    dst_addr.sin_family = htons(dst_sin_family);
+    dst_addr.sin_family = dst_sin_family;
     dst_addr.sin_port = dst_sin_port;
     dst_addr.sin_addr.s_addr = dst_sin_addr;
     memset(dst_addr.sin_zero, sizeof(dst_addr.sin_zero), 0);

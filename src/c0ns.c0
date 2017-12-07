@@ -23,6 +23,7 @@ int main () {
     socket_t remote_sock = dgram_socket();
 
     while(true) {
+        // Receive client message
         // TODO: What should the timeout be?
         if(poll_read(client_sock, 1000) == 0) {
             continue;
@@ -36,15 +37,16 @@ int main () {
         int* src_sin_port = alloc(int);
         int* src_sin_addr = alloc(int);
     
-        // Receive client message
         int rcv_msglen = c0_recvfrom (client_sock, msg_buf, msg_bytes,
                                       src_sin_family, src_sin_port, src_sin_addr);
         //@assert (rcv_msglen == msg_bytes);
+
        
         struct message* msg = parse_message(msg_buf);
     
         // TODO: actually look into the message and do caching.
         bytearray msg_to_remote = write_message(msg);
+
     
         // Send remote message
         while(poll_write(remote_sock, 1000) != 1);
@@ -53,6 +55,8 @@ int main () {
                                     remote_family, remote_port, remote_ip);
         //@assert (send_msglen == msg_to_remote->length);
 
+
+        // Receive remote message
         while(poll_read(remote_sock, 1000) != 1);
         msg_bytes = recv_msglen(remote_sock);
         msg_words = ROUND_TO_4(msg_bytes) / 4;
@@ -69,8 +73,10 @@ int main () {
         //@assert (*remote_sin_port == remote_port);
         //@assert (*remote_sin_addr == remote_ip);
 
+
         msg = parse_message(remote_msg_buf);
         bytearray msg_to_client = write_message(msg);
+
 
         // Send client message
         while(poll_write(client_sock, 1000) != 1);
