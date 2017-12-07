@@ -183,7 +183,9 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
     else if (type == type_ptr()) {
         int* cursorOut = alloc(int);
         *cursorOut = cursor;
-        dest->rdata = (void*)parse_domain_name(cursorOut, data);
+        domain_name* result=alloc(domain_name);
+        *result=parse_domain_name(cursorOut, data);
+        dest->rdata = (void*) result;
         cursor = *cursorOut;
     }
     else if (type == type_soa()) {
@@ -289,7 +291,8 @@ int print_rdata (int cursor, int[] data, type_ type, void* rdata)
         cursor = print_domain_name(cursor, data, ((struct rr_mx*)rdata)->exchange);
     }
     else if (type == type_ptr()) {
-        cursor = print_domain_name(cursor, data, *((domain_name*)rdata));
+       cursor = print_domain_name(cursor, data, *((domain_name*)rdata));
+
     }
     else if (type == type_soa()) {
         cursor = print_domain_name(cursor, data, ((struct rr_soa*)rdata)->mname);
@@ -324,7 +327,6 @@ int print_resource_record(int cursor, int[] data, struct resource_record* rr)
     cursor = print_domain_name (cursor, data, rr->name);
 
     cursor = write_bits(cursor, data, 16, rr->type);
-
     cursor = write_bits(cursor, data, 16, rr->class);
     cursor = write_bits(cursor, data, 32, rr->ttl);
     cursor = write_bits(cursor, data, 16, rr->rd_length);

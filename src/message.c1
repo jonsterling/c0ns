@@ -28,7 +28,8 @@ struct message* parse_message(int[] data)
 
     int qdcount = header->qdcount;
     struct question*[] questions = alloc_array(struct question*, qdcount);
-
+printint(qdcount);
+print("qdcount\n");
     for (int i = 0; i < qdcount; i++) {
         questions[i] = alloc(struct question);
         cursor = parse_question(cursor, data, questions[i]);
@@ -118,8 +119,11 @@ bytearray write_message(struct message* input)
         cursor = print_resource_record (cursor, destData, input -> authority[i]);
     }
     for (int i = 0; i < arcount; i++) {
+          
         cursor = print_resource_record (cursor, destData, input -> additional[i]);
+
     }
+
   int position=0;
     for(int i=0; i<destDataLen;i++){
         if(destData[i]==0 && position==0){
@@ -129,6 +133,7 @@ bytearray write_message(struct message* input)
             position=0;
         }
     }
+
     bytearray dest = alloc(struct bytearray);
     //dest->length = numBits/32;
     dest->length = position/32;
