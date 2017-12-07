@@ -418,11 +418,9 @@ struct message* test_case7(){
     //221626252;
     a1->rd_length=16;
     // struct rr_A* r = alloc(struct rr_A);
-    domain_name* dname = alloc(domain_name);
-    *dname= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
+    domain_name dname = domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     a1->rdata = (void*) dname;
-    dname=(domain_name*)a1->rdata;
 
     answers[0]=a1;
 
@@ -507,11 +505,9 @@ struct message* test_case7(){
     d2->ttl=216;
     d2->rd_length=6;
 
-    domain_name* dname1 = alloc(domain_name);
-    *dname1= domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
+    domain_name dname1 = domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     d2->rdata = (void*) dname1;
-    dname1=(domain_name*)d2->rdata;
 
 
     additionals[1]=d2;

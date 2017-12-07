@@ -168,8 +168,7 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
     if (type == type_cname()) {
         int* cursorOut = alloc(int);
         *cursorOut = cursor;
-        domain_name* result=alloc(domain_name);
-        *result=parse_domain_name(cursorOut, data);
+        domain_name result = parse_domain_name(cursorOut, data);
         dest->rdata = (void*)result;
         cursor = *cursorOut;
     }
@@ -186,8 +185,7 @@ int parse_rdata(int cursor, int[] data, type_ type, int len, struct resource_rec
     else if (type == type_ptr()) {
         int* cursorOut = alloc(int);
         *cursorOut = cursor;
-        domain_name* result=alloc(domain_name);
-        *result=parse_domain_name(cursorOut, data);
+        domain_name result = parse_domain_name(cursorOut, data);
         dest->rdata = (void*) result;
         cursor = *cursorOut;
     }
@@ -284,19 +282,18 @@ int print_rdata (int cursor, int[] data, type_ type, void* rdata)
 
     //TODO: this block needs to be checked
     if (type == type_cname()) {
-        cursor = print_domain_name(cursor, data, *((domain_name*)rdata));
+        cursor = print_domain_name(cursor, data, (domain_name)rdata);
     }
     else if (type == type_hinfo()) {
         cursor = write_string(cursor, data, ((struct rr_hinfo*)rdata)->cpu);
         cursor = write_string(cursor, data, ((struct rr_hinfo*)rdata)->os);
     }
     else if (type == type_mx()) {
-        cursor = write_bits(cursor, data, 16, (( struct rr_mx*)rdata)->preference);
+        cursor = write_bits(cursor, data, 16, ((struct rr_mx*)rdata)->preference);
         cursor = print_domain_name(cursor, data, ((struct rr_mx*)rdata)->exchange);
     }
     else if (type == type_ptr()) {
-        cursor = print_domain_name(cursor, data, *((domain_name*)rdata));
-
+        cursor = print_domain_name(cursor, data, (domain_name)rdata);
     }
     else if (type == type_soa()) {
         cursor = print_domain_name(cursor, data, ((struct rr_soa*)rdata)->mname);
