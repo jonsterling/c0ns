@@ -21,7 +21,7 @@ question parse_question(cursor cur, int[] data)
     return qu;
 }
 
-int print_question (int cur, int[] data, struct question* q)
+int print_question (int cur, int[] data, question q)
 //@requires q != NULL;
 //@requires cur < \length(data) * 32;
 //@requires cur % 8 == 0;
@@ -33,7 +33,7 @@ int print_question (int cur, int[] data, struct question* q)
 }
 
 //Qsize: size of a question in bits
-int countBitsQuestion(struct question* q)
+int countBitsQuestion(question q)
 //@requires q != NULL;
 {
     int Qsize = q->qname->size * 8 + 32;
