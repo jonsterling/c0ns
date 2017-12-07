@@ -33,25 +33,21 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
 //@requires cursor != NULL;
 //@requires *cursor < \length(data) * 32;
 {
-    int* len = alloc(int);
-
     int orig_cursor = *cursor;
+    int len = read_bits(cursor, data, 8);
 
-    *cursor = read_bits(*cursor, data, 8, len);
-
-    if (*len == 0) {
+    if (len == 0) {
         return name;
     }
 
-    if (*len >= 0xc0) {
+    if (len >= 0xc0) {
         // case: pointer
-        int* ptr = alloc(int);
-        // read the remainder of the first 16 bits as a pointer to an offset in octets
-        *cursor = read_bits(orig_cursor + 2, data, 14, ptr);
-        // read the last label of the domain name from the pointer:
+        // read the last 14 bits of this byte as a pointer into the message (in octets)
+        *cursor = orig_cursor + 2;
+        int ptr = read_bits(cursor, data, 14);
 
         int* ptrCursor = alloc(int);
-        *ptrCursor = *ptr * 8;
+        *ptrCursor = ptr * 8;
 
         return parse_domain_name_aux(name, ptrCursor, data);
     }
@@ -59,7 +55,6 @@ domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
     // now we parse an ordinary label; we retreat by one octet so that read_string can see the length cell
     *cursor = *cursor - 8;
     string lbl = read_string(cursor, data);
-
     return parse_domain_name_aux(domain_cons(lbl, name), cursor, data);
 }
 

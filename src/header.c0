@@ -53,20 +53,20 @@ bool rcode_is_reserved(int rc) {
 header parse_header(int* cursor, int[] data) {
     header hd = alloc(struct header);
 
-    hd->id = read_bits2(cursor, data, 16);
-    hd->qr = read_bits2(cursor, data, 1);
-    hd->opcode = read_bits2(cursor, data, 4);
-    hd->aa = read_bits2(cursor, data, 1);
-    hd->tc = read_bits2(cursor, data, 1);
-    hd->rd = read_bits2(cursor, data, 1);
-    hd->ra = read_bits2(cursor, data, 1);
-    hd->z = read_bits2(cursor, data, 3);
-    hd->rcode = read_bits2(cursor, data, 4);
+    hd->id = read_bits(cursor, data, 16);
+    hd->qr = read_bits(cursor, data, 1);
+    hd->opcode = read_bits(cursor, data, 4);
+    hd->aa = read_bits(cursor, data, 1);
+    hd->tc = read_bits(cursor, data, 1);
+    hd->rd = read_bits(cursor, data, 1);
+    hd->ra = read_bits(cursor, data, 1);
+    hd->z = read_bits(cursor, data, 3);
+    hd->rcode = read_bits(cursor, data, 4);
 
-    hd->qdcount = read_bits2(cursor, data, 16);
-    hd->ancount = read_bits2(cursor, data, 16);
-    hd->nscount = read_bits2(cursor, data, 16);
-    hd->arcount = read_bits2(cursor, data, 16);
+    hd->qdcount = read_bits(cursor, data, 16);
+    hd->ancount = read_bits(cursor, data, 16);
+    hd->nscount = read_bits(cursor, data, 16);
+    hd->arcount = read_bits(cursor, data, 16);
 
     return hd;
 }

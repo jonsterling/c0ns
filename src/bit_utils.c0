@@ -21,19 +21,7 @@ int pack_bits(int data, int index, int size, int value)
     return (data & ~(get_mask(index, size))) | (value << index);
 }
 
-
-int read_bits(int cursor, int[] data, int numBits, int* dest)
-//@requires numBits <= 32;
-{
-    int index = cursor / 32;
-    if(numBits<32)
-        *dest = extract_bits(cursor % 32, numBits, data[index]);
-    else
-        *dest=data[index];
-    return cursor + numBits;
-}
-
-int read_bits2(int* cursor, int[] data, int numBits)
+int read_bits(int* cursor, int[] data, int numBits)
 //@requires numBits <= 32;
 {
     int index = *cursor / 32;
@@ -85,15 +73,11 @@ string read_string(int* cursor, int[] data)
 //@requires *cursor % 8 == 0;
 //@requires *cursor < \length(data) * 32;
 {
-    int* len = alloc(int);
-    *cursor = read_bits(*cursor, data, 8, len);
+    int len = read_bits(cursor, data, 8);
 
-    char[] chars = alloc_array(char, *len + 1);
-
-    int* octet = alloc(int);
-    for (int i = 0; i < *len; i++) {
-        *cursor = read_bits(*cursor, data, 8, octet);
-        chars[i] = char_chr(*octet);
+    char[] chars = alloc_array(char, len + 1);
+    for (int i = 0; i < len; i++) {
+        chars[i] = char_chr(read_bits(cursor, data, 8));
     }
 
     return string_from_chararray(chars);

@@ -15,17 +15,9 @@ question parse_question(int* cursor, int[] data)
 //@requires *cursor < \length(data) * 32;
 {
     question qu = alloc(struct question);
-    qtype* type = alloc(qtype);
-    qclass* cls = alloc(qclass);
-
     qu->qname = parse_domain_name(cursor, data);
-
-    *cursor = read_bits(*cursor, data, 16, type);
-    *cursor = read_bits(*cursor, data, 16, cls);
-
-    qu->qtype = *type;
-    qu->qclass = *cls;
-
+    qu->qtype = read_bits(cursor, data, 16);
+    qu->qclass = read_bits(cursor, data, 16);
     return qu;
 }
 

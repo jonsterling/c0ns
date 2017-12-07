@@ -79,7 +79,7 @@ struct rr_mx* parse_mx(int *cursor, int[] data)
 //@requires *cursor <= \length(data) * 32;
 {
     struct rr_mx* dest = alloc(struct rr_mx);
-    dest->preference = read_bits2(cursor, data, 16);
+    dest->preference = read_bits(cursor, data, 16);
     dest->exchange = parse_domain_name(cursor, data);
     return dest;
 }
@@ -90,10 +90,10 @@ struct rr_soa* parse_soa(int *cursor, int[] data)
     struct rr_soa* dest = alloc(struct rr_soa);
     dest->mname = parse_domain_name(cursor, data);
     dest->rname = parse_domain_name(cursor, data);
-    dest->serial = read_bits2(cursor, data, 32);
-    dest->refresh = read_bits2(cursor, data, 32);
-    dest->retry = read_bits2(cursor, data, 32);
-    dest->expire = read_bits2(cursor, data, 32);
+    dest->serial = read_bits(cursor, data, 32);
+    dest->refresh = read_bits(cursor, data, 32);
+    dest->retry = read_bits(cursor, data, 32);
+    dest->expire = read_bits(cursor, data, 32);
     return dest;
 }
 
@@ -115,7 +115,7 @@ struct rr_A* parse_A(int* cursor, int[] rdata)
 //@requires *cursor <= \length(rdata) * 32;
 {
     struct rr_A* dest = alloc(struct rr_A);
-    dest->address = read_bits2(cursor, rdata, 32);
+    dest->address = read_bits(cursor, rdata, 32);
     return dest;
 }
 
@@ -173,10 +173,10 @@ resource_record parse_resource_record(int* cursor, int[] data)
     print(":class_\n");
 
     debug_domain_name(dest->name);
-    dest->type = read_bits2(cursor, data, 16);
-    dest->class = read_bits2(cursor, data, 16);
-    dest->ttl = read_bits2(cursor, data, 32);
-    dest->rd_length = read_bits2(cursor, data, 16);
+    dest->type = read_bits(cursor, data, 16);
+    dest->class = read_bits(cursor, data, 16);
+    dest->ttl = read_bits(cursor, data, 32);
+    dest->rd_length = read_bits(cursor, data, 16);
     dest->rdata = parse_rdata(cursor, data, dest->type, dest->rd_length);
 
 
