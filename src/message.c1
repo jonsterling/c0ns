@@ -62,9 +62,7 @@ int estimate_message_size(message msg)
 //@requires msg != NULL;
 {
     header hd = msg->header;
-
-    int headerBits = 6 * 16;
-    int numBits = headerBits;
+    int numBits = header_size();
 
     for (int i = 0; i < hd->qdcount; i++) {
         numBits += countBitsQuestion(msg->question[i]);
