@@ -176,7 +176,7 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
         int x2 = bs2->bytes[i];
 
         if (x1 != x2) {
-            print("Equating following two byte arrays: \n ");
+            print("Equating following two byte arrays: \n    ");
             debug_bytearray(bs1);
             print("\nvs.\n    ");
             debug_bytearray(bs2);
