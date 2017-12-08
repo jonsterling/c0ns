@@ -65,27 +65,7 @@ domain_name parse_domain_name(cursor cur, int[] data)
     return parse_domain_name_aux(domain_nil(), cur, data);
 }
 
-int print_domain_name(int cur, int[] data, domain_name d)
-//@requires cur < \length(data) * 32;
-//@requires cur % 8 == 0;
-{
-    domain_name ptr;
-    domain_name tail=NULL;
-    int x=0;
-    while (d!=tail) {
-        ptr = d;
-        while (ptr->next!=tail)
-            ptr = ptr -> next;
-        cur = write_string (cur, data, ptr->label);
-        x= ptr->size;
-        tail = ptr;
-    }
-
-    cur = write_bits(cur, data, 8, 0); //final label, for root
-    return cur;
-}
-
-void print_domain_name2(cursor cur, int[] data, domain_name d)
+void print_domain_name(cursor cur, int[] data, domain_name d)
 //@requires cursor_get(cur) < \length(data) * 32;
 //@requires cursor_get(cur) % 8 == 0;
 {
@@ -100,12 +80,12 @@ void print_domain_name2(cursor cur, int[] data, domain_name d)
             ptr = ptr -> next;
         }
 
-        write_string2(cur, data, ptr->label);
+        write_string(cur, data, ptr->label);
         x = ptr->size;
         tail = ptr;
     }
 
-    write_bits2(cur, data, 8, 0); //final label, for root
+    write_bits(cur, data, 8, 0); //final label, for root
 }
 
 void assert_domain_eq(domain_name dn1, domain_name dn2) {
@@ -132,7 +112,7 @@ void debug_domain_name(domain_name dn) {
 void test_domain_name() {
     domain_name dn = domain_cons("ab", domain_nil());
     int[] data = alloc_array(int, 30);
-    print_domain_name(0, data, dn);
+    print_domain_name(cursor_new(0), data, dn);
 
     cursor cur = cursor_new(0);
     domain_name dn2 = parse_domain_name(cur, data);

@@ -102,22 +102,22 @@ bytearray write_message(message msg)
     int[] destData = alloc_array(int, (numBits/32)*2);
 
     cursor cur = cursor_new(0);
-    print_header2(cur, destData, msg->header);
+    print_header(cur, destData, msg->header);
 
     for (int i = 0; i < hd->qdcount; i++) {
-        print_question2(cur, destData, msg->question[i]);
+        print_question(cur, destData, msg->question[i]);
     }
 
     for (int i = 0; i < hd->ancount; i++) {
-        print_resource_record2(cur, destData, msg->answer[i]);
+        print_resource_record(cur, destData, msg->answer[i]);
     }
 
     for (int i = 0; i < hd->nscount; i++) {
-        print_resource_record2(cur, destData, msg->authority[i]);
+        print_resource_record(cur, destData, msg->authority[i]);
     }
 
     for (int i = 0; i < hd->arcount; i++) {
-        print_resource_record2(cur, destData, msg->additional[i]);
+        print_resource_record(cur, destData, msg->additional[i]);
     }
 
     int position=0;

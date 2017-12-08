@@ -194,24 +194,7 @@ resource_record parse_resource_record(cursor cur, int[] data)
 }
 
 
-int print_rr_txt (int cur, int[] data, rr_txt t)
-//@requires cur <= \length(data) * 32;
-{
-    rr_txt ptr;
-    rr_txt tail=NULL;
-    while (t!=tail) {
-        ptr = t;
-        while (ptr->next!=tail)
-            ptr = ptr -> next;
-        cur = write_string (cur, data, ptr->txt);
-        tail = ptr;
-    }
-    //TODO do we have a root text in the end? uncomment next line
-    //cur = write_bits(cur, data, 8, 0); //final label, for root
-    return cur;
-}
-
-void print_rr_txt2(cursor cur, int[] data, rr_txt t)
+void print_rr_txt(cursor cur, int[] data, rr_txt t)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     rr_txt ptr;
@@ -221,45 +204,45 @@ void print_rr_txt2(cursor cur, int[] data, rr_txt t)
         while (ptr->next!=tail) {
             ptr = ptr -> next;
         }
-        write_string2(cur, data, ptr->txt);
+        write_string(cur, data, ptr->txt);
         tail = ptr;
     }
     //TODO do we have a root text in the end? uncomment next line
     // write_bits(cur, data, 8, 0); //final label, for root
 }
 
-void print_rdata2(cursor cur, int[] data, type_ type, void* rdata)
+void print_rdata(cursor cur, int[] data, type_ type, void* rdata)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     //TODO: this block needs to be checked
     if (type == type_cname()) {
-        print_domain_name2(cur, data, (domain_name)rdata);
+        print_domain_name(cur, data, (domain_name)rdata);
     }
     else if (type == type_hinfo()) {
-        write_string2(cur, data, ((rr_hinfo)rdata)->cpu);
-        write_string2(cur, data, ((rr_hinfo)rdata)->os);
+        write_string(cur, data, ((rr_hinfo)rdata)->cpu);
+        write_string(cur, data, ((rr_hinfo)rdata)->os);
     }
     else if (type == type_mx()) {
-        write_bits2(cur, data, 16, ((rr_mx)rdata)->preference);
-        print_domain_name2(cur, data, ((rr_mx)rdata)->exchange);
+        write_bits(cur, data, 16, ((rr_mx)rdata)->preference);
+        print_domain_name(cur, data, ((rr_mx)rdata)->exchange);
     }
     else if (type == type_ptr()) {
-        print_domain_name2(cur, data, (domain_name)rdata);
+        print_domain_name(cur, data, (domain_name)rdata);
     }
     else if (type == type_soa()) {
-        print_domain_name2(cur, data, ((rr_soa)rdata)->mname);
-        print_domain_name2(cur, data, ((rr_soa)rdata)->rname);
-        write_bits2(cur, data, 32, ((rr_soa)rdata)->serial);
-        write_bits2(cur, data, 32, ((rr_soa)rdata)->refresh);
-        write_bits2(cur, data, 32, ((rr_soa)rdata)->retry);
-        write_bits2(cur, data, 32, ((rr_soa)rdata)->expire);
+        print_domain_name(cur, data, ((rr_soa)rdata)->mname);
+        print_domain_name(cur, data, ((rr_soa)rdata)->rname);
+        write_bits(cur, data, 32, ((rr_soa)rdata)->serial);
+        write_bits(cur, data, 32, ((rr_soa)rdata)->refresh);
+        write_bits(cur, data, 32, ((rr_soa)rdata)->retry);
+        write_bits(cur, data, 32, ((rr_soa)rdata)->expire);
     }
 
     else if (type == type_txt()) {
-        print_rr_txt2(cur, data, (rr_txt)rdata);
+        print_rr_txt(cur, data, (rr_txt)rdata);
     }
     else if (type == type_A()) {
-        write_bits2(cur, data, 32, ((rr_A)rdata)->address);
+        write_bits(cur, data, 32, ((rr_A)rdata)->address);
     }
     else if (type == type_wks()) {
         error("TODO: wks");
@@ -269,76 +252,16 @@ void print_rdata2(cursor cur, int[] data, type_ type, void* rdata)
     }
 }
 
-int print_rdata (int cur, int[] data, type_ type, void* rdata)
-//@requires cur <= \length(data) * 32;
-{
-
-    //TODO: this block needs to be checked
-    if (type == type_cname()) {
-        cur = print_domain_name(cur, data, (domain_name)rdata);
-    }
-    else if (type == type_hinfo()) {
-        cur = write_string(cur, data, ((struct rr_hinfo*)rdata)->cpu);
-        cur = write_string(cur, data, ((struct rr_hinfo*)rdata)->os);
-    }
-    else if (type == type_mx()) {
-        cur = write_bits(cur, data, 16, ((struct rr_mx*)rdata)->preference);
-        cur = print_domain_name(cur, data, ((struct rr_mx*)rdata)->exchange);
-    }
-    else if (type == type_ptr()) {
-        cur = print_domain_name(cur, data, (domain_name)rdata);
-    }
-    else if (type == type_soa()) {
-        cur = print_domain_name(cur, data, ((struct rr_soa*)rdata)->mname);
-        cur = print_domain_name(cur, data, ((struct rr_soa*)rdata)->rname);
-        cur = write_bits(cur, data, 32, ((struct rr_soa*)rdata)->serial);
-        cur = write_bits(cur, data, 32, ((struct rr_soa*)rdata)->refresh);
-        cur = write_bits(cur, data, 32, ((struct rr_soa*)rdata)->retry);
-        cur = write_bits(cur, data, 32, ((struct rr_soa*)rdata)->expire);
-    }
-
-    else if (type == type_txt()) {
-        cur = print_rr_txt(cur, data, (struct rr_txt*)rdata);
-    }
-    else if (type == type_A()) {
-        cur = write_bits(cur, data, 32, ((struct rr_A*)rdata)->address);
-    }
-    else if (type == type_wks()) {
-        error("TODO: wks");
-    }
-    else {
-        error("print_rdata: Unsupported RR type");
-    }
-
-    return cur;
-}
-
-void print_resource_record2(cursor cur, int[] data, resource_record rr)
+void print_resource_record(cursor cur, int[] data, resource_record rr)
 //@requires rr != NULL;
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
-    print_domain_name2(cur, data, rr->name);
-    write_bits2(cur, data, 16, rr->type);
-    write_bits2(cur, data, 16, rr->class);
-    write_bits2(cur, data, 32, rr->ttl);
-    write_bits2(cur, data, 16, rr->rd_length);
-    print_rdata2(cur, data, rr->type, rr->rdata);
-}
-
-int print_resource_record(int cur, int[] data, struct resource_record* rr)
-//@requires rr != NULL;
-//@requires cur <= \length(data) * 32;
-{
-
-    cur = print_domain_name (cur, data, rr->name);
-
-    cur = write_bits(cur, data, 16, rr->type);
-    cur = write_bits(cur, data, 16, rr->class);
-    cur = write_bits(cur, data, 32, rr->ttl);
-    cur = write_bits(cur, data, 16, rr->rd_length);
-    cur = print_rdata(cur, data, rr->type, rr->rdata);
-
-    return cur;
+    print_domain_name(cur, data, rr->name);
+    write_bits(cur, data, 16, rr->type);
+    write_bits(cur, data, 16, rr->class);
+    write_bits(cur, data, 32, rr->ttl);
+    write_bits(cur, data, 16, rr->rd_length);
+    print_rdata(cur, data, rr->type, rr->rdata);
 }
 
 int countBitsRR(struct resource_record* rr)

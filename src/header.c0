@@ -70,38 +70,19 @@ header parse_header(cursor cur, int[] data) {
     return hd;
 }
 
-void print_header2(cursor cur, int[] data, header hd) {
-    write_bits2(cur, data, 16, hd->id);
-    write_bits2(cur, data, 1, hd->qr);
-    write_bits2(cur, data, 4, hd->opcode);
-    write_bits2(cur, data, 1, hd->aa);
-    write_bits2(cur, data, 1, hd->tc);
-    write_bits2(cur, data, 1, hd->rd);
-    write_bits2(cur, data, 1, hd->ra);
-    write_bits2(cur, data, 3, hd->z);
-    write_bits2(cur, data, 4, hd->rcode);
-    write_bits2(cur, data, 16, hd->qdcount);
-    write_bits2(cur, data, 16, hd->ancount);
-    write_bits2(cur, data, 16, hd->nscount);
-    write_bits2(cur, data, 16, hd->arcount);
+void print_header(cursor cur, int[] data, header hd) {
+    write_bits(cur, data, 16, hd->id);
+    write_bits(cur, data, 1, hd->qr);
+    write_bits(cur, data, 4, hd->opcode);
+    write_bits(cur, data, 1, hd->aa);
+    write_bits(cur, data, 1, hd->tc);
+    write_bits(cur, data, 1, hd->rd);
+    write_bits(cur, data, 1, hd->ra);
+    write_bits(cur, data, 3, hd->z);
+    write_bits(cur, data, 4, hd->rcode);
+    write_bits(cur, data, 16, hd->qdcount);
+    write_bits(cur, data, 16, hd->ancount);
+    write_bits(cur, data, 16, hd->nscount);
+    write_bits(cur, data, 16, hd->arcount);
 }
 
-int print_header(int cur, int[] data, struct header* input){
-
-    cur = write_bits(cur, data, 16, input->id );
-    cur = write_bits(cur, data, 1, input->qr );
-    cur = write_bits(cur, data, 4, input->opcode );
-    cur = write_bits(cur, data, 1, input->aa );
-    cur = write_bits(cur, data, 1, input->tc );
-    cur = write_bits(cur, data, 1, input->rd );
-    cur = write_bits(cur, data, 1, input->ra );
-    cur = write_bits(cur, data, 3, input->z );
-    cur = write_bits(cur, data, 4, input->rcode );
-    cur = write_bits(cur, data, 16, input->qdcount );
-
-    cur = write_bits(cur, data, 16, input->ancount );
-    cur = write_bits(cur, data, 16, input->nscount );
-    cur = write_bits(cur, data, 16, input->arcount );
-
-    return cur;
-}

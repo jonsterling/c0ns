@@ -5,7 +5,7 @@
 int main() {
 
     int[] data = alloc_array(int, 30);
-    write_bits(2, data, 8, char_ord('1'));
+    write_bits(cursor_new(2), data, 8, char_ord('1'));
     cursor cur = cursor_new(2);
     int out = read_bits(cur, data, 8);
     assert(char_chr(out) == '1');
@@ -15,10 +15,9 @@ int main() {
 
 
     int[] strdata = alloc_array(int, 5000);
-    write_string(8, strdata, "hello world! 1234");
+    write_string(cursor_new(8), strdata, "hello world! 1234");
 
-    cur = cursor_new(8);
-    string str = read_string(cur, strdata);
+    string str = read_string(cursor_new(8), strdata);
     assert(string_equal(str, "hello world! 1234"));
 
     println("* read/write string sanity check passed");
