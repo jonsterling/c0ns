@@ -170,7 +170,7 @@ void* parse_rdata(cursor cur, int[] data, type_ type, int len)
 }
 
 
-void print_rr_txt(cursor cur, int[] data, rr_txt t)
+void write_rr_txt(cursor cur, int[] data, rr_txt t)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     if (t == NULL) {
@@ -178,15 +178,15 @@ void print_rr_txt(cursor cur, int[] data, rr_txt t)
     }
 
     write_string(cur, data, t->txt);
-    print_rr_txt(cur, data, t->next);
+    write_rr_txt(cur, data, t->next);
 }
 
-void print_rdata(cursor cur, int[] data, type_ type, void* rdata)
+void write_rdata(cursor cur, int[] data, type_ type, void* rdata)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     //TODO: this block needs to be checked
     if (type == type_cname()) {
-        print_domain_name(cur, data, (domain_name)rdata);
+        write_domain_name(cur, data, (domain_name)rdata);
     }
     else if (type == type_hinfo()) {
         write_string(cur, data, ((rr_hinfo)rdata)->cpu);
@@ -194,14 +194,14 @@ void print_rdata(cursor cur, int[] data, type_ type, void* rdata)
     }
     else if (type == type_mx()) {
         write_bits(cur, data, 16, ((rr_mx)rdata)->preference);
-        print_domain_name(cur, data, ((rr_mx)rdata)->exchange);
+        write_domain_name(cur, data, ((rr_mx)rdata)->exchange);
     }
     else if (type == type_ptr()) {
-        print_domain_name(cur, data, (domain_name)rdata);
+        write_domain_name(cur, data, (domain_name)rdata);
     }
     else if (type == type_soa()) {
-        print_domain_name(cur, data, ((rr_soa)rdata)->mname);
-        print_domain_name(cur, data, ((rr_soa)rdata)->rname);
+        write_domain_name(cur, data, ((rr_soa)rdata)->mname);
+        write_domain_name(cur, data, ((rr_soa)rdata)->rname);
         write_bits(cur, data, 32, ((rr_soa)rdata)->serial);
         write_bits(cur, data, 32, ((rr_soa)rdata)->refresh);
         write_bits(cur, data, 32, ((rr_soa)rdata)->retry);
@@ -209,7 +209,7 @@ void print_rdata(cursor cur, int[] data, type_ type, void* rdata)
     }
 
     else if (type == type_txt()) {
-        print_rr_txt(cur, data, (rr_txt)rdata);
+        write_rr_txt(cur, data, (rr_txt)rdata);
     }
     else if (type == type_A()) {
         write_bits(cur, data, 32, ((rr_A)rdata)->address);
@@ -218,20 +218,20 @@ void print_rdata(cursor cur, int[] data, type_ type, void* rdata)
         error("TODO: wks");
     }
     else {
-        error("print_rdata: Unsupported RR type");
+        error("write_rdata: Unsupported RR type");
     }
 }
 
-void print_resource_record(cursor cur, int[] data, resource_record rr)
+void write_resource_record(cursor cur, int[] data, resource_record rr)
 //@requires rr != NULL;
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
-    print_domain_name(cur, data, rr->name);
+    write_domain_name(cur, data, rr->name);
     write_bits(cur, data, 16, rr->type);
     write_bits(cur, data, 16, rr->class);
     write_bits(cur, data, 32, rr->ttl);
     write_bits(cur, data, 16, rr->rd_length);
-    print_rdata(cur, data, rr->type, rr->rdata);
+    write_rdata(cur, data, rr->type, rr->rdata);
 }
 
 resource_record parse_resource_record(cursor cur, int[] data)

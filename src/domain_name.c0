@@ -71,7 +71,7 @@ void debug_domain_name(domain_name dn) {
 
 
 
-void print_domain_name(cursor cur, int[] data, domain_name d)
+void write_domain_name(cursor cur, int[] data, domain_name d)
 //@requires cur != NULL;
 //@requires cursor_get(cur) < \length(data) * 32;
 //@requires cursor_get(cur) % 8 == 0;
@@ -82,7 +82,7 @@ void print_domain_name(cursor cur, int[] data, domain_name d)
     }
 
     write_string(cur, data, d->label);
-    print_domain_name(cur, data, d->next);
+    write_domain_name(cur, data, d->next);
 }
 
 void assert_domain_eq(domain_name dn1, domain_name dn2) {
@@ -107,7 +107,7 @@ void assert_domain_eq(domain_name dn1, domain_name dn2) {
 void test_domain_name() {
     domain_name dn = domain_cons("ab", domain_cons("welp", domain_nil()));
     int[] data = alloc_array(int, 30);
-    print_domain_name(cursor_new(0), data, dn);
+    write_domain_name(cursor_new(0), data, dn);
     domain_name dn2 = parse_domain_name(cursor_new(0), data);
 
     println("* test_domain_name passed");

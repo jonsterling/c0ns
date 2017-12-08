@@ -21,24 +21,19 @@ int message_octets(message msg)
 //@requires msg != NULL;
 {
     int octets = header_octets();
-
     header hd = msg->header;
 
-    for (int i = 0; i < hd->qdcount; i++) {
+    for (int i = 0; i < hd->qdcount; i++)
         octets += question_octets(msg->question[i]);
-    }
 
-    for (int i = 0; i < hd->ancount; i++) {
+    for (int i = 0; i < hd->ancount; i++)
         octets += resource_record_octets(msg->answer[i]);
-    }
 
-    for (int i = 0; i < hd->nscount; i++) {
+    for (int i = 0; i < hd->nscount; i++)
         octets += resource_record_octets(msg->authority[i]);
-    }
 
-    for (int i = 0; i < hd->arcount; i++) {
+    for (int i = 0; i < hd->arcount; i++)
         octets += resource_record_octets(msg->additional[i]);
-    }
 
     return octets;
 }
@@ -57,21 +52,17 @@ message parse_message(int[] data)
     msg->authority = alloc_array(resource_record, hd->nscount);
     msg->additional = alloc_array(resource_record, hd->arcount);
 
-    for (int i = 0; i < hd->qdcount; i++) {
+    for (int i = 0; i < hd->qdcount; i++)
         msg->question[i] = parse_question(cur, data);
-    }
 
-    for (int i = 0; i < hd->ancount; i++) {
+    for (int i = 0; i < hd->ancount; i++)
         msg->answer[i] = parse_resource_record(cur, data);
-    }
 
-    for (int i = 0; i < hd->nscount; i++) {
+    for (int i = 0; i < hd->nscount; i++)
         msg->authority[i] = parse_resource_record(cur, data);
-    }
 
-    for (int i = 0; i < hd->arcount; i++) {
+    for (int i = 0; i < hd->arcount; i++)
         msg->additional[i] = parse_resource_record(cur, data);
-    }
 
     return msg;
 }
@@ -87,23 +78,19 @@ bytearray write_message(message msg)
     int[] bs = alloc_array(int, bytes);
 
     cursor cur = cursor_new(0);
-    print_header(cur, bs, msg->header);
+    write_header(cur, bs, msg->header);
 
-    for (int i = 0; i < hd->qdcount; i++) {
-        print_question(cur, bs, msg->question[i]);
-    }
+    for (int i = 0; i < hd->qdcount; i++)
+        write_question(cur, bs, msg->question[i]);
 
-    for (int i = 0; i < hd->ancount; i++) {
-        print_resource_record(cur, bs, msg->answer[i]);
-    }
+    for (int i = 0; i < hd->ancount; i++)
+        write_resource_record(cur, bs, msg->answer[i]);
 
-    for (int i = 0; i < hd->nscount; i++) {
-        print_resource_record(cur, bs, msg->authority[i]);
-    }
+    for (int i = 0; i < hd->nscount; i++)
+        write_resource_record(cur, bs, msg->authority[i]);
 
-    for (int i = 0; i < hd->arcount; i++) {
-        print_resource_record(cur, bs, msg->additional[i]);
-    }
+    for (int i = 0; i < hd->arcount; i++)
+        write_resource_record(cur, bs, msg->additional[i]);
 
     return bytearray_new(bytes, bs);
 }
@@ -111,7 +98,6 @@ bytearray write_message(message msg)
 void test_roundtrip(message msg)
 //@requires msg != NULL;
 {
-
     bytearray bs = write_message(msg);
     message msg2 = parse_message(bs->bytes);
     bytearray bs2 = write_message(msg2);

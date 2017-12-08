@@ -70,7 +70,7 @@ header parse_header(cursor cur, int[] data) {
     return hd;
 }
 
-void print_header(cursor cur, int[] data, header hd) {
+void write_header(cursor cur, int[] data, header hd) {
     write_bits(cur, data, 16, hd->id);
     write_bits(cur, data, 1, hd->qr);
     write_bits(cur, data, 4, hd->opcode);
