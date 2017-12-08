@@ -32,23 +32,47 @@ int read_bits(cursor cur, int[] data, int numBits)
 
     cursor_advance(cur, numBits);
 
-    if(numBits<32)
-        return extract_bits(rem, numBits, data[index]);
-    else
+    if (rem + numBits > 32) {
+        int len1 = 32 - rem;
+        int len2 = numBits - len1;
+        int value1 = extract_bits(rem, len1, data[index]);
+        int value2 = extract_bits(0, len2, data[index+1]);
+        int value = pack_bits(value1, len1, len2, value2);
+        return value;
+    }
+
+    if (rem == 0 && numBits == 32) {
         return data[index];
+    }
+
+    return extract_bits(rem, numBits, data[index]);
 }
 
 void write_bits(cursor cur, int[] destData, int numBits, int data)
 //@requires cur != NULL;
+// @requires cursor_get(cur) % 32 + numBits <= 32;
 {
     int indexBits = cursor_get(cur);
     int index = indexBits / 32;
-    int offset = indexBits % 32;
+    int rem = indexBits % 32;
 
-    if(numBits<32)
-        destData[index] = pack_bits(destData[index], offset, numBits, data);
-    else
+    if (rem + numBits > 32) {
+        int len1 = 32 - rem;
+        int len2 = numBits - len1;
+        int data1 = extract_bits(0, len1, data);
+        int data2 = extract_bits(len1, len2, data);
+
+        destData[index] = pack_bits(destData[index], rem, len1, data1);
+        destData[index+1] = pack_bits(destData[index], 0, len2, data2);
+    }
+
+    else if (rem == 0 && numBits == 32) {
         destData[index] = data;
+    }
+
+    else {
+        destData[index] = pack_bits(destData[index], rem, numBits, data);
+    }
 
     cursor_advance(cur, numBits);
 }
