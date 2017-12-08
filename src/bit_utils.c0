@@ -38,7 +38,20 @@ int read_bits(cursor cur, int[] data, int numBits)
         return data[index];
 }
 
+void write_bits2(cursor cur, int[] destData, int numBits, int data)
+//@requires cur != NULL;
+{
+    int indexBits = cursor_get(cur);
+    int index = indexBits / 32;
+    int offset = indexBits % 32;
 
+    if(numBits<32)
+        destData[index] = pack_bits(destData[index], offset, numBits, data);
+    else
+        destData[index] = data;
+
+    cursor_advance(cur, numBits);
+}
 
 int write_bits(int cur, int[] destData, int numBits, int data)
 //@requires numBits <= 32;
@@ -54,6 +67,20 @@ int write_bits(int cur, int[] destData, int numBits, int data)
     return cur + numBits;
 }
 
+
+void write_string2(cursor cur, int[] data, string str)
+//@requires cursor_get(cur) % 8 == 0;
+//@requires (\length(data) * 32) - cursor_get(cur) >= string_length(str) * 8;
+{
+    int len = string_length(str);
+    write_bits2(cur, data, 8, len);
+
+    char[] chars = string_to_chararray(str);
+    for (int i = 0; i < len; i++) {
+        int octet = char_ord(chars[i]);
+        write_bits2(cur, data, 8, octet);
+    }
+}
 
 int write_string(int cur, int[] data, string str)
 //@requires cur % 8 == 0;
