@@ -36,7 +36,7 @@ struct message* test_case0(){
     test->header->arcount=0;
 
     /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 0);
+    question[] questions = alloc_array(question, 0);
     test->question= questions;
     /*answer part*/
     resource_record[] answers = alloc_array(resource_record, 0);
@@ -77,8 +77,8 @@ struct message* test_case1(){
     test->header->arcount=0;
 
 /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 1);
-    struct question* q = alloc(struct question);
+    question[] questions = alloc_array(question, 1);
+    question q = alloc(struct question);
     domain_name name = domain_cons("A", domain_nil());
     q->qname=name;
     q->qtype=14;
@@ -125,8 +125,8 @@ struct message* test_case2(){
     test->header->arcount=0;
 
 /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 1);
-    struct question* q = alloc(struct question);
+    question[] questions = alloc_array(question, 1);
+    question q = alloc(struct question);
     q->qname=domain_cons("c", domain_cons("e", domain_nil()));
     q->qtype=14;
     q->qclass=1;
@@ -170,8 +170,8 @@ struct message* test_case3(){
     test->header->arcount=0;
 
 /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 1);
-    struct question* q = alloc(struct question);
+    question[] questions = alloc_array(question, 1);
+    question q = alloc(struct question);
     q->qname=domain_cons("cmu",domain_cons("edu",domain_nil()));
     q->qtype=14;
     q->qclass=1;
@@ -217,14 +217,14 @@ struct message* test_case4(){
     test->header->arcount=0;
 
 /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 2);
-    struct question* q1 = alloc(struct question);
+    question[] questions = alloc_array(question, 2);
+    question q1 = alloc(struct question);
     q1->qname=domain_cons("com", domain_cons("google", domain_nil()));
     q1->qtype=14;
     q1->qclass=1;
     questions[0]=q1;
 
-    struct question* q2 = alloc(struct question);
+    question q2 = alloc(struct question);
     q2->qname=domain_cons("cmu", domain_cons("edu", domain_nil()));
     q2->qtype=14;
     q2->qclass=1;
@@ -272,7 +272,7 @@ struct message* test_case5(){
     test->header->arcount=0;
 
 /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 0);
+    question[] questions = alloc_array(question, 0);
     test->question= questions;
 
 /*answer part*/
@@ -330,7 +330,7 @@ struct message* test_case6(){
     test->header->arcount=0;
 
 /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 0);
+    question[] questions = alloc_array(question, 0);
     test->question= questions;
 
 /*answer part*/
@@ -342,7 +342,7 @@ struct message* test_case6(){
     a1->type=type_txt();
     a1->class=255;
     a1->ttl=52;
-    a1->rd_length=16;
+    a1->rd_length=9;
 
     // struct rr_A* r = alloc(struct rr_A);
     rr_txt txt = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
@@ -388,14 +388,14 @@ struct message* test_case7(){
     test->header->arcount=2;
 
 /*question part*/
-    struct question*[] questions = alloc_array(struct question*, 2);
-    struct question* q1 = alloc(struct question);
+    question[] questions = alloc_array(question, 2);
+    question q1 = alloc(struct question);
     q1->qname=domain_cons("com", domain_cons("google", domain_nil()));
     q1->qtype=14;
     q1->qclass=1;
     questions[0]=q1;
 
-    struct question* q2 = alloc(struct question);
+    question q2 = alloc(struct question);
     q2->qname=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
     q2->qtype=14;
     q2->qclass=1;
