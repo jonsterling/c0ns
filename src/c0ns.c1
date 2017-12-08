@@ -1,0 +1,94 @@
+#use <args>
+#use <socket>
+
+#use "message.c1"
+
+int TIMEOUT() { return 1000; }
+
+int ROUND_TO_4(int x) {
+    return ((x + 3) / 4) * 4;
+}
+
+int main () {
+    /* Parse arguments:
+     * -remoteip "xxx.xxx.xxx.xxx" as string, then parse string
+     * -remoteport n as int
+     * -localfile as string?
+     */
+    // TODO actually parse arguments insteadof hardcoding.
+
+    // TODO: What is AF_INET's value?
+    int remote_family = 0;
+    int remote_ip = 0x08080808;
+    int remote_port = 53;
+
+    // Set up sockets.
+    socket_t client_sock = dgram_socket();
+    socket_t remote_sock = dgram_socket();
+
+    while(true) {
+        // Receive client message
+        // TODO: What should the timeout be?
+        if(poll_read(client_sock, TIMEOUT()) == 0) {
+            continue;
+        }
+        
+        int msg_bytes = recv_msglen(client_sock);
+        int msg_words = ROUND_TO_4(msg_bytes) / 4;
+    
+        int[] msg_buf = alloc_array(int, msg_words);
+        int* src_sin_family = alloc(int);
+        int* src_sin_port = alloc(int);
+        int* src_sin_addr = alloc(int);
+    
+        int rcv_msglen = c0_recvfrom (client_sock, msg_buf, msg_bytes,
+                                      src_sin_family, src_sin_port, src_sin_addr);
+        //@assert (rcv_msglen == msg_bytes);
+
+       
+        struct message* msg = parse_message(msg_buf);
+    
+        // TODO: actually look into the message and do caching.
+        bytearray msg_to_remote = write_message(msg);
+
+    
+        // Send remote message
+        while(poll_write(remote_sock, TIMEOUT()) != 1) {}
+        int send_msglen = c0_sendto(remote_sock, msg_to_remote->bytes,
+                                    msg_to_remote->length,
+                                    remote_family, remote_port, remote_ip);
+        //@assert (send_msglen == msg_to_remote->length);
+
+
+        // Receive remote message
+        while(poll_read(remote_sock, TIMEOUT()) != 1) {}
+        msg_bytes = recv_msglen(remote_sock);
+        msg_words = ROUND_TO_4(msg_bytes) / 4;
+
+        int[] remote_msg_buf = alloc_array(int, msg_words);
+        int* remote_sin_family = alloc(int);
+        int* remote_sin_port = alloc(int);
+        int* remote_sin_addr = alloc(int);
+
+        rcv_msglen = c0_recvfrom(remote_sock, remote_msg_buf, msg_bytes,
+                                 remote_sin_family, remote_sin_port,
+                                 remote_sin_addr);
+        //@assert (rcv_msglen == msg_bytes);
+        //@assert (*remote_sin_port == remote_port);
+        //@assert (*remote_sin_addr == remote_ip);
+
+
+        msg = parse_message(remote_msg_buf);
+        bytearray msg_to_client = write_message(msg);
+
+
+        // Send client message
+        while(poll_write(client_sock, TIMEOUT()) != 1) {}
+        send_msglen = c0_sendto(client_sock, msg_to_client->bytes,
+                                msg_to_client->length,
+                                *src_sin_family, *src_sin_port, *src_sin_addr);
+        //@assert (send_msglen == msg_to_client->length);
+    }
+
+    return 0;
+}

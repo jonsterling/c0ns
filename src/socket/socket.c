@@ -99,7 +99,6 @@ c0_int c0_sendto (socket_t sock, c0_array buf, c0_int len,
     assert(SHRT_MIN <= dst_sin_family);
     assert(dst_sin_family <= SHRT_MAX);
 
-    // TODO: USHRT_MIN?
     assert(0 <= dst_sin_port);
     assert(dst_sin_port <= USHRT_MAX);
 
