@@ -50,7 +50,6 @@ int read_bits(cursor cur, int[] bytes, int numBits)
 
 void write_bits(cursor cur, int[] bytes, int numBits, int data)
 //@requires cur != NULL;
-// @requires cursor_get(cur) % 32 + numBits <= 32;
 {
     int indexBits = cursor_get(cur);
     int index = indexBits / 32;

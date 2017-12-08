@@ -2,10 +2,11 @@
 \usepackage[tt=false]{libertine}
 \usepackage{mathpartir}
 \usepackage{amsthm}
-\usepackage[colorlinks=true]{hyperref}
+\usepackage[colorlinks=true, citecolor=red]{hyperref}
 \usepackage{bytefield}
 \usepackage{listings}
 \usepackage{microtype}
+\usepackage{natbib}
 
 \lstset{language=C}
 \lstset{basicstyle=\ttfamily, columns=flexible}
@@ -37,13 +38,13 @@
   evaluated it for both safety and performance.
 \end{abstract}
 
-\section{Background and Related Work}
+\section{Background}
 
 
 \Kwd{Domain Name System} (\Kwd{DNS}) is a hierarchical database that
 maps domain names to IP addresses in a distributed manner augmented
 with caching to achieve a better
-performance~\cite{rfc:1034,rfc:1035,mun-lee:2005}. In fact, there are
+performance~\citep{rfc:1034,rfc:1035,mun-lee:2005}. In fact, there are
 three major parts:
 
 \begin{enumerate}
@@ -77,11 +78,11 @@ these sections also has its own special format, some of which will be
 covered in more detail in next parts of this document.
 
 
-\subsection{C0}\label{sec:c0}
+\subsection*{The \Kwd{C0} Language}\label{sec:c0}
 
 The \Kwd{C0} programming language is a restricted subset of \Kwd{C}
 that provides implicit memory safety to
-programmers~\cite{pfenning:c0-reference}. Restrictions on pointer
+programmers~\citep{pfenning:c0-reference}. Restrictions on pointer
 arithmetic and casting, for example, allow the language to detect and
 prevent any attempt to access an array out of its bounds. Furthermore,
 there is no need for error-prone manual memory management, since
@@ -95,9 +96,9 @@ programs.
 % \Kwd{Concurrent C0} (\Kwd{CC0}) is an extension of \Kwd{C0} that
 % offers concurrency based on message passing by providing processes as
 % the units of concurrent execution and channels as their message
-% buffers~\cite{willsey-prabhu-pfenning:2016}. Concurrent processes
+% buffers~\citep{willsey-prabhu-pfenning:2016}. Concurrent processes
 % communicate over channels using a protocol that is disciplined by
-% session types~\cite{caires-pfenning-toninho:2013,
+% session types~\citep{caires-pfenning-toninho:2013,
 %   balzer-pfenning:2017}. In this protocol, each channel is typed such
 % that it can either send or receive a message and, thus, it
 % deliberately models the client/provider relation.
@@ -111,17 +112,71 @@ programs.
 
 
 
-\subsection{Related Work}
+\section{Related Work}
 
-\paragraph{Nail} TODO (Jon) evaluate Nail.
-\nocite{bangert:2014}
+\subsection*{Nail: parsing and generating data formats}
+
+Marshalling and unmarshalling low-level data formats
+is a highly error-prone process, requiring a great degree of care for
+things like byte alignment, sign, etc.; mistakes in this kind of code
+are responsible for numerous security vulnerabilities, especially when
+written in unsafe languages like \Kwd{C}.
+
+To ameliorate this difficulty, \citeauthor{bangert:2014} have
+introduced \Kwd{Nail}, a specialized language for specifying low-level
+data formats. \Kwd{Nail} specifications can then be compiled into real
+parsers and formatters; as part of their evaluation, the authors of
+\Kwd{Nail} have used it to develop a ``authoritative DNS server''.
+
+\Kwd{Nail} has a number of interesting and extremely useful features,
+including \emph{dependent fields}: these are used when the sort of
+data in one field depends on the actual data of another field: for
+instance, when a \verb|length| field is followed by an array of bytes
+of that length.
+%
+Additionally, \Kwd{Nail} supports injecting user-supplied pairs of
+partial inverses to wrap data in the generated parser and formatter;
+this is crucial for compressed or encrypted data.
+
+\paragraph{Evaluation}
+
+We regard the \Kwd{Nail} project as an interesting point in the design
+space, enabling rapid development of tools that interact with
+low-level data formats. As far as safety is concerned, it is necessary
+to trust two things:
+
+\begin{enumerate}
+\item The internal implementation of \Kwd{Nail}, which is written in
+  \Kwd{C}. It is not clear to us what it means to trust \Kwd{C} code,
+  because the ``semantics'' of \Kwd{C} code is completely informal and
+  indefinite.
+\item The user-provided implementations of any functions which are
+  used for compression, decompression, etc. Indeed, there is reason to
+  doubt the correctness of such code, even when written by experts;
+  for instance, the \Kwd{DNS} demo in the \Kwd{Nail} development
+  contains an operator precedence bug~\citep{nigeltao:ticket}.
+\end{enumerate}
+
+The issue described above suggests that while \Kwd{Nail} addresses
+many difficulties, the most error-prone aspects of protocol
+implementation are out of its scope. We think it would be an
+interesting and worthwhile project to pursue a \emph{verified} version
+of \Kwd{Nail} as a library for \Kwd{Coq}~\citep{coq:reference-manual},
+enabling users to verify the correctness of their compression and
+decompression functions relative to a formal approximation of
+\Kwd{C}'s semantics.
+
+Contrary to \Kwd{Nail}, our approach was to code parsers and
+formatters for the \Kwd{DNS} data structures \emph{manually}, but in
+memory-safe and type-safe language. This means that while functional
+correctness is not guaranteed, \emph{safety} is guaranteed.
 
 
-\paragraph{The \Kwd{Fox} Project}
+\subsection*{The \Kwd{Fox} Project}
 An earlier example of an implementation of the DNS protocol in a safe
 and formally specified language is given by the \Kwd{Fox} project,
 undertaken at Carnegie Mellon University in the
-1990s~\cite{biagioni-harper-lee-milnes:1994,
+1990s~\citep{biagioni-harper-lee-milnes:1994,
   biagioni-harper-lee:2001}. Their principal artifact was a library
 called \Kwd{FoxNet} which implemented an array of low-level network
 infrastructure, including \Kwd{TCP}, \Kwd{IP}, \Kwd{ARP} and \Kwd{DNS}
@@ -133,10 +188,12 @@ which was enabled by the host language's sophisticated module system
 generative functors, which are crucial for safe abstraction).
 
 
-\paragraph{Other implementations} More recently, safe languages like
-\Kwd{Rust} and \Kwd{Go} have been gaining popularity. Both languages
-have hosted implementations of the \Kwd{DNS}
-protocol~\cite{github:trust-dns,github:miekg-dns}
+\subsection*{Other implementations}
+
+More recently, safe languages
+like \Kwd{Rust} and \Kwd{Go} have been gaining popularity. Both
+languages have hosted implementations of the \Kwd{DNS}
+protocol~\citep{github:trust-dns,github:miekg-dns}
 
 
 \section{Our Project}\label{sec:our-project}
@@ -231,7 +288,7 @@ struct header {
   int arcount;
 };
 
-typedef struct header* header_t;
+typedef struct header* header;
   \end{lstlisting}
 
   \begin{lstlisting}[frame=single]
@@ -240,10 +297,10 @@ struct domain_name {
   struct domain_name* next;
 };
 
-typedef struct domain_name* domain_name_t;
+typedef struct domain_name* domain_name;
 
 struct resource_record {
-  domain_name_t name;
+  domain_name name;
   int type;
   int class;
   int ttl;
@@ -251,7 +308,7 @@ struct resource_record {
   int[] rdata;
 };
 
-typedef struct resource_record* resource_record_t;
+typedef struct resource_record* resource_record;
   \end{lstlisting}
   \caption{Example DNS data structures in our \Kwd{C0} implementation.}\label{fig:c0-data-structures}
 \end{figure}
@@ -267,23 +324,105 @@ interface~(\S\ref{sec:network-interface}), we implement functions of
 the following kind:
 
 \begin{lstlisting}
-int parse_domain_name(int cursor, int[] msg, domain_name_t* dest);
-int parse_resource_record(int cursor, int[] msg, resource_record_t dest);
-int parse_header(int cursor, int[] msg, header_t dest);
+domain_name parse_domain_name(cursor cur, int[] data);
+resource_record parse_resource_record(cursor cur, int[] data);
+header parse_header(cursor cur, int[] data);
 \end{lstlisting}
 
-These functions take as an argument a cursor (an index in bits into
-the message), an array of 32-bit words (the entire input message), and
-pointer to a structure into which to write the parsed data; they
-return a new cursor. It is important for the modularity of our
-development that cursors represent not indices into the 32-bit cells
-of the message, but rather bit-indices; this is because specific parts
-of DNS data structures may only be a few bits long, so their parsers
-cannot move the cursor forward a full word's length.
-%
+\paragraph{The cursor abstraction}
+In order to enable a style of coding which is less error-prone than
+manual cursor-passing, we implemented an abstract type of imperative
+cursors, which can be advanced or retreated by a certain number of
+bits. Then, our low-level bit arithmetic utilities can be used to read
+(or write) a certain number of bits at a certain offset from (resp.\
+to) our stream of words.
+
+It is important for the modularity of our development that cursors
+represent not indices into the 32-bit cells of the message, but rather
+bit-indices; this is because specific parts of DNS data structures may
+only be a few bits long, so their parsers cannot move the cursor
+forward a full word's length.
+
 A sample of our parsing code can be found in the supplementary
-appendix to this proposal (\S\ref{appendix:decompression}). Of
-course, we will also implement the inverses to the above functions.
+appendix to this proposal (\S\ref{appendix:decompression}).
+
+\paragraph{The implemented fragment}
+
+We have implemented marshalling and unmarshalling for a sizable
+fragment of the \Kwd{DNS} protocol, omitting only some rare or
+experimental resource record types. Our parser for domain names
+supports compression as specified in~\cite{rfc:1035} (see
+Appendix~\ref{appendix:decompression} for our domain name routine);
+however, during formatting we do not attempt to re-compress domain
+names. This would be necessary for a serious implementation.
+
+\paragraph{Tests}
+
+We have implemented several tests to ensure correct roundtrip behavior
+of the marshalling and unmarshalling routines by hand-coding instances
+of the \Kwd{DNS} message structure.
+
+\section{Evaluation}
+
+\subsection{Correctness and Safety}
+
+By virtue of having written the majority of our \Kwd{DNS} server in
+the memory- and type-safe \Kwd{C0} language, we enjoy certain safety
+guarantees that are either impossible or intractable to achieve for
+mainstream \Kwd{C}-based implementations. In return, we have sacrified
+some performance, but it is hard to tell how much of our performance
+trade-off was due to garbage collection vs.\ the unoptimized character of
+our implementation (but see Section~\ref{sec:performance}).
+
+\paragraph{Contracts in \Kwd{C0}}
+
+One feature of \Kwd{C0} that we have found completely invaluable is
+its notion of \emph{contract}, which are a lightweight form of
+assertion which wraps the input and output boundaries of
+procedures. Consider for instance the following code from our
+low-level bit manipulation library:
+
+\begin{lstlisting}
+int get_mask(int index, int size)
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
+{
+    return ((1 << size) - 1) << index;
+}
+
+int get_bits(int index, int size, int data)
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
+{
+    return (data & get_mask(index, size)) >> index;
+}
+
+int set_bits(int data, int index, int size, int value)
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
+{
+    return (data & ~(get_mask(index, size))) | (value << index);
+}
+\end{lstlisting}
+
+Here, we used contracts to ensure that we would not suffer from bit
+shift range errors. The code did not begin with these contracts, but
+in the course of debugging, these contracts were introduced; in every
+instance, introducing contracts (shifting blame closer and closer to
+call-sites) enabled us to easily determine and liquidate bugs.
+
+The \Kwd{C0} compiler can be instructed to check contracts dynamically
+during execution, or to generate code which ignores them. This is
+helpful, since it is important to have debuggable errors when
+developing, but in production one may not wish to incur the cost of
+dynamic contract checks. While dynamic execution of contract checks
+is already very useful, we feel that more advanced techniques such as
+abstract interpretation and its special case, symbolic execution,
+would be even more useful.
+
+\subsection{Performance}\label{sec:performance}
+
+\textit{Klaas, please write this.}
 
 % \section{Goals and Progress}
 
@@ -318,7 +457,7 @@ course, we will also implement the inverses to the above functions.
 % For performance analysis, we plan to evaluate our nameserver for
 % latency and throughput, as these appear to be the most important
 % metrics for \Kwd{DNS} performance. We plan to do this using one of two
-% pieces of software\cite{github:dnsperf1, github:dnsperf2}
+% pieces of software\citep{github:dnsperf1, github:dnsperf2}
 % (confusingly, both named \texttt{dnsperf}), which read queries from a
 % file and then send these requests to a nameserver. The tools mentioned
 % in~\cite{github:dnsperf2} seem better-suited to our needs, as those
@@ -338,7 +477,7 @@ course, we will also implement the inverses to the above functions.
 % files accurately reflect realistic usage.
 
 
-\bibliographystyle{abbrv}
+\bibliographystyle{abbrvnat}
 \bibliography{bibtex-references/refs,project}
 
 \clearpage
@@ -360,7 +499,7 @@ domain_name parse_domain_name(cursor cur, int[] data)
 
     if (len >= 0xc0) {
         // case: pointer
-        // read the last 14 bits of this byte as a
+        // read the last 14 bits of this word as a
         // pointer into the message (in octets)
         cursor_set(cur, orig_ix + 2);
         int ptr = read_bits(cur, data, 14);
