@@ -173,18 +173,12 @@ void* parse_rdata(cursor cur, int[] data, type_ type, int len)
 void print_rr_txt(cursor cur, int[] data, rr_txt t)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
-    rr_txt ptr;
-    rr_txt tail=NULL;
-    while (t!=tail) {
-        ptr = t;
-        while (ptr->next!=tail) {
-            ptr = ptr -> next;
-        }
-        write_string(cur, data, ptr->txt);
-        tail = ptr;
+    if (t == NULL) {
+        return;
     }
-    //TODO do we have a root text in the end? uncomment next line
-    // write_bits(cur, data, 8, 0); //final label, for root
+
+    write_string(cur, data, t->txt);
+    print_rr_txt(cur, data, t->next);
 }
 
 void print_rdata(cursor cur, int[] data, type_ type, void* rdata)
