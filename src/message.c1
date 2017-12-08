@@ -5,6 +5,7 @@
 #use "bit_utils.c0"
 #use "question.c0"
 #use "cursor.c0"
+#use "bytearray.c0"
 
 struct message {
     header header;
@@ -75,14 +76,6 @@ message parse_message(int[] data)
     return msg;
 }
 
-// For arrays where we need to know the length.
-struct bytearray {
-    int length;
-    int[] bytes;
-};
-
-typedef struct bytearray* bytearray;
-
 bytearray write_message(message msg)
 //@requires msg != NULL;
 //@ensures \result != NULL;
@@ -112,70 +105,8 @@ bytearray write_message(message msg)
         print_resource_record(cur, bs, msg->additional[i]);
     }
 
-    bytearray arr = alloc(struct bytearray);
-    arr->length = bytes;
-    arr->bytes = bs;
-
-    return arr;
+    return bytearray_new(bytes, bs);
 }
-
-void debug_bytearray(bytearray bs)
-//@requires bs != NULL;
-{
-    print("[");
-    for (int i = 0; i < bs->length; i++) {
-        if (i != 0) {
-            print(" | ");
-        }
-        else {
-            print(" ");
-        }
-
-        printint(bs->bytes[i]);
-    }
-    print(" ]");
-    flush();
-}
-
-void assert_bytes_eq(bytearray bs1, bytearray bs2)
-//@requires bs1 != NULL && bs2 != NULL;
-{
-    int l1 = bs1->length;
-    int l2 = bs2->length;
-
-    if (l1 != l2) {
-        print("Equating following two byte arrays: \n    ");
-        debug_bytearray(bs1);
-        print("\nvs.\n    ");
-        debug_bytearray(bs2);
-        print("\n");
-        flush();
-
-        string msg = "Byte arrays of different lengths: ";
-        msg = string_join(msg, string_fromint(l1));
-        msg = string_join(msg, " vs. ");
-        msg = string_join(msg, string_fromint(l2));
-        error(msg);
-    }
-
-    for (int i = 0; i < l1; i++) {
-        int x1 = bs1->bytes[i];
-        int x2 = bs2->bytes[i];
-
-        if (x1 != x2) {
-            print("Equating following two byte arrays: \n    ");
-            debug_bytearray(bs1);
-            print("\nvs.\n    ");
-            debug_bytearray(bs2);
-            print("\n");
-            flush();
-
-            error("Test failed");
-            //break;
-        }
-    }
-}
-
 
 void test_roundtrip(message msg)
 //@requires msg != NULL;
