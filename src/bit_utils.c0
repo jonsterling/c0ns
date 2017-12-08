@@ -2,22 +2,22 @@
 #use "cursor.c0"
 
 int get_mask(int index, int size)
-//@requires size <= 32;
-//@requires index < 32;
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
 {
     return ((1 << size) - 1) << index;
 }
 
 int extract_bits(int index, int size, int data)
-//@requires size <= 32;
-//@requires index < 32;
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
 {
     return (data & get_mask(index, size)) >> index;
 }
 
 int pack_bits(int data, int index, int size, int value)
-//@requires size <= 32;
-//@requires index < 32;
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
 {
     return (data & ~(get_mask(index, size))) | (value << index);
 }
