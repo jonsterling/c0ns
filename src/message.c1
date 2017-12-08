@@ -114,20 +114,8 @@ bytearray write_message(message msg)
     }
 
 
-    // The following code indicates that there is a bug!!
-    int position=0;
-    for(int i=0; i<destDataLen;i++){
-        if(destData[i]==0 && position==0){
-            position=i;
-        }
-        else if(destData[i]!=0){
-            position=0;
-        }
-    }
-
     bytearray dest = alloc(struct bytearray);
-    //dest->length = numBits/32;
-    dest->length = position/32;
+    dest->length = destDataLen;
     dest->bytes = destData;
 
     return dest;
@@ -163,6 +151,7 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
         print("\nvs.\n    ");
         debug_bytearray(bs2);
         print("\n");
+        flush();
 
         string msg = "Byte arrays of different lengths: ";
         msg = string_join(msg, string_fromint(l1));
@@ -181,6 +170,7 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
             print("\nvs.\n    ");
             debug_bytearray(bs2);
             print("\n");
+            flush();
 
             error("Test failed");
             //break;
