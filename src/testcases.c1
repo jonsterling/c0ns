@@ -11,8 +11,8 @@
 struct message* test_case0(){
 
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=0;
     //This message is a query.
@@ -53,8 +53,8 @@ struct message* test_case0(){
 struct message* test_case1(){
 
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=1;
     //This message is a query.
@@ -101,8 +101,8 @@ struct message* test_case1(){
 struct message* test_case2(){
 
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=2;
     //This message is a query.
@@ -146,8 +146,8 @@ struct message* test_case2(){
 }
 struct message* test_case3(){
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=2;
     //This message is a query.
@@ -193,8 +193,8 @@ struct message* test_case3(){
 struct message* test_case4(){
 
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=4;
     //This message is a query.
@@ -248,8 +248,8 @@ struct message* test_case4(){
 struct message* test_case5(){
 
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=5;
     //This message is a response.
@@ -306,8 +306,8 @@ struct message* test_case5(){
 struct message* test_case6(){
 
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=6;
     //This message is a response.
@@ -344,10 +344,7 @@ struct message* test_case6(){
     a1->ttl=52;
     a1->rd_length=16;
     // struct rr_A* r = alloc(struct rr_A);
-    rr_txt* txt = alloc(rr_txt);
-    *txt = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
-
-
+    rr_txt txt = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
     a1->rdata = (void*)txt;
 
     answers[0]=a1;
@@ -366,8 +363,8 @@ struct message* test_case6(){
 struct message* test_case7(){
 
     struct message* test = alloc(struct message);
-    struct header* header = alloc(struct header);
-    test->header=header;
+    struct header* hd = alloc(struct header);
+    test->header=hd;
     /*header part*/
     test->header->id=7;
     //This message is a response.
@@ -433,8 +430,7 @@ struct message* test_case7(){
     a2->ttl=22512;
     a2->rd_length=16;
     // struct rr_A* r = alloc(struct rr_A);
-    rr_txt* txt1 = alloc(rr_txt);
-    *txt1 = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
+    rr_txt txt1 = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
     a2->rdata = (void*)txt1;
 
@@ -452,8 +448,7 @@ struct message* test_case7(){
     u1->ttl=2212;
     u1->rd_length=6;
     // struct rr_A* r = alloc(struct rr_A);
-    rr_txt* txtu = alloc(rr_txt);
-    *txtu = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
+    rr_txt txtu = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
     u1->rdata = (void*)txtu;
 
@@ -468,8 +463,7 @@ struct message* test_case7(){
     u2->ttl=221;
     u2->rd_length=6;
     // struct rr_A* r = alloc(struct rr_A);
-    rr_txt* txtu1 = alloc(rr_txt);
-    *txtu1 = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
+    rr_txt txtu1 = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
     u2->rdata = (void*)txtu1;
 
@@ -489,8 +483,7 @@ struct message* test_case7(){
     d1->ttl=2216;
     d1->rd_length=6;
     // struct rr_A* r = alloc(struct rr_A);
-    rr_txt* txtd = alloc(rr_txt);
-    *txtd = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
+    rr_txt txtd = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
 
     d1->rdata = (void*)txtd;
 

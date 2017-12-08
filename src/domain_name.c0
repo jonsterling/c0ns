@@ -1,8 +1,9 @@
 #use "bit_utils.c0"
+#use <conio>
+#use <string>
 
 struct domain_name {
     string label;
-    int size;
     struct domain_name* next;
 };
 
@@ -10,10 +11,12 @@ typedef struct domain_name* domain_name;
 
 int domain_size(domain_name name) {
     if (name == NULL) {
-        return 0;
+        return 16;
     }
 
-    return name->size;
+    // include length octet!
+    int lblSize = 8 + 8 * string_length(name->label);
+    return lblSize + domain_size(name->next);
 }
 
 domain_name domain_nil() {
@@ -24,73 +27,63 @@ domain_name domain_cons(string lbl, domain_name name) {
     domain_name d = alloc(struct domain_name);
     d->label = lbl;
     d->next = name;
-    d->size = domain_size(name) + string_length(lbl);
     return d;
 }
 
-domain_name parse_domain_name_aux(domain_name name, int* cursor, int[] data)
-//@requires cursor != NULL;
-//@requires *cursor < \length(data) * 32;
+domain_name parse_domain_name_aux(domain_name name, cursor cur, int[] data)
+//@requires cur != NULL;
+//@requires cursor_get(cur) < \length(data) * 32;
 {
-    int* len = alloc(int);
+    int orig_ix = cursor_get(cur);
+    int len = read_bits(cur, data, 8);
 
-    int orig_cursor = *cursor;
-
-    *cursor = read_bits(*cursor, data, 8, len);
-
-    if (*len == 0) {
+    if (len == 0) {
         return name;
     }
 
-    if (*len >= 0xc0) {
+    if (len >= 0xc0) {
         // case: pointer
-        int* ptr = alloc(int);
-        // read the remainder of the first 16 bits as a pointer to an offset in octets
-        *cursor = read_bits(orig_cursor + 2, data, 14, ptr);
-        // read the last label of the domain name from the pointer:
+        // read the last 14 bits of this byte as a pointer into the message (in octets)
+        cursor_set(cur, orig_ix + 2);
+        int ptr = read_bits(cur, data, 14);
 
-        int* ptrCursor = alloc(int);
-        *ptrCursor = *ptr * 8;
-
+        cursor ptrCursor = cursor_new(ptr * 8);
         return parse_domain_name_aux(name, ptrCursor, data);
     }
 
     // now we parse an ordinary label; we retreat by one octet so that read_string can see the length cell
-    string* lbl = alloc(string);
-
-    *cursor = *cursor - 8;
-    *cursor = read_string(*cursor, data, lbl);
-
-    return parse_domain_name_aux(domain_cons(*lbl, name), cursor, data);
+    cursor_retreat(cur, 8);
+    string lbl = read_string(cur, data);
+    return parse_domain_name_aux(domain_cons(lbl, name), cur, data);
 }
 
 
-domain_name parse_domain_name(int* cursorOut, int[] data)
-//@requires cursorOut != NULL;
-//@requires *cursorOut < \length(data) * 32;
-//@requires *cursorOut % 8 == 0;
+domain_name parse_domain_name(cursor cur, int[] data)
+//@requires cur != NULL;
+//@requires cursor_get(cur) < \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
 {
-    return parse_domain_name_aux(domain_nil(), cursorOut, data);
+    return parse_domain_name_aux(domain_nil(), cur, data);
 }
 
-int print_domain_name(int cursor, int[] data, domain_name d)
-//@requires cursor < \length(data) * 32;
-//@requires cursor % 8 == 0;
+void print_domain_name(cursor cur, int[] data, domain_name d)
+//@requires cursor_get(cur) < \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
 {
     domain_name ptr;
-    domain_name tail=NULL;
-    int x=0;
+    domain_name tail = NULL;
+
     while (d!=tail) {
         ptr = d;
-        while (ptr->next!=tail)
+        while (ptr->next!=tail) {
             ptr = ptr -> next;
-        cursor = write_string (cursor, data, ptr->label);
-        x= ptr->size;
+        }
+
+        write_string(cur, data, ptr->label);
         tail = ptr;
     }
 
-    cursor = write_bits(cursor, data, 8, 0); //final label, for root
-    return cursor;
+    write_bits(cur, data, 8, 0); //final label, for root
 }
 
 void assert_domain_eq(domain_name dn1, domain_name dn2) {
@@ -117,10 +110,10 @@ void debug_domain_name(domain_name dn) {
 void test_domain_name() {
     domain_name dn = domain_cons("ab", domain_nil());
     int[] data = alloc_array(int, 30);
-    int cursor = print_domain_name(0, data, dn);
+    print_domain_name(cursor_new(0), data, dn);
 
-    int* cursorOut = alloc(int);
-    domain_name dn2 = parse_domain_name(cursorOut, data);
+    cursor cur = cursor_new(0);
+    domain_name dn2 = parse_domain_name(cur, data);
 
     assert_domain_eq(dn, dn2);
 

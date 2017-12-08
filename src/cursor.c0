@@ -1,0 +1,40 @@
+struct cursor {
+    int ix;
+};
+
+typedef struct cursor* cursor;
+
+cursor cursor_new(int i)
+//@requires i >= 0;
+//@ensures \result != NULL;
+{
+    cursor cur = alloc(struct cursor);
+    cur->ix = i;
+    return cur;
+}
+
+int cursor_get(cursor cur)
+//@requires cur != NULL;
+{
+    return cur->ix;
+}
+
+void cursor_advance(cursor cur, int a)
+//@requires cur != NULL;
+{
+    cur->ix = cur->ix + a;
+}
+
+void cursor_retreat(cursor cur, int a)
+//@requires cur != NULL;
+//@requires cur->ix - a >= 0;
+{
+    cur->ix = cur->ix - a;
+}
+
+void cursor_set(cursor cur, int a)
+//@requires cur != NULL;
+//@requires a >= 0;
+{
+    cur->ix = a;
+}

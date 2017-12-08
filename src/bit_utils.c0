@@ -1,92 +1,107 @@
 #use <string>
-
+#use "cursor.c0"
 
 int get_mask(int index, int size)
-//@requires size <= 32;
-//@requires index < 32;
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
 {
     return ((1 << size) - 1) << index;
 }
 
 int extract_bits(int index, int size, int data)
-//@requires size <= 32;
-//@requires index < 32;
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
 {
     return (data & get_mask(index, size)) >> index;
 }
 
 int pack_bits(int data, int index, int size, int value)
-//@requires size <= 32;
-//@requires index < 32;
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
 {
     return (data & ~(get_mask(index, size))) | (value << index);
 }
 
-
-int read_bits(int cursor, int[] data, int numBits, int* dest)
+int read_bits(cursor cur, int[] data, int numBits)
 //@requires numBits <= 32;
 {
-    int index = cursor / 32;
-    if(numBits<32)
-        *dest = extract_bits(cursor % 32, numBits, data[index]);
-    else
-        *dest=data[index];
-    return cursor + numBits;
+    int indexBits = cursor_get(cur);
+
+    int index = indexBits / 32;
+    int rem = indexBits % 32;
+
+    cursor_advance(cur, numBits);
+
+    if (rem + numBits > 32) {
+        int len1 = 32 - rem;
+        int len2 = numBits - len1;
+        int value1 = extract_bits(rem, len1, data[index]);
+        int value2 = extract_bits(0, len2, data[index+1]);
+        int value = pack_bits(value1, len1, len2, value2);
+        return value;
+    }
+
+    if (rem == 0 && numBits == 32) {
+        return data[index];
+    }
+
+    return extract_bits(rem, numBits, data[index]);
 }
 
-
-
-int write_bits(int cursor, int[] destData, int numBits, int data)
-//@requires numBits <= 32;
+void write_bits(cursor cur, int[] destData, int numBits, int data)
+//@requires cur != NULL;
+// @requires cursor_get(cur) % 32 + numBits <= 32;
 {
-    int index = cursor / 32;
-    int offset = cursor % 32;
+    int indexBits = cursor_get(cur);
+    int index = indexBits / 32;
+    int rem = indexBits % 32;
 
+    if (rem + numBits > 32) {
+        int len1 = 32 - rem;
+        int len2 = numBits - len1;
+        int data1 = extract_bits(0, len1, data);
+        int data2 = extract_bits(len1, len2, data);
 
-//    data = data & ((1<<numBits)-1); //force zeroing preceding bits in source data
-    if(numBits<32)
-        destData[index] = pack_bits(destData[index], offset, numBits, data);
-    else
-        destData[index]=data;
+        destData[index] = pack_bits(destData[index], rem, len1, data1);
+        destData[index+1] = pack_bits(destData[index], 0, len2, data2);
+    }
 
-//destData[index] & (~(((1<<numBits)-1)<<offset));	//force zeroing target bits before copying
-//    destData[index] = destData[index] | data<<(offset);
+    else if (rem == 0 && numBits == 32) {
+        destData[index] = data;
+    }
 
-    return cursor + numBits;
+    else {
+        destData[index] = pack_bits(destData[index], rem, numBits, data);
+    }
+
+    cursor_advance(cur, numBits);
 }
 
-
-int write_string(int cursor, int[] data, string str)
-//@requires cursor % 8 == 0;
-//@requires (\length(data) * 32) - cursor >= string_length(str) * 8;
+void write_string(cursor cur, int[] data, string str)
+//@requires cursor_get(cur) % 8 == 0;
+//@requires (\length(data) * 32) - cursor_get(cur) >= string_length(str) * 8;
 {
     int len = string_length(str);
-    cursor = write_bits(cursor, data, 8, len);
+    write_bits(cur, data, 8, len);
 
     char[] chars = string_to_chararray(str);
     for (int i = 0; i < len; i++) {
-        int octet= char_ord(chars[i]);
-        cursor = write_bits(cursor, data, 8, octet);
-
+        int octet = char_ord(chars[i]);
+        write_bits(cur, data, 8, octet);
     }
-    return cursor;
 }
 
-int read_string(int cursor, int[] data, string* dest)
-//@requires cursor % 8 == 0;
-//@requires cursor < \length(data) * 32;
+string read_string(cursor cur, int[] data)
+//@requires cur != NULL;
+//@requires cursor_get(cur) % 8 == 0;
+//@requires cursor_get(cur) < \length(data) * 32;
 {
-    int* len = alloc(int);
-    cursor = read_bits(cursor, data, 8, len);
+    int len = read_bits(cur, data, 8);
 
-    char[] chars = alloc_array(char, *len + 1);
-
-    for (int i = 0; i < *len; i++) {
-        int* octet = alloc(int);
-        cursor = read_bits(cursor, data, 8, octet);
-        chars[i] = char_chr(*octet);
+    char[] chars = alloc_array(char, len + 1);
+    for (int i = 0; i < len; i++) {
+        chars[i] = char_chr(read_bits(cur, data, 8));
     }
 
-    *dest = string_from_chararray(chars);
-    return cursor;
+    return string_from_chararray(chars);
 }

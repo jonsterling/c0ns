@@ -4,69 +4,50 @@
 #use "resource_record.c1"
 #use "bit_utils.c0"
 #use "question.c0"
+#use "cursor.c0"
 
-
-// TODO: would be nicer to have arrays of structs rather than arrays of pointers to structs, wasn't
-// sure how to assign to it
-// FARZANEH: why?
 struct message {
-    struct header* header;
-    struct question*[] question;
-    struct resource_record*[] answer;
-    struct resource_record*[] authority;
-    struct resource_record*[] additional;
+    header header;
+    question[] question;
+    resource_record[] answer;
+    resource_record[] authority;
+    resource_record[] additional;
 };
 
+typedef struct message* message;
 
-struct message* parse_message(int[] data)
+
+message parse_message(int[] data)
 //@ensures \result != NULL;
 {
-    int cursor = 0;
-    struct message* dest = alloc(struct message);
-    struct header* header = alloc(struct header);
-    cursor = parse_header(cursor, data, header);
+    cursor cur = cursor_new(0);
 
-    int qdcount = header->qdcount;
-    struct question*[] questions = alloc_array(struct question*, qdcount);
-    printint(qdcount);
-    print("qdcount\n");
-    for (int i = 0; i < qdcount; i++) {
-        questions[i] = alloc(struct question);
-        cursor = parse_question(cursor, data, questions[i]);
+    message msg = alloc(struct message);
+    msg->header = parse_header(cur, data);
+    header hd = msg->header;
+
+    msg->question = alloc_array(question, hd->qdcount);
+    msg->answer = alloc_array(resource_record, hd->ancount);
+    msg->authority = alloc_array(resource_record, hd->nscount);
+    msg->additional = alloc_array(resource_record, hd->arcount);
+
+    for (int i = 0; i < hd->qdcount; i++) {
+        msg->question[i] = parse_question(cur, data);
     }
 
-
-    int ancount = header->ancount;
-    struct resource_record*[] answers = alloc_array(struct resource_record*, ancount);
-
-    for (int i = 0; i < ancount; i++) {
-        answers[i] = alloc(struct resource_record);
-        cursor = parse_resource_record(cursor, data, answers[i]);
+    for (int i = 0; i < hd->ancount; i++) {
+        msg->answer[i] = parse_resource_record(cur, data);
     }
 
-    int nscount = header->nscount;
-    struct resource_record*[] auths = alloc_array(struct resource_record*, nscount);
-
-    for (int i = 0; i < nscount; i++) {
-        auths[i] = alloc(struct resource_record);
-        cursor = parse_resource_record(cursor, data, auths[i]);
+    for (int i = 0; i < hd->nscount; i++) {
+        msg->authority[i] = parse_resource_record(cur, data);
     }
 
-    int arcount = header->arcount;
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, arcount);
-
-    for (int i = 0; i < arcount; i++) {
-        additionals[i] = alloc(struct resource_record);
-        cursor = parse_resource_record(cursor, data, additionals[i]);
+    for (int i = 0; i < hd->arcount; i++) {
+        msg->additional[i] = parse_resource_record(cur, data);
     }
 
-    dest->header = header;
-    dest->question = questions;
-    dest->answer = answers;
-    dest->authority = auths;
-    dest->additional = additionals;
-
-    return dest;
+    return msg;
 }
 
 // For arrays where we need to know the length.
@@ -77,53 +58,63 @@ struct bytearray {
 
 typedef struct bytearray* bytearray;
 
-bytearray write_message(struct message* input)
-//@requires input != NULL;
+int estimate_message_size(message msg)
+//@requires msg != NULL;
+{
+    header hd = msg->header;
+    int numBits = header_size();
+
+    for (int i = 0; i < hd->qdcount; i++) {
+        numBits += countBitsQuestion(msg->question[i]);
+    }
+
+    for (int i = 0; i < hd->ancount; i++) {
+        numBits += countBitsRR(msg->answer[i]);
+    }
+
+    for (int i = 0; i < hd->nscount; i++) {
+        numBits += countBitsRR(msg->authority[i]);
+    }
+
+    for (int i = 0; i < hd->arcount; i++) {
+        numBits += countBitsRR(msg->additional[i]);
+    }
+
+
+    return numBits;
+}
+
+bytearray write_message(message msg)
+//@requires msg != NULL;
 //@ensures \result != NULL;
 {
-    int qdcount = input -> header -> qdcount;
-    int ancount = input -> header -> ancount;
-    int nscount = input -> header -> nscount;
-    int arcount = input -> header -> arcount;
+    header hd = msg->header;
+    int numBits = estimate_message_size(msg);
 
-    int headerBits = 6 * 16;
-    int numBits = headerBits;
+    int destDataLen = (numBits/32) + (numBits % 32 > 0 ? 1 : 0);
+    int[] destData = alloc_array(int, destDataLen);
 
-    for (int i = 0; i < qdcount; i++) {
-        numBits += countBitsQuestion(input -> question[i]);
-    }
-    for (int i = 0; i < ancount; i++) {
-        numBits += countBitsRR(input -> answer[i]);
+    cursor cur = cursor_new(0);
+    print_header(cur, destData, msg->header);
+
+    for (int i = 0; i < hd->qdcount; i++) {
+        print_question(cur, destData, msg->question[i]);
     }
 
-    for (int i = 0; i < nscount; i++) {
-        numBits += countBitsRR(input -> authority[i]);
-    }
-    for (int i = 0; i < arcount; i++) {
-        numBits += countBitsRR(input -> additional[i]);
+    for (int i = 0; i < hd->ancount; i++) {
+        print_resource_record(cur, destData, msg->answer[i]);
     }
 
-    // multiplied by 2 just in case ;-)
-    int destDataLen=(numBits/32)*2;
-    int[] destData = alloc_array(int, (numBits/32)*2);
-    int cursor = 0;
-    cursor = print_header (cursor, destData, input -> header);
-    for (int i = 0; i < qdcount; i++) {
-        cursor = print_question (cursor, destData, input -> question[i]);
-    }
-    for (int i = 0; i < ancount; i++) {
-        cursor = print_resource_record (cursor, destData, input -> answer[i]);
+    for (int i = 0; i < hd->nscount; i++) {
+        print_resource_record(cur, destData, msg->authority[i]);
     }
 
-    for (int i = 0; i < nscount; i++) {
-        cursor = print_resource_record (cursor, destData, input -> authority[i]);
-    }
-    for (int i = 0; i < arcount; i++) {
-
-        cursor = print_resource_record (cursor, destData, input -> additional[i]);
-
+    for (int i = 0; i < hd->arcount; i++) {
+        print_resource_record(cur, destData, msg->additional[i]);
     }
 
+
+    // The following code indicates that there is a bug!!
     int position=0;
     for(int i=0; i<destDataLen;i++){
         if(destData[i]==0 && position==0){
@@ -142,8 +133,7 @@ bytearray write_message(struct message* input)
     return dest;
 }
 
-
-void print_bytearray(bytearray bs)
+void debug_bytearray(bytearray bs)
 //@requires bs != NULL;
 {
     print("[");
@@ -169,9 +159,9 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
 
     if (l1 != l2) {
         print("Equating following two byte arrays: \n    ");
-        print_bytearray(bs1);
+        debug_bytearray(bs1);
         print("\nvs.\n    ");
-        print_bytearray(bs2);
+        debug_bytearray(bs2);
         print("\n");
 
         string msg = "Byte arrays of different lengths: ";
@@ -186,10 +176,10 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
         int x2 = bs2->bytes[i];
 
         if (x1 != x2) {
-            print("Equating following two byte arrays: \n ");
-            print_bytearray(bs1);
+            print("Equating following two byte arrays: \n    ");
+            debug_bytearray(bs1);
             print("\nvs.\n    ");
-            print_bytearray(bs2);
+            debug_bytearray(bs2);
             print("\n");
 
             error("Test failed");
@@ -199,13 +189,13 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
 }
 
 
-void test_roundtrip(struct message* message)
-//@requires message != NULL;
+void test_roundtrip(message msg)
+//@requires msg != NULL;
 {
 
-    bytearray bs = write_message(message);
-    struct message* message2 = parse_message(bs->bytes);
-    bytearray bs2 = write_message(message2);
+    bytearray bs = write_message(msg);
+    message msg2 = parse_message(bs->bytes);
+    bytearray bs2 = write_message(msg2);
 
     assert_bytes_eq(bs, bs2);
 }
