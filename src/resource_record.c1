@@ -226,10 +226,6 @@ void print_resource_record(cursor cur, int[] data, resource_record rr)
 //@requires rr != NULL;
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
-    print("\n\nwrite / rdlength:");
-    printint(rr->rd_length);
-    print("\n");
-
     print_domain_name(cur, data, rr->name);
     write_bits(cur, data, 16, rr->type);
     write_bits(cur, data, 16, rr->class);
@@ -249,11 +245,6 @@ resource_record parse_resource_record(cursor cur, int[] data)
     rr->ttl = read_bits(cur, data, 32);
     rr->rd_length = read_bits(cur, data, 16);
     rr->rdata = parse_rdata(cur, data, rr->type, rr->rd_length);
-
-    print("\n\nparse / rdlength:");
-    printint(rr->rd_length);
-    print("\n");
-
     return rr;
 }
 
