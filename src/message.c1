@@ -22,45 +22,32 @@ message parse_message(int[] data)
 {
     cursor cur = cursor_new(0);
 
-    message dest = alloc(struct message);
-    header hd = parse_header(cur, data);
+    message msg = alloc(struct message);
+    msg->header = parse_header(cur, data);
+    header hd = msg->header;
 
-    int qdcount = hd->qdcount;
-    question[] questions = alloc_array(question, qdcount);
+    msg->question = alloc_array(question, hd->qdcount);
+    msg->answer = alloc_array(resource_record, hd->ancount);
+    msg->authority = alloc_array(resource_record, hd->nscount);
+    msg->additional = alloc_array(resource_record, hd->arcount);
 
-    for (int i = 0; i < qdcount; i++) {
-        questions[i] = parse_question(cur, data);
+    for (int i = 0; i < hd->qdcount; i++) {
+        msg->question[i] = parse_question(cur, data);
     }
 
-
-    int ancount = hd->ancount;
-    resource_record[] answers = alloc_array(resource_record, ancount);
-
-    for (int i = 0; i < ancount; i++) {
-        answers[i] = parse_resource_record(cur, data);
+    for (int i = 0; i < hd->ancount; i++) {
+        msg->answer[i] = parse_resource_record(cur, data);
     }
 
-    int nscount = hd->nscount;
-    resource_record[] auths = alloc_array(resource_record, nscount);
-
-    for (int i = 0; i < nscount; i++) {
-        auths[i] = parse_resource_record(cur, data);
+    for (int i = 0; i < hd->nscount; i++) {
+        msg->authority[i] = parse_resource_record(cur, data);
     }
 
-    int arcount = hd->arcount;
-    resource_record[] additionals = alloc_array(resource_record, arcount);
-
-    for (int i = 0; i < arcount; i++) {
-        additionals[i] = parse_resource_record(cur, data);
+    for (int i = 0; i < hd->arcount; i++) {
+        msg->additional[i] = parse_resource_record(cur, data);
     }
 
-    dest->header = hd;
-    dest->question = questions;
-    dest->answer = answers;
-    dest->authority = auths;
-    dest->additional = additionals;
-
-    return dest;
+    return msg;
 }
 
 // For arrays where we need to know the length.
@@ -71,9 +58,8 @@ struct bytearray {
 
 typedef struct bytearray* bytearray;
 
-bytearray write_message(message msg)
+int estimate_message_size(message msg)
 //@requires msg != NULL;
-//@ensures \result != NULL;
 {
     header hd = msg->header;
 
@@ -96,6 +82,16 @@ bytearray write_message(message msg)
         numBits += countBitsRR(msg->additional[i]);
     }
 
+
+    return numBits;
+}
+
+bytearray write_message(message msg)
+//@requires msg != NULL;
+//@ensures \result != NULL;
+{
+    header hd = msg->header;
+    int numBits = estimate_message_size(msg);
 
     // multiplied by 2 just in case ;-)
     int destDataLen=(numBits/32)*2;
@@ -138,7 +134,7 @@ bytearray write_message(message msg)
     return dest;
 }
 
-void print_bytearray(bytearray bs)
+void debug_bytearray(bytearray bs)
 //@requires bs != NULL;
 {
     print("[");
@@ -164,9 +160,9 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
 
     if (l1 != l2) {
         print("Equating following two byte arrays: \n    ");
-        print_bytearray(bs1);
+        debug_bytearray(bs1);
         print("\nvs.\n    ");
-        print_bytearray(bs2);
+        debug_bytearray(bs2);
         print("\n");
 
         string msg = "Byte arrays of different lengths: ";
@@ -182,9 +178,9 @@ void assert_bytes_eq(bytearray bs1, bytearray bs2)
 
         if (x1 != x2) {
             print("Equating following two byte arrays: \n ");
-            print_bytearray(bs1);
+            debug_bytearray(bs1);
             print("\nvs.\n    ");
-            print_bytearray(bs2);
+            debug_bytearray(bs2);
             print("\n");
 
             error("Test failed");
