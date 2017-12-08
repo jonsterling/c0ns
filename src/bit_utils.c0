@@ -8,14 +8,14 @@ int get_mask(int index, int size)
     return ((1 << size) - 1) << index;
 }
 
-int extract_bits(int index, int size, int data)
+int get_bits(int index, int size, int data)
 //@requires size < 32 && size >= 0;
 //@requires index < 32 && index >= 0;
 {
     return (data & get_mask(index, size)) >> index;
 }
 
-int pack_bits(int data, int index, int size, int value)
+int set_bits(int data, int index, int size, int value)
 //@requires size < 32 && size >= 0;
 //@requires index < 32 && index >= 0;
 {
@@ -35,9 +35,9 @@ int read_bits(cursor cur, int[] bytes, int numBits)
     if (rem + numBits > 32) {
         int len1 = 32 - rem;
         int len2 = numBits - len1;
-        int value1 = extract_bits(rem, len1, bytes[index]);
-        int value2 = extract_bits(0, len2, bytes[index+1]);
-        int value = pack_bits(value1, len1, len2, value2);
+        int value1 = get_bits(rem, len1, bytes[index]);
+        int value2 = get_bits(0, len2, bytes[index+1]);
+        int value = set_bits(value1, len1, len2, value2);
         return value;
     }
 
@@ -45,7 +45,7 @@ int read_bits(cursor cur, int[] bytes, int numBits)
         return bytes[index];
     }
 
-    return extract_bits(rem, numBits, bytes[index]);
+    return get_bits(rem, numBits, bytes[index]);
 }
 
 void write_bits(cursor cur, int[] bytes, int numBits, int data)
@@ -59,11 +59,11 @@ void write_bits(cursor cur, int[] bytes, int numBits, int data)
     if (rem + numBits > 32) {
         int len1 = 32 - rem;
         int len2 = numBits - len1;
-        int data1 = extract_bits(0, len1, data);
-        int data2 = extract_bits(len1, len2, data);
+        int data1 = get_bits(0, len1, data);
+        int data2 = get_bits(len1, len2, data);
 
-        bytes[index] = pack_bits(bytes[index], rem, len1, data1);
-        bytes[index+1] = pack_bits(bytes[index], 0, len2, data2);
+        bytes[index] = set_bits(bytes[index], rem, len1, data1);
+        bytes[index+1] = set_bits(bytes[index], 0, len2, data2);
     }
 
     else if (rem == 0 && numBits == 32) {
@@ -71,7 +71,7 @@ void write_bits(cursor cur, int[] bytes, int numBits, int data)
     }
 
     else {
-        bytes[index] = pack_bits(bytes[index], rem, numBits, data);
+        bytes[index] = set_bits(bytes[index], rem, numBits, data);
     }
 
     cursor_advance(cur, numBits);
