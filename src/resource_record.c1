@@ -112,7 +112,7 @@ rr_txt parse_txt(cursor cur, int end, int[] data)
 {
     int origIx = cursor_get(cur);
     string s = read_string(cur, data);
-    if (cursor_get(cur) >= end) {
+    if (cursor_get(cur) > end) {
         cursor_set(cur, origIx);
         return rr_txt_nil();
     }
@@ -169,47 +169,16 @@ void* parse_rdata(cursor cur, int[] data, type_ type, int len)
     }
 }
 
-resource_record parse_resource_record(cursor cur, int[] data)
-//@ensures \result != NULL;
-//@requires cursor_get(cur) <= \length(data) * 32;
-{
-    resource_record dest = alloc(struct resource_record);
-    dest->name = parse_domain_name(cur, data);
-
-    //print("\n\n");
-    //printint(dest->type);
-    //print(":type\n");
-    //printint(dest->class);
-    //print(":class_\n");
-    //debug_domain_name(dest->name);
-    //print("\n");
-
-    dest->type = read_bits(cur, data, 16);
-    dest->class = read_bits(cur, data, 16);
-    dest->ttl = read_bits(cur, data, 32);
-    dest->rd_length = read_bits(cur, data, 16);
-    dest->rdata = parse_rdata(cur, data, dest->type, dest->rd_length);
-
-
-    return dest;
-}
-
 
 void print_rr_txt(cursor cur, int[] data, rr_txt t)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
-    rr_txt ptr;
-    rr_txt tail=NULL;
-    while (t!=tail) {
-        ptr = t;
-        while (ptr->next!=tail) {
-            ptr = ptr -> next;
-        }
-        write_string(cur, data, ptr->txt);
-        tail = ptr;
+    if (t == NULL) {
+        return;
     }
-    //TODO do we have a root text in the end? uncomment next line
-    // write_bits(cur, data, 8, 0); //final label, for root
+
+    write_string(cur, data, t->txt);
+    print_rr_txt(cur, data, t->next);
 }
 
 void print_rdata(cursor cur, int[] data, type_ type, void* rdata)
@@ -264,6 +233,21 @@ void print_resource_record(cursor cur, int[] data, resource_record rr)
     write_bits(cur, data, 16, rr->rd_length);
     print_rdata(cur, data, rr->type, rr->rdata);
 }
+
+resource_record parse_resource_record(cursor cur, int[] data)
+//@ensures \result != NULL;
+//@requires cursor_get(cur) <= \length(data) * 32;
+{
+    resource_record rr = alloc(struct resource_record);
+    rr->name = parse_domain_name(cur, data);
+    rr->type = read_bits(cur, data, 16);
+    rr->class = read_bits(cur, data, 16);
+    rr->ttl = read_bits(cur, data, 32);
+    rr->rd_length = read_bits(cur, data, 16);
+    rr->rdata = parse_rdata(cur, data, rr->type, rr->rd_length);
+    return rr;
+}
+
 
 int countBitsRR(struct resource_record* rr)
 //@requires rr != NULL;

@@ -30,15 +30,16 @@ domain_name domain_cons(string lbl, domain_name name) {
     return d;
 }
 
-domain_name parse_domain_name_aux(domain_name name, cursor cur, int[] data)
+domain_name parse_domain_name(cursor cur, int[] data)
 //@requires cur != NULL;
 //@requires cursor_get(cur) < \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
 {
     int orig_ix = cursor_get(cur);
     int len = read_bits(cur, data, 8);
 
     if (len == 0) {
-        return name;
+        return domain_nil();
     }
 
     if (len >= 0xc0) {
@@ -48,52 +49,13 @@ domain_name parse_domain_name_aux(domain_name name, cursor cur, int[] data)
         int ptr = read_bits(cur, data, 14);
 
         cursor ptrCursor = cursor_new(ptr * 8);
-        return parse_domain_name_aux(name, ptrCursor, data);
+        return parse_domain_name(ptrCursor, data);
     }
 
     // now we parse an ordinary label; we retreat by one octet so that read_string can see the length cell
     cursor_retreat(cur, 8);
     string lbl = read_string(cur, data);
-    return parse_domain_name_aux(domain_cons(lbl, name), cur, data);
-}
-
-
-domain_name parse_domain_name(cursor cur, int[] data)
-//@requires cur != NULL;
-//@requires cursor_get(cur) < \length(data) * 32;
-//@requires cursor_get(cur) % 8 == 0;
-{
-    return parse_domain_name_aux(domain_nil(), cur, data);
-}
-
-void print_domain_name(cursor cur, int[] data, domain_name d)
-//@requires cursor_get(cur) < \length(data) * 32;
-//@requires cursor_get(cur) % 8 == 0;
-{
-    domain_name ptr;
-    domain_name tail = NULL;
-
-    while (d!=tail) {
-        ptr = d;
-        while (ptr->next!=tail) {
-            ptr = ptr -> next;
-        }
-
-        write_string(cur, data, ptr->label);
-        tail = ptr;
-    }
-
-    write_bits(cur, data, 8, 0); //final label, for root
-}
-
-void assert_domain_eq(domain_name dn1, domain_name dn2) {
-    if (dn1 == NULL){
-        assert(dn2 == NULL);
-        return;
-    }
-
-    assert(string_equal(dn1->label, dn2->label));
-    assert_domain_eq(dn2->next, dn2->next);
+    return domain_cons(lbl, parse_domain_name(cur, data));
 }
 
 void debug_domain_name(domain_name dn) {
@@ -107,15 +69,46 @@ void debug_domain_name(domain_name dn) {
     }
 }
 
+
+
+void print_domain_name(cursor cur, int[] data, domain_name d)
+//@requires cur != NULL;
+//@requires cursor_get(cur) < \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
+{
+    if (d == NULL) {
+        write_bits(cur, data, 8, 0);
+        return;
+    }
+
+    write_string(cur, data, d->label);
+    print_domain_name(cur, data, d->next);
+}
+
+void assert_domain_eq(domain_name dn1, domain_name dn2) {
+    if (dn1 == NULL && dn2 == NULL) {
+        return;
+    }
+
+    if (dn1 == NULL) {
+        error("first domain was NULL, but second was not");
+    }
+
+    if (dn2 == NULL) {
+        debug_domain_name(dn1);
+        error("second domain was NULL, but first was not");
+    }
+
+    assert(dn1 != NULL && dn2 != NULL);
+    assert(string_equal(dn1->label, dn2->label));
+    assert_domain_eq(dn1->next, dn2->next);
+}
+
 void test_domain_name() {
-    domain_name dn = domain_cons("ab", domain_nil());
+    domain_name dn = domain_cons("ab", domain_cons("welp", domain_nil()));
     int[] data = alloc_array(int, 30);
     print_domain_name(cursor_new(0), data, dn);
-
-    cursor cur = cursor_new(0);
-    domain_name dn2 = parse_domain_name(cur, data);
-
-    assert_domain_eq(dn, dn2);
+    domain_name dn2 = parse_domain_name(cursor_new(0), data);
 
     println("* test_domain_name passed");
 }
