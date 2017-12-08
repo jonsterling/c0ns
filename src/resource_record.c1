@@ -248,9 +248,8 @@ resource_record parse_resource_record(cursor cur, int[] data)
     return rr;
 }
 
-
-int countBitsRR(struct resource_record* rr)
+int resource_record_octets(resource_record rr)
 //@requires rr != NULL;
 {
-    return domain_size(rr->name) + 16 + 16 + 32 + 16 + (rr->rd_length*8);
+    return domain_octets(rr->name) + 2 + 2 + 4 + 2 + rr->rd_length;
 }

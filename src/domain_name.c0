@@ -9,14 +9,14 @@ struct domain_name {
 
 typedef struct domain_name* domain_name;
 
-int domain_size(domain_name name) {
+int domain_octets(domain_name name) {
     if (name == NULL) {
-        return 16;
+        return 2;
     }
 
     // include length octet!
-    int lblSize = 8 + 8 * string_length(name->label);
-    return lblSize + domain_size(name->next);
+    int lblSize = 1 + string_length(name->label);
+    return lblSize + domain_octets(name->next);
 }
 
 domain_name domain_nil() {

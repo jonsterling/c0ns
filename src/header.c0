@@ -86,7 +86,7 @@ void print_header(cursor cur, int[] data, header hd) {
     write_bits(cur, data, 16, hd->arcount);
 }
 
-int header_size() {
-    return 6 * 16;
+int header_octets() {
+    return 6 * 2;
 }
 

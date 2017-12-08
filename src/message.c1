@@ -16,6 +16,31 @@ struct message {
 
 typedef struct message* message;
 
+int message_octets(message msg)
+//@requires msg != NULL;
+{
+    int octets = header_octets();
+
+    header hd = msg->header;
+
+    for (int i = 0; i < hd->qdcount; i++) {
+        octets += question_octets(msg->question[i]);
+    }
+
+    for (int i = 0; i < hd->ancount; i++) {
+        octets += resource_record_octets(msg->answer[i]);
+    }
+
+    for (int i = 0; i < hd->nscount; i++) {
+        octets += resource_record_octets(msg->authority[i]);
+    }
+
+    for (int i = 0; i < hd->arcount; i++) {
+        octets += resource_record_octets(msg->additional[i]);
+    }
+
+    return octets;
+}
 
 message parse_message(int[] data)
 //@ensures \result != NULL;
@@ -58,67 +83,40 @@ struct bytearray {
 
 typedef struct bytearray* bytearray;
 
-int estimate_message_size(message msg)
-//@requires msg != NULL;
-{
-    header hd = msg->header;
-    int numBits = header_size();
-
-    for (int i = 0; i < hd->qdcount; i++) {
-        numBits += countBitsQuestion(msg->question[i]);
-    }
-
-    for (int i = 0; i < hd->ancount; i++) {
-        numBits += countBitsRR(msg->answer[i]);
-    }
-
-    for (int i = 0; i < hd->nscount; i++) {
-        numBits += countBitsRR(msg->authority[i]);
-    }
-
-    for (int i = 0; i < hd->arcount; i++) {
-        numBits += countBitsRR(msg->additional[i]);
-    }
-
-
-    return numBits;
-}
-
 bytearray write_message(message msg)
 //@requires msg != NULL;
 //@ensures \result != NULL;
 {
     header hd = msg->header;
-    int numBits = estimate_message_size(msg);
+    int octets = message_octets(msg);
+    int bytes = (octets / 4) + (octets % 4 > 0 ? 1 : 0);
 
-    int destDataLen = (numBits/32) + (numBits % 32 > 0 ? 1 : 0);
-    int[] destData = alloc_array(int, destDataLen);
+    int[] bs = alloc_array(int, bytes);
 
     cursor cur = cursor_new(0);
-    print_header(cur, destData, msg->header);
+    print_header(cur, bs, msg->header);
 
     for (int i = 0; i < hd->qdcount; i++) {
-        print_question(cur, destData, msg->question[i]);
+        print_question(cur, bs, msg->question[i]);
     }
 
     for (int i = 0; i < hd->ancount; i++) {
-        print_resource_record(cur, destData, msg->answer[i]);
+        print_resource_record(cur, bs, msg->answer[i]);
     }
 
     for (int i = 0; i < hd->nscount; i++) {
-        print_resource_record(cur, destData, msg->authority[i]);
+        print_resource_record(cur, bs, msg->authority[i]);
     }
 
     for (int i = 0; i < hd->arcount; i++) {
-        print_resource_record(cur, destData, msg->additional[i]);
+        print_resource_record(cur, bs, msg->additional[i]);
     }
 
+    bytearray arr = alloc(struct bytearray);
+    arr->length = bytes;
+    arr->bytes = bs;
 
-    bytearray dest = alloc(struct bytearray);
-    dest->length = destDataLen;
-    dest->bytes = destData;
-
-    return dest;
+    return arr;
 }
 
 void debug_bytearray(bytearray bs)

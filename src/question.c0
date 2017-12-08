@@ -30,9 +30,9 @@ void print_question(cursor cur, int[] data, question q)
     write_bits(cur, data, 16, q->qclass);
 }
 
-//Qsize: size of a question in bits
-int countBitsQuestion(question q)
+
+int question_octets(question q)
 //@requires q != NULL;
 {
-    return domain_size(q->qname) + 32;
+    return domain_octets(q->qname) + 2 + 2;
 }
