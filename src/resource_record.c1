@@ -112,7 +112,7 @@ rr_txt parse_txt(cursor cur, int end, int[] data)
 {
     int origIx = cursor_get(cur);
     string s = read_string(cur, data);
-    if (cursor_get(cur) >= end) {
+    if (cursor_get(cur) > end) {
         cursor_set(cur, origIx);
         return rr_txt_nil();
     }
