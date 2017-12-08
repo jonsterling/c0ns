@@ -91,9 +91,8 @@ bytearray write_message(message msg)
     header hd = msg->header;
     int numBits = estimate_message_size(msg);
 
-    // multiplied by 2 just in case ;-)
-    int destDataLen=(numBits/32)*2;
-    int[] destData = alloc_array(int, (numBits/32)*2);
+    int destDataLen = (numBits/32) + (numBits % 32 > 0 ? 1 : 0);
+    int[] destData = alloc_array(int, destDataLen);
 
     cursor cur = cursor_new(0);
     print_header(cur, destData, msg->header);
@@ -114,6 +113,8 @@ bytearray write_message(message msg)
         print_resource_record(cur, destData, msg->additional[i]);
     }
 
+
+    // The following code indicates that there is a bug!!
     int position=0;
     for(int i=0; i<destDataLen;i++){
         if(destData[i]==0 && position==0){

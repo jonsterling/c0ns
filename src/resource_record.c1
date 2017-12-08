@@ -267,7 +267,5 @@ void print_resource_record(cursor cur, int[] data, resource_record rr)
 int countBitsRR(struct resource_record* rr)
 //@requires rr != NULL;
 {
-    //Rsize is in bits
-    int Rsize=rr->name->size*8 +16+16+32+16+(rr->rd_length*8);
-    return Rsize;
+    return domain_size(rr->name) + 16 + 16 + 32 + 16 + (rr->rd_length*8);
 }

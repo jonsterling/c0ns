@@ -34,6 +34,5 @@ void print_question(cursor cur, int[] data, question q)
 int countBitsQuestion(question q)
 //@requires q != NULL;
 {
-    int Qsize = q->qname->size * 8 + 32;
-    return Qsize;
+    return domain_size(q->qname) + 32;
 }

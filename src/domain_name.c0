@@ -1,9 +1,9 @@
 #use "bit_utils.c0"
 #use <conio>
+#use <string>
 
 struct domain_name {
     string label;
-    int size;
     struct domain_name* next;
 };
 
@@ -11,10 +11,12 @@ typedef struct domain_name* domain_name;
 
 int domain_size(domain_name name) {
     if (name == NULL) {
-        return 0;
+        return 16;
     }
 
-    return name->size;
+    // include length octet!
+    int lblSize = 8 + 8 * string_length(name->label);
+    return lblSize + domain_size(name->next);
 }
 
 domain_name domain_nil() {
@@ -25,7 +27,6 @@ domain_name domain_cons(string lbl, domain_name name) {
     domain_name d = alloc(struct domain_name);
     d->label = lbl;
     d->next = name;
-    d->size = domain_size(name) + string_length(lbl);
     return d;
 }
 
@@ -72,8 +73,6 @@ void print_domain_name(cursor cur, int[] data, domain_name d)
     domain_name ptr;
     domain_name tail = NULL;
 
-    int x=0;
-
     while (d!=tail) {
         ptr = d;
         while (ptr->next!=tail) {
@@ -81,7 +80,6 @@ void print_domain_name(cursor cur, int[] data, domain_name d)
         }
 
         write_string(cur, data, ptr->label);
-        x = ptr->size;
         tail = ptr;
     }
 
