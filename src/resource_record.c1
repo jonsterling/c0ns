@@ -176,13 +176,14 @@ resource_record parse_resource_record(cursor cur, int[] data)
     resource_record dest = alloc(struct resource_record);
     dest->name = parse_domain_name(cur, data);
 
-    print("\n\n");
-    printint(dest->type);
-    print(":type\n");
-    printint(dest->class);
-    print(":class_\n");
+    //print("\n\n");
+    //printint(dest->type);
+    //print(":type\n");
+    //printint(dest->class);
+    //print(":class_\n");
+    //debug_domain_name(dest->name);
+    //print("\n");
 
-    debug_domain_name(dest->name);
     dest->type = read_bits(cur, data, 16);
     dest->class = read_bits(cur, data, 16);
     dest->ttl = read_bits(cur, data, 32);
