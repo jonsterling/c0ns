@@ -169,31 +169,6 @@ void* parse_rdata(cursor cur, int[] data, type_ type, int len)
     }
 }
 
-resource_record parse_resource_record(cursor cur, int[] data)
-//@ensures \result != NULL;
-//@requires cursor_get(cur) <= \length(data) * 32;
-{
-    resource_record dest = alloc(struct resource_record);
-    dest->name = parse_domain_name(cur, data);
-
-    //print("\n\n");
-    //printint(dest->type);
-    //print(":type\n");
-    //printint(dest->class);
-    //print(":class_\n");
-    //debug_domain_name(dest->name);
-    //print("\n");
-
-    dest->type = read_bits(cur, data, 16);
-    dest->class = read_bits(cur, data, 16);
-    dest->ttl = read_bits(cur, data, 32);
-    dest->rd_length = read_bits(cur, data, 16);
-    dest->rdata = parse_rdata(cur, data, dest->type, dest->rd_length);
-
-
-    return dest;
-}
-
 
 void print_rr_txt(cursor cur, int[] data, rr_txt t)
 //@requires cursor_get(cur) <= \length(data) * 32;
@@ -257,6 +232,10 @@ void print_resource_record(cursor cur, int[] data, resource_record rr)
 //@requires rr != NULL;
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
+    print("\n\nwrite / rdlength:");
+    printint(rr->rd_length);
+    print("\n");
+
     print_domain_name(cur, data, rr->name);
     write_bits(cur, data, 16, rr->type);
     write_bits(cur, data, 16, rr->class);
@@ -264,6 +243,26 @@ void print_resource_record(cursor cur, int[] data, resource_record rr)
     write_bits(cur, data, 16, rr->rd_length);
     print_rdata(cur, data, rr->type, rr->rdata);
 }
+
+resource_record parse_resource_record(cursor cur, int[] data)
+//@ensures \result != NULL;
+//@requires cursor_get(cur) <= \length(data) * 32;
+{
+    resource_record rr = alloc(struct resource_record);
+    rr->name = parse_domain_name(cur, data);
+    rr->type = read_bits(cur, data, 16);
+    rr->class = read_bits(cur, data, 16);
+    rr->ttl = read_bits(cur, data, 32);
+    rr->rd_length = read_bits(cur, data, 16);
+    rr->rdata = parse_rdata(cur, data, rr->type, rr->rd_length);
+
+    print("\n\nparse / rdlength:");
+    printint(rr->rd_length);
+    print("\n");
+
+    return rr;
+}
+
 
 int countBitsRR(struct resource_record* rr)
 //@requires rr != NULL;

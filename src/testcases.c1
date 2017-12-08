@@ -39,13 +39,13 @@ struct message* test_case0(){
     struct question*[] questions = alloc_array(struct question*, 0);
     test->question= questions;
     /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    resource_record[] answers = alloc_array(resource_record, 0);
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    resource_record[] authorities = alloc_array(resource_record, 0);
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    resource_record[] additionals = alloc_array(resource_record, 0);
     test->additional= additionals;
     return test;
 }
@@ -87,13 +87,13 @@ struct message* test_case1(){
     test->question= questions;
 
 /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    resource_record[] answers = alloc_array(resource_record, 0);
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    resource_record[] authorities = alloc_array(resource_record, 0);
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    resource_record[] additionals = alloc_array(resource_record, 0);
     test->additional= additionals;
     return test;
 }
@@ -134,13 +134,13 @@ struct message* test_case2(){
     test->question= questions;
 
 /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    resource_record[] answers = alloc_array(resource_record, 0);
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    resource_record[] authorities = alloc_array(resource_record, 0);
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    resource_record[] additionals = alloc_array(resource_record, 0);
     test->additional= additionals;
     return test;
 }
@@ -179,13 +179,13 @@ struct message* test_case3(){
     test->question= questions;
 
 /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    resource_record[] answers = alloc_array(resource_record, 0);
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    resource_record[] authorities = alloc_array(resource_record, 0);
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    resource_record[] additionals = alloc_array(resource_record, 0);
     test->additional= additionals;
     return test;
 }
@@ -234,13 +234,13 @@ struct message* test_case4(){
     test->question= questions;
 
 /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 0);
+    resource_record[] answers = alloc_array(resource_record, 0);
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    resource_record[] authorities = alloc_array(resource_record, 0);
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    resource_record[] additionals = alloc_array(resource_record, 0);
     test->additional= additionals;
     return test;
 }
@@ -276,8 +276,8 @@ struct message* test_case5(){
     test->question= questions;
 
 /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 1);
-    struct resource_record* a1 = alloc(struct resource_record);
+    resource_record[] answers = alloc_array(resource_record, 1);
+    resource_record a1 = alloc(struct resource_record);
     a1->name=domain_cons("com", domain_cons("google", domain_nil()));
     //type_A
     a1->type=type_A();
@@ -292,10 +292,10 @@ struct message* test_case5(){
 
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    resource_record[] authorities = alloc_array(resource_record, 0);
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    resource_record[] additionals = alloc_array(resource_record, 0);
     test->additional= additionals;
 
     return test;
@@ -334,15 +334,16 @@ struct message* test_case6(){
     test->question= questions;
 
 /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 1);
-    struct resource_record* a1 = alloc(struct resource_record);
-    a1->name=domain_cons("com", domain_cons("google", domain_nil()));
+    resource_record[] answers = alloc_array(resource_record, 1);
+    resource_record a1 = alloc(struct resource_record);
+    a1->name=domain_cons("com", domain_cons("yahoo", domain_nil()));
 
     //type_txt
-    a1->type=16;
+    a1->type=type_txt();
     a1->class=255;
     a1->ttl=52;
     a1->rd_length=16;
+
     // struct rr_A* r = alloc(struct rr_A);
     rr_txt txt = rr_txt_cons("com", rr_txt_cons("gig", rr_txt_nil()));
     a1->rdata = (void*)txt;
@@ -351,10 +352,10 @@ struct message* test_case6(){
 
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 0);
+    resource_record[] authorities = alloc_array(resource_record, 0);
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 0);
+    resource_record[] additionals = alloc_array(resource_record, 0);
     test->additional= additionals;
 
     return test;
@@ -404,8 +405,8 @@ struct message* test_case7(){
     test->question= questions;
 
 /*answer part*/
-    struct resource_record*[] answers = alloc_array(struct resource_record*, 2);
-    struct resource_record* a1 = alloc(struct resource_record);
+    resource_record[] answers = alloc_array(resource_record, 2);
+    resource_record a1 = alloc(struct resource_record);
     a1->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -421,7 +422,7 @@ struct message* test_case7(){
 
     answers[0]=a1;
 
-    struct resource_record* a2 = alloc(struct resource_record);
+    resource_record a2 = alloc(struct resource_record);
     a2->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -438,8 +439,8 @@ struct message* test_case7(){
 
     test->answer= answers;
     /*authority part*/
-    struct resource_record*[] authorities = alloc_array(struct resource_record*, 2);
-    struct resource_record* u1 = alloc(struct resource_record);
+    resource_record[] authorities = alloc_array(resource_record, 2);
+    resource_record u1 = alloc(struct resource_record);
     u1->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -454,7 +455,7 @@ struct message* test_case7(){
 
     authorities[0]=u1;
 
-    struct resource_record* u2 = alloc(struct resource_record);
+    resource_record u2 = alloc(struct resource_record);
     u2->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -472,9 +473,9 @@ struct message* test_case7(){
 
     test->authority= authorities;
     /*additional part*/
-    struct resource_record*[] additionals = alloc_array(struct resource_record*, 2);
+    resource_record[] additionals = alloc_array(resource_record, 2);
 
-    struct resource_record* d1 = alloc(struct resource_record);
+    resource_record d1 = alloc(struct resource_record);
     d1->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
@@ -489,7 +490,7 @@ struct message* test_case7(){
 
     additionals[0]=d1;
 
-    struct resource_record* d2 = alloc(struct resource_record);
+    resource_record d2 = alloc(struct resource_record);
     d2->name=domain_cons("cs", domain_cons("cmu", domain_cons("edu", domain_nil())));
 
     //type_txt
