@@ -85,6 +85,29 @@ int print_domain_name(int cur, int[] data, domain_name d)
     return cur;
 }
 
+void print_domain_name2(cursor cur, int[] data, domain_name d)
+//@requires cursor_get(cur) < \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
+{
+    domain_name ptr;
+    domain_name tail = NULL;
+
+    int x=0;
+
+    while (d!=tail) {
+        ptr = d;
+        while (ptr->next!=tail) {
+            ptr = ptr -> next;
+        }
+
+        write_string2(cur, data, ptr->label);
+        x = ptr->size;
+        tail = ptr;
+    }
+
+    write_bits2(cur, data, 8, 0); //final label, for root
+}
+
 void assert_domain_eq(domain_name dn1, domain_name dn2) {
     if (dn1 == NULL){
         assert(dn2 == NULL);

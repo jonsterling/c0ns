@@ -32,6 +32,16 @@ int print_question (int cur, int[] data, question q)
     return cur;
 }
 
+void print_question2(cursor cur, int[] data, question q)
+//@requires q != NULL;
+//@requires cursor_get(cur) < \length(data) * 32;
+//@requires cursor_get(cur) % 8 == 0;
+{
+    print_domain_name2(cur, data, q->qname);
+    write_bits2(cur, data, 16, q->qtype);
+    write_bits2(cur, data, 16, q->qclass);
+}
+
 //Qsize: size of a question in bits
 int countBitsQuestion(question q)
 //@requires q != NULL;

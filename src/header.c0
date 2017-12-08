@@ -70,6 +70,22 @@ header parse_header(cursor cur, int[] data) {
     return hd;
 }
 
+void print_header2(cursor cur, int[] data, header hd) {
+    write_bits2(cur, data, 16, hd->id);
+    write_bits2(cur, data, 1, hd->qr);
+    write_bits2(cur, data, 4, hd->opcode);
+    write_bits2(cur, data, 1, hd->aa);
+    write_bits2(cur, data, 1, hd->tc);
+    write_bits2(cur, data, 1, hd->rd);
+    write_bits2(cur, data, 1, hd->ra);
+    write_bits2(cur, data, 3, hd->z);
+    write_bits2(cur, data, 4, hd->rcode);
+    write_bits2(cur, data, 16, hd->qdcount);
+    write_bits2(cur, data, 16, hd->ancount);
+    write_bits2(cur, data, 16, hd->nscount);
+    write_bits2(cur, data, 16, hd->arcount);
+}
+
 int print_header(int cur, int[] data, struct header* input){
 
     cur = write_bits(cur, data, 16, input->id );

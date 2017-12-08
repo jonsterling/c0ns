@@ -71,51 +71,53 @@ struct bytearray {
 
 typedef struct bytearray* bytearray;
 
-bytearray write_message(struct message* input)
-//@requires input != NULL;
+bytearray write_message(message msg)
+//@requires msg != NULL;
 //@ensures \result != NULL;
 {
-    int qdcount = input -> header -> qdcount;
-    int ancount = input -> header -> ancount;
-    int nscount = input -> header -> nscount;
-    int arcount = input -> header -> arcount;
+    header hd = msg->header;
 
     int headerBits = 6 * 16;
     int numBits = headerBits;
 
-    for (int i = 0; i < qdcount; i++) {
-        numBits += countBitsQuestion(input -> question[i]);
-    }
-    for (int i = 0; i < ancount; i++) {
-        numBits += countBitsRR(input -> answer[i]);
+    for (int i = 0; i < hd->qdcount; i++) {
+        numBits += countBitsQuestion(msg->question[i]);
     }
 
-    for (int i = 0; i < nscount; i++) {
-        numBits += countBitsRR(input -> authority[i]);
+    for (int i = 0; i < hd->ancount; i++) {
+        numBits += countBitsRR(msg->answer[i]);
     }
-    for (int i = 0; i < arcount; i++) {
-        numBits += countBitsRR(input -> additional[i]);
+
+    for (int i = 0; i < hd->nscount; i++) {
+        numBits += countBitsRR(msg->authority[i]);
     }
+
+    for (int i = 0; i < hd->arcount; i++) {
+        numBits += countBitsRR(msg->additional[i]);
+    }
+
 
     // multiplied by 2 just in case ;-)
     int destDataLen=(numBits/32)*2;
     int[] destData = alloc_array(int, (numBits/32)*2);
-    int cur = 0;
-    cur = print_header (cur, destData, input -> header);
-    for (int i = 0; i < qdcount; i++) {
-        cur = print_question (cur, destData, input -> question[i]);
-    }
-    for (int i = 0; i < ancount; i++) {
-        cur = print_resource_record (cur, destData, input -> answer[i]);
+
+    cursor cur = cursor_new(0);
+    print_header2(cur, destData, msg->header);
+
+    for (int i = 0; i < hd->qdcount; i++) {
+        print_question2(cur, destData, msg->question[i]);
     }
 
-    for (int i = 0; i < nscount; i++) {
-        cur = print_resource_record (cur, destData, input -> authority[i]);
+    for (int i = 0; i < hd->ancount; i++) {
+        print_resource_record2(cur, destData, msg->answer[i]);
     }
-    for (int i = 0; i < arcount; i++) {
 
-        cur = print_resource_record (cur, destData, input -> additional[i]);
+    for (int i = 0; i < hd->nscount; i++) {
+        print_resource_record2(cur, destData, msg->authority[i]);
+    }
 
+    for (int i = 0; i < hd->arcount; i++) {
+        print_resource_record2(cur, destData, msg->additional[i]);
     }
 
     int position=0;
@@ -135,7 +137,6 @@ bytearray write_message(struct message* input)
 
     return dest;
 }
-
 
 void print_bytearray(bytearray bs)
 //@requires bs != NULL;

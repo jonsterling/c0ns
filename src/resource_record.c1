@@ -3,6 +3,7 @@
 #use "class.c0"
 #use "domain_name.c0"
 #use "bit_utils.c0"
+#use "cursor.c0"
 
 struct rr_txt {
     string txt;
@@ -27,10 +28,14 @@ struct rr_hinfo {
     string os;
 };
 
+typedef struct rr_hinfo* rr_hinfo;
+
 struct rr_mx {
     int preference;
     domain_name exchange;
 };
+
+typedef struct rr_mx* rr_mx;
 
 struct rr_soa {
     domain_name mname;
@@ -42,16 +47,21 @@ struct rr_soa {
     int minimum;
 };
 
+typedef struct rr_soa* rr_soa;
 
 struct rr_A {
     int address;
 };
+
+typedef struct rr_A* rr_A;
 
 struct rr_wks {
     int address;
     int protocol;
     int[] bitmap;
 };
+
+typedef struct rr_wks* rr_wks;
 
 struct resource_record {
     domain_name name; // a domain name, subject to compression
@@ -65,7 +75,7 @@ struct resource_record {
 typedef struct resource_record* resource_record;
 
 
-struct rr_hinfo* parse_hinfo(cursor cur, int[] data)
+rr_hinfo parse_hinfo(cursor cur, int[] data)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     struct rr_hinfo* dest = alloc(struct rr_hinfo);
@@ -75,7 +85,7 @@ struct rr_hinfo* parse_hinfo(cursor cur, int[] data)
     return dest;
 }
 
-struct rr_mx* parse_mx(cursor cur, int[] data)
+rr_mx parse_mx(cursor cur, int[] data)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     struct rr_mx* dest = alloc(struct rr_mx);
@@ -84,7 +94,7 @@ struct rr_mx* parse_mx(cursor cur, int[] data)
     return dest;
 }
 
-struct rr_soa* parse_soa(cursor cur, int[] data)
+rr_soa parse_soa(cursor cur, int[] data)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     struct rr_soa* dest = alloc(struct rr_soa);
@@ -97,7 +107,7 @@ struct rr_soa* parse_soa(cursor cur, int[] data)
     return dest;
 }
 
-struct rr_txt* parse_txt(cursor cur, int end, int[] data)
+rr_txt parse_txt(cursor cur, int end, int[] data)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     int origIx = cursor_get(cur);
@@ -107,11 +117,11 @@ struct rr_txt* parse_txt(cursor cur, int end, int[] data)
         return rr_txt_nil();
     }
 
-    struct rr_txt* init = parse_txt(cur, end, data);
+    rr_txt init = parse_txt(cur, end, data);
     return rr_txt_cons(s, init);
 }
 
-struct rr_A* parse_A(cursor cur, int[] rdata)
+rr_A parse_A(cursor cur, int[] rdata)
 //@requires cursor_get(cur) <= \length(rdata) * 32;
 {
     struct rr_A* dest = alloc(struct rr_A);
@@ -119,7 +129,7 @@ struct rr_A* parse_A(cursor cur, int[] rdata)
     return dest;
 }
 
-struct rr_wks* parse_wks(cursor cur, int[] rdata)
+rr_wks parse_wks(cursor cur, int[] rdata)
 //@requires cursor_get(cur) <= \length(rdata) * 32;
 {
     error("TODO: wks not yet supported");
@@ -201,6 +211,63 @@ int print_rr_txt (int cur, int[] data, rr_txt t)
     return cur;
 }
 
+void print_rr_txt2(cursor cur, int[] data, rr_txt t)
+//@requires cursor_get(cur) <= \length(data) * 32;
+{
+    rr_txt ptr;
+    rr_txt tail=NULL;
+    while (t!=tail) {
+        ptr = t;
+        while (ptr->next!=tail) {
+            ptr = ptr -> next;
+        }
+        write_string2(cur, data, ptr->txt);
+        tail = ptr;
+    }
+    //TODO do we have a root text in the end? uncomment next line
+    // write_bits(cur, data, 8, 0); //final label, for root
+}
+
+void print_rdata2(cursor cur, int[] data, type_ type, void* rdata)
+//@requires cursor_get(cur) <= \length(data) * 32;
+{
+    //TODO: this block needs to be checked
+    if (type == type_cname()) {
+        print_domain_name2(cur, data, (domain_name)rdata);
+    }
+    else if (type == type_hinfo()) {
+        write_string2(cur, data, ((rr_hinfo)rdata)->cpu);
+        write_string2(cur, data, ((rr_hinfo)rdata)->os);
+    }
+    else if (type == type_mx()) {
+        write_bits2(cur, data, 16, ((rr_mx)rdata)->preference);
+        print_domain_name2(cur, data, ((rr_mx)rdata)->exchange);
+    }
+    else if (type == type_ptr()) {
+        print_domain_name2(cur, data, (domain_name)rdata);
+    }
+    else if (type == type_soa()) {
+        print_domain_name2(cur, data, ((rr_soa)rdata)->mname);
+        print_domain_name2(cur, data, ((rr_soa)rdata)->rname);
+        write_bits2(cur, data, 32, ((rr_soa)rdata)->serial);
+        write_bits2(cur, data, 32, ((rr_soa)rdata)->refresh);
+        write_bits2(cur, data, 32, ((rr_soa)rdata)->retry);
+        write_bits2(cur, data, 32, ((rr_soa)rdata)->expire);
+    }
+
+    else if (type == type_txt()) {
+        print_rr_txt2(cur, data, (rr_txt)rdata);
+    }
+    else if (type == type_A()) {
+        write_bits2(cur, data, 32, ((rr_A)rdata)->address);
+    }
+    else if (type == type_wks()) {
+        error("TODO: wks");
+    }
+    else {
+        error("print_rdata: Unsupported RR type");
+    }
+}
 
 int print_rdata (int cur, int[] data, type_ type, void* rdata)
 //@requires cur <= \length(data) * 32;
@@ -244,6 +311,18 @@ int print_rdata (int cur, int[] data, type_ type, void* rdata)
     }
 
     return cur;
+}
+
+void print_resource_record2(cursor cur, int[] data, resource_record rr)
+//@requires rr != NULL;
+//@requires cursor_get(cur) <= \length(data) * 32;
+{
+    print_domain_name2(cur, data, rr->name);
+    write_bits2(cur, data, 16, rr->type);
+    write_bits2(cur, data, 16, rr->class);
+    write_bits2(cur, data, 32, rr->ttl);
+    write_bits2(cur, data, 16, rr->rd_length);
+    print_rdata2(cur, data, rr->type, rr->rdata);
 }
 
 int print_resource_record(int cur, int[] data, struct resource_record* rr)
