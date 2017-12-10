@@ -3,8 +3,6 @@
  * sockets.
  */
 
-#include <limits.h>
-
 typedef int socket_t;
 
 socket_t dgram_socket ()
@@ -34,10 +32,10 @@ int c0_sendto (socket_t sock, int[] buf, int len,
                int dst_sin_family, int dst_sin_port, int dst_sin_addr)
 //@requires sock >= 0;
 //@requires \length(buf) == ((len + 3) / 4);
-//@requires SHRT_MIN <= dst_sin_family;
-//@requires dst_sin_family <= SHRT_MAX;
-//@requires USHRT_MIN <= dst_sin_port;
-//@requires dst_sin_port <= USHRT_MAX;
+//@requires -32767 <= dst_sin_family;
+//@requires dst_sin_family <= 32767;
+//@requires 0 <= dst_sin_port;
+//@requires dst_sin_port <= 65535;
 //@ensures \result == len;
 ;
 
@@ -56,3 +54,14 @@ int poll_write (socket_t sock, int timeout)
 //@requires sock >= 0;
 //@ensures \result == 0 || \result == 1;
 ;
+
+/**
+ *  Network byte order functions.
+ */
+
+// TODO: Can any guarantees be made here?
+int c0_ntohl(int netlong);
+int c0_ntohs(int netshort);
+
+int c0_htonl(int hostlong);
+int c0_ntohs(int hostshort);

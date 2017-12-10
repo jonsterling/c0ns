@@ -12,7 +12,11 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#define INT16_T_MAX (0x7FFF)
+#define INT16_T_MIN (-(0x8000))
+
 #define INT32_T_MAX 0x7FFFFFFF
+#define INT32_T_MIN 0x80000000
 
 #define ROUND_TO_4(x) ((((x) + 3) / 4) * 4)
 
@@ -192,5 +196,41 @@ c0_int poll_write (socket_t sock, c0_int timeout) {
     }
     
     assert(0 == rv || (1 == rv && sockfd.revents & POLLOUT));
+    return rv;
+}
+
+c0_int c0_ntohl(c0_int netlong) {
+    assert (INT32_T_MIN <= netlong && netlong <= INT32_T_MAX)
+
+    c0_int rv = ntohl(netlong);
+    
+    assert (INT32_T_MIN <= rv && rv <= INT32_T_MAX)
+    return rv;
+}
+
+c0_int c0_ntohs(c0_int netshort) {
+    assert (INT16_T_MIN <= netlong && netlong <= INT16_T_MAX)
+
+    c0_int rv = ntohl(netlong);
+    
+    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX)
+    return rv;
+}
+
+c0_int c0_htonl(c0_int netlong) {
+    assert (INT32_T_MIN <= netlong && netlong <= INT32_T_MAX)
+
+    c0_int rv = htonl(netlong);
+    
+    assert (INT32_T_MIN <= rv && rv <= INT32_T_MAX)
+    return rv;
+}
+
+c0_int c0_htons(c0_int netshort) {
+    assert (INT16_T_MIN <= netlong && netlong <= INT16_T_MAX)
+
+    c0_int rv = htonl(netlong);
+    
+    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX)
     return rv;
 }
