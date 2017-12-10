@@ -64,4 +64,4 @@ int c0_ntohl(int netlong);
 int c0_ntohs(int netshort);
 
 int c0_htonl(int hostlong);
-int c0_ntohs(int hostshort);
+int c0_htons(int hostshort);

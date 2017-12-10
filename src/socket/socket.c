@@ -7,6 +7,7 @@
 
 #include <c0runtime.h>
 
+#include <arpa/inet.h>
 #include <netinet/in.h>
 
 #include <sys/socket.h>
@@ -200,37 +201,37 @@ c0_int poll_write (socket_t sock, c0_int timeout) {
 }
 
 c0_int c0_ntohl(c0_int netlong) {
-    assert (INT32_T_MIN <= netlong && netlong <= INT32_T_MAX)
+    assert (INT32_T_MIN <= netlong && netlong <= INT32_T_MAX);
 
     c0_int rv = ntohl(netlong);
     
-    assert (INT32_T_MIN <= rv && rv <= INT32_T_MAX)
+    assert (INT32_T_MIN <= rv && rv <= INT32_T_MAX);
     return rv;
 }
 
 c0_int c0_ntohs(c0_int netshort) {
-    assert (INT16_T_MIN <= netlong && netlong <= INT16_T_MAX)
+    assert (INT16_T_MIN <= netshort && netshort <= INT16_T_MAX);
 
-    c0_int rv = ntohl(netlong);
+    c0_int rv = ntohs(netshort);
     
-    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX)
+    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX);
     return rv;
 }
 
-c0_int c0_htonl(c0_int netlong) {
-    assert (INT32_T_MIN <= netlong && netlong <= INT32_T_MAX)
+c0_int c0_htonl(c0_int hostlong) {
+    assert (INT32_T_MIN <= hostlong && hostlong <= INT32_T_MAX);
 
-    c0_int rv = htonl(netlong);
+    c0_int rv = htonl(hostlong);
     
-    assert (INT32_T_MIN <= rv && rv <= INT32_T_MAX)
+    assert (INT32_T_MIN <= rv && rv <= INT32_T_MAX);
     return rv;
 }
 
-c0_int c0_htons(c0_int netshort) {
-    assert (INT16_T_MIN <= netlong && netlong <= INT16_T_MAX)
+c0_int c0_htons(c0_int hostshort) {
+    assert (INT16_T_MIN <= hostshort && hostshort <= INT16_T_MAX);
 
-    c0_int rv = htonl(netlong);
+    c0_int rv = htons(hostshort);
     
-    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX)
+    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX);
     return rv;
 }
