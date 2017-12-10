@@ -55,7 +55,7 @@ c0_int c0_recvfrom (socket_t sock, c0_array buf, c0_int len,
                     c0_pointer src_sin_port,
                     c0_pointer src_sin_addr) {
     struct sockaddr_in src_addr;
-    socklen_t addrlen;
+    socklen_t addrlen = sizeof(struct sockaddr_in);
     size_t read_len = (size_t) len;
     int flags = MSG_TRUNC;
 
@@ -85,9 +85,9 @@ c0_int c0_recvfrom (socket_t sock, c0_array buf, c0_int len,
     /* TODO */
     free(tmp_buf);
 
-    *((c0_int*) c0_deref(src_sin_family)) = src_addr.sin_family;
-    *((c0_int*) c0_deref(src_sin_port)) = src_addr.sin_port;
-    *((c0_int*) c0_deref(src_sin_addr)) = src_addr.sin_addr.s_addr;
+    *((c0_int*) c0_deref(src_sin_family)) = ntohs(src_addr.sin_family);
+    *((c0_int*) c0_deref(src_sin_port)) = ntohs(src_addr.sin_port);
+    *((c0_int*) c0_deref(src_sin_addr)) = ntohl(src_addr.sin_addr.s_addr);
 
     return rv;
 }
@@ -110,9 +110,9 @@ c0_int c0_sendto (socket_t sock, c0_array buf, c0_int len,
     // dst_sin_addr, being a 32-bit c0_int, is necessarily the same size as a
     // uint32_t, which dst_addr.sin_addr.s_addr is.
 
-    dst_addr.sin_family = dst_sin_family;
-    dst_addr.sin_port = dst_sin_port;
-    dst_addr.sin_addr.s_addr = dst_sin_addr;
+    dst_addr.sin_family = htons(dst_sin_family);
+    dst_addr.sin_port = htons(dst_sin_port);
+    dst_addr.sin_addr.s_addr = htonl(dst_sin_addr);
     memset(dst_addr.sin_zero, sizeof(dst_addr.sin_zero), 0);
 
     /* TODO: Find a way to not allocate here. */
