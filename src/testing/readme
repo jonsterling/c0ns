@@ -1,0 +1,7 @@
+In order to run this (one-packet) test, start c0ns (or c0ns-checked), and then run the following command:
+
+cat test | nc 127.0.0.1 1337 -u
+
+This will send the packet to c0ns, which should then try to relay the request on to the remote server hardcoded in (currently, itself, so it's a bit broken).
+
+Setting the remote_addr variable to 0x08080808 will send the request to Google's DNS server, which is a decent remote to test with.

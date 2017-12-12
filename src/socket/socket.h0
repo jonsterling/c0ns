@@ -9,6 +9,12 @@ socket_t dgram_socket ()
 //@ensures \result >= 0;
 ;
 
+int c0_bind(socket_t sock, int port)
+//@requires 0 <= sock;
+//@requires 0 <= port;
+//@requires port <= 0xFFFF;
+//@ensures 0 == \result;
+;
 
 /*
  *  Socket I/O
@@ -59,9 +65,30 @@ int poll_write (socket_t sock, int timeout)
  *  Network byte order functions.
  */
 
-// TODO: Can any guarantees be made here?
-int c0_ntohl(int netlong);
-int c0_ntohs(int netshort);
+int c0_ntohl(int netlong)
+//@requires 0x80000000 <= netlong;
+//@requires netlong <= 0x7FFFFFFF;
+//@ensures 0x80000000 <= \result;
+//@ensures \result <= 0x7FFFFFFF;
+;
+int c0_ntohs(int netshort)
+//@requires 0 <= netshort;
+//@requires netshort <= 0xFFFF;
+//@ensures 0 <= \result;
+//@ensures \result <= 0xFFFF;
+;
 
-int c0_htonl(int hostlong);
-int c0_htons(int hostshort);
+int c0_htonl(int hostlong)
+//@requires 0x80000000 <= hostlong;
+//@requires hostlong <= 0x7FFFFFFF;
+//@ensures 0x80000000 <= \result;
+//@ensures \result <= 0x7FFFFFFF;
+;
+
+int c0_htons(int hostshort)
+//@requires 0 <= hostshort;
+//@requires hostshort <= 0xFFFF;
+//@ensures 0 <= \result;
+//@ensures \result <= 0xFFFF;
+;
+
