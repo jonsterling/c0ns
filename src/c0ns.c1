@@ -24,7 +24,7 @@ int main () {
 
     int remote_family = AF_INET();
     // TODO For actual use, set this up with a proper remote IP and port.
-    int remote_ip = 0x7f000001;
+    int remote_ip = 0x08080808;
     int remote_port = 53;
 
     // Set up sockets.
