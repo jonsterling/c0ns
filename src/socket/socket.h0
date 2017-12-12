@@ -62,27 +62,27 @@ int poll_write (socket_t sock, int timeout)
 int c0_ntohl(int netlong)
 //@requires 0x80000000 <= netlong;
 //@requires netlong <= 0x7FFFFFFF;
-//@requires 0x80000000 <= \result;
-//@requires \result <= 0x7FFFFFFF;
+//@ensures 0x80000000 <= \result;
+//@ensures \result <= 0x7FFFFFFF;
 ;
 int c0_ntohs(int netshort)
-//@requires -32767 <= netshort;
-//@requires netshort <= 32767;
-//@requires -32767 <= \result;
-//@requires \result <= 32767;
+//@requires 0 <= netshort;
+//@requires netshort <= 0xFFFF;
+//@ensures -32767 <= \result;
+//@ensures \result <= 32767;
 ;
 
 int c0_htonl(int hostlong)
 //@requires 0x80000000 <= hostlong;
 //@requires hostlong <= 0x7FFFFFFF;
-//@requires 0x80000000 <= \result;
-//@requires \result <= 0x7FFFFFFF;
+//@ensures 0x80000000 <= \result;
+//@ensures \result <= 0x7FFFFFFF;
 ;
 
 int c0_htons(int hostshort)
-//@requires -32767 <= netshort;
-//@requires netshort <= 32767;
-//@requires -32767 <= \result;
-//@requires \result <= 32767;
+//@requires -32767 <= hostshort;
+//@requires hostshort <= 32767;
+//@ensures 0 <= \result;
+//@ensures \result <= 0xFFFF;
 ;
 

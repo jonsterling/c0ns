@@ -5,6 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <stdio.h>
+
 #include <c0runtime.h>
 
 #include <arpa/inet.h>
@@ -13,11 +15,11 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#define INT16_T_MAX (0x7FFF)
-#define INT16_T_MIN (-(0x8000))
+#define INT16_T_MAX ((int32_t)32767)
+#define INT16_T_MIN ((int32_t)-32767)
 
-#define INT32_T_MAX 0x7FFFFFFF
-#define INT32_T_MIN 0x80000000
+#define INT32_T_MAX ((int32_t)0x7FFFFFFF)
+#define INT32_T_MIN ((int32_t)0x80000000)
 
 #define ROUND_TO_4(x) ((((x) + 3) / 4) * 4)
 
@@ -201,7 +203,7 @@ c0_int poll_write (socket_t sock, c0_int timeout) {
 }
 
 c0_int c0_ntohl(c0_int netlong) {
-    assert (INT32_T_MIN <= netlong && netlong <= INT32_T_MAX);
+    assert (0 <= (uint32_t) netlong && (uint32_t) netlong <= 0xFFFFFFFF);
 
     c0_int rv = ntohl(netlong);
     
@@ -210,7 +212,7 @@ c0_int c0_ntohl(c0_int netlong) {
 }
 
 c0_int c0_ntohs(c0_int netshort) {
-    assert (INT16_T_MIN <= netshort && netshort <= INT16_T_MAX);
+    assert (0 <= (uint16_t) netshort && (uint16_t) netshort <= 0xFFFF);
 
     c0_int rv = ntohs(netshort);
     
@@ -223,7 +225,7 @@ c0_int c0_htonl(c0_int hostlong) {
 
     c0_int rv = htonl(hostlong);
     
-    assert (INT32_T_MIN <= rv && rv <= INT32_T_MAX);
+    assert (0 <= (uint32_t) rv && (uint32_t) rv <= 0xFFFFFFFF);
     return rv;
 }
 
@@ -231,7 +233,7 @@ c0_int c0_htons(c0_int hostshort) {
     assert (INT16_T_MIN <= hostshort && hostshort <= INT16_T_MAX);
 
     c0_int rv = htons(hostshort);
-    
-    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX);
+
+    assert (0 <= rv && rv <= 0xFFFF);
     return rv;
 }
