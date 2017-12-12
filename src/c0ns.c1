@@ -92,9 +92,9 @@ int main () {
         // Send client message
         while(poll_write(client_sock, TIMEOUT()) != 1) {}
         send_msglen = c0_sendto(client_sock, msg_to_client->bytes,
-                                msg_to_client->length,
+                                message_octets(msg),
                                 *src_sin_family, *src_sin_port, *src_sin_addr);
-        //@assert (send_msglen == msg_to_client->length);
+        //@assert (send_msglen == message_octets(msg));
     }
 
     return 0;
