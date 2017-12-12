@@ -84,7 +84,6 @@ int main () {
         //@assert (*remote_sin_port == remote_port);
         //@assert (*remote_sin_addr == remote_ip);
 
-
         msg = parse_message(remote_msg_buf);
         bytearray msg_to_client = write_message(msg);
 
