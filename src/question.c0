@@ -1,3 +1,5 @@
+#use <socket>
+
 #use "types.c0"
 #use "class.c0"
 #use "domain_name.c0"
@@ -16,8 +18,8 @@ question parse_question(cursor cur, int[] data)
 {
     question qu = alloc(struct question);
     qu->qname = parse_domain_name(cur, data);
-    qu->qtype = read_bits(cur, data, 16);
-    qu->qclass = read_bits(cur, data, 16);
+    qu->qtype = c0_ntohs(read_bits(cur, data, 16));
+    qu->qclass = c0_ntohs(read_bits(cur, data, 16));
     return qu;
 }
 void write_question(cursor cur, int[] data, question q)
@@ -26,8 +28,8 @@ void write_question(cursor cur, int[] data, question q)
 //@requires cursor_get(cur) % 8 == 0;
 {
     write_domain_name(cur, data, q->qname);
-    write_bits(cur, data, 16, q->qtype);
-    write_bits(cur, data, 16, q->qclass);
+    write_bits(cur, data, 16, c0_htons(q->qtype));
+    write_bits(cur, data, 16, c0_htons(q->qclass));
 }
 
 

@@ -1,4 +1,6 @@
 #use <string>
+#use <socket>
+
 #use "types.c0"
 #use "class.c0"
 #use "domain_name.c0"
@@ -89,7 +91,7 @@ rr_mx parse_mx(cursor cur, int[] data)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     struct rr_mx* dest = alloc(struct rr_mx);
-    dest->preference = read_bits(cur, data, 16);
+    dest->preference = c0_ntohs(read_bits(cur, data, 16));
     dest->exchange = parse_domain_name(cur, data);
     return dest;
 }
@@ -100,10 +102,10 @@ rr_soa parse_soa(cursor cur, int[] data)
     struct rr_soa* dest = alloc(struct rr_soa);
     dest->mname = parse_domain_name(cur, data);
     dest->rname = parse_domain_name(cur, data);
-    dest->serial = read_bits(cur, data, 32);
-    dest->refresh = read_bits(cur, data, 32);
-    dest->retry = read_bits(cur, data, 32);
-    dest->expire = read_bits(cur, data, 32);
+    dest->serial = c0_ntohl(read_bits(cur, data, 32));
+    dest->refresh = c0_ntohl(read_bits(cur, data, 32));
+    dest->retry = c0_ntohl(read_bits(cur, data, 32));
+    dest->expire = c0_ntohl(read_bits(cur, data, 32));
     return dest;
 }
 
@@ -125,7 +127,7 @@ rr_A parse_A(cursor cur, int[] rdata)
 //@requires cursor_get(cur) <= \length(rdata) * 32;
 {
     struct rr_A* dest = alloc(struct rr_A);
-    dest->address = read_bits(cur, rdata, 32);
+    dest->address = c0_ntohl(read_bits(cur, rdata, 32));
     return dest;
 }
 
@@ -193,7 +195,7 @@ void write_rdata(cursor cur, int[] data, type_ type, void* rdata)
         write_string(cur, data, ((rr_hinfo)rdata)->os);
     }
     else if (type == type_mx()) {
-        write_bits(cur, data, 16, ((rr_mx)rdata)->preference);
+        write_bits(cur, data, 16, c0_htons(((rr_mx)rdata)->preference));
         write_domain_name(cur, data, ((rr_mx)rdata)->exchange);
     }
     else if (type == type_ptr()) {
@@ -202,17 +204,17 @@ void write_rdata(cursor cur, int[] data, type_ type, void* rdata)
     else if (type == type_soa()) {
         write_domain_name(cur, data, ((rr_soa)rdata)->mname);
         write_domain_name(cur, data, ((rr_soa)rdata)->rname);
-        write_bits(cur, data, 32, ((rr_soa)rdata)->serial);
-        write_bits(cur, data, 32, ((rr_soa)rdata)->refresh);
-        write_bits(cur, data, 32, ((rr_soa)rdata)->retry);
-        write_bits(cur, data, 32, ((rr_soa)rdata)->expire);
+        write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->serial));
+        write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->refresh));
+        write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->retry));
+        write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->expire));
     }
 
     else if (type == type_txt()) {
         write_rr_txt(cur, data, (rr_txt)rdata);
     }
     else if (type == type_A()) {
-        write_bits(cur, data, 32, ((rr_A)rdata)->address);
+        write_bits(cur, data, 32, c0_htonl(((rr_A)rdata)->address));
     }
     else if (type == type_wks()) {
         error("TODO: wks");
@@ -227,10 +229,10 @@ void write_resource_record(cursor cur, int[] data, resource_record rr)
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
     write_domain_name(cur, data, rr->name);
-    write_bits(cur, data, 16, rr->type);
-    write_bits(cur, data, 16, rr->class);
-    write_bits(cur, data, 32, rr->ttl);
-    write_bits(cur, data, 16, rr->rd_length);
+    write_bits(cur, data, 16, c0_htons(rr->type));
+    write_bits(cur, data, 16, c0_htons(rr->class));
+    write_bits(cur, data, 32, c0_htonl(rr->ttl));
+    write_bits(cur, data, 16, c0_htons(rr->rd_length));
     write_rdata(cur, data, rr->type, rr->rdata);
 }
 
@@ -240,10 +242,10 @@ resource_record parse_resource_record(cursor cur, int[] data)
 {
     resource_record rr = alloc(struct resource_record);
     rr->name = parse_domain_name(cur, data);
-    rr->type = read_bits(cur, data, 16);
-    rr->class = read_bits(cur, data, 16);
-    rr->ttl = read_bits(cur, data, 32);
-    rr->rd_length = read_bits(cur, data, 16);
+    rr->type = c0_ntohs(read_bits(cur, data, 16));
+    rr->class = c0_ntohs(read_bits(cur, data, 16));
+    rr->ttl = c0_ntohl(read_bits(cur, data, 32));
+    rr->rd_length = c0_ntohs(read_bits(cur, data, 16));
     rr->rdata = parse_rdata(cur, data, rr->type, rr->rd_length);
     return rr;
 }

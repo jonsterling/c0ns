@@ -1,4 +1,5 @@
 #use <conio>
+#use <socket>
 #use "bit_utils.c0"
 
 struct header {
@@ -52,7 +53,7 @@ bool rcode_is_reserved(int rc) {
 header parse_header(cursor cur, int[] data) {
     header hd = alloc(struct header);
 
-    hd->id = read_bits(cur, data, 16);
+    hd->id = c0_ntohs(read_bits(cur, data, 16));
     hd->qr = read_bits(cur, data, 1);
     hd->opcode = read_bits(cur, data, 4);
     hd->aa = read_bits(cur, data, 1);
@@ -62,16 +63,16 @@ header parse_header(cursor cur, int[] data) {
     hd->z = read_bits(cur, data, 3);
     hd->rcode = read_bits(cur, data, 4);
 
-    hd->qdcount = read_bits(cur, data, 16);
-    hd->ancount = read_bits(cur, data, 16);
-    hd->nscount = read_bits(cur, data, 16);
-    hd->arcount = read_bits(cur, data, 16);
+    hd->qdcount = c0_ntohs(read_bits(cur, data, 16));
+    hd->ancount = c0_ntohs(read_bits(cur, data, 16));
+    hd->nscount = c0_ntohs(read_bits(cur, data, 16));
+    hd->arcount = c0_ntohs(read_bits(cur, data, 16));
 
     return hd;
 }
 
 void write_header(cursor cur, int[] data, header hd) {
-    write_bits(cur, data, 16, hd->id);
+    write_bits(cur, data, 16, c0_htons(hd->id));
     write_bits(cur, data, 1, hd->qr);
     write_bits(cur, data, 4, hd->opcode);
     write_bits(cur, data, 1, hd->aa);
@@ -80,10 +81,10 @@ void write_header(cursor cur, int[] data, header hd) {
     write_bits(cur, data, 1, hd->ra);
     write_bits(cur, data, 3, hd->z);
     write_bits(cur, data, 4, hd->rcode);
-    write_bits(cur, data, 16, hd->qdcount);
-    write_bits(cur, data, 16, hd->ancount);
-    write_bits(cur, data, 16, hd->nscount);
-    write_bits(cur, data, 16, hd->arcount);
+    write_bits(cur, data, 16, c0_htons(hd->qdcount));
+    write_bits(cur, data, 16, c0_htons(hd->ancount));
+    write_bits(cur, data, 16, c0_htons(hd->nscount));
+    write_bits(cur, data, 16, c0_htons(hd->arcount));
 }
 
 int header_octets() {
