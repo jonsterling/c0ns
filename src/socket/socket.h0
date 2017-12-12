@@ -59,9 +59,30 @@ int poll_write (socket_t sock, int timeout)
  *  Network byte order functions.
  */
 
-// TODO: Can any guarantees be made here?
-int c0_ntohl(int netlong);
-int c0_ntohs(int netshort);
+int c0_ntohl(int netlong)
+//@requires 0x80000000 <= netlong;
+//@requires netlong <= 0x7FFFFFFF;
+//@requires 0x80000000 <= \result;
+//@requires \result <= 0x7FFFFFFF;
+;
+int c0_ntohs(int netshort)
+//@requires -32767 <= netshort;
+//@requires netshort <= 32767;
+//@requires -32767 <= \result;
+//@requires \result <= 32767;
+;
 
-int c0_htonl(int hostlong);
-int c0_htons(int hostshort);
+int c0_htonl(int hostlong)
+//@requires 0x80000000 <= hostlong;
+//@requires hostlong <= 0x7FFFFFFF;
+//@requires 0x80000000 <= \result;
+//@requires \result <= 0x7FFFFFFF;
+;
+
+int c0_htons(int hostshort)
+//@requires -32767 <= netshort;
+//@requires netshort <= 32767;
+//@requires -32767 <= \result;
+//@requires \result <= 32767;
+;
+
