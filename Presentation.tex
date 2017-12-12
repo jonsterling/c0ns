@@ -1,0 +1,313 @@
+
+\documentclass[slidestop]{beamer}
+
+\usepackage{beamerthemesplit}
+\usepackage{mathpartir}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{graphics}
+\usepackage{pstricks}
+\usepackage{bytefield}
+\usepackage{listings}
+
+\lstset{language=C}
+\lstset{basicstyle=\ttfamily, columns=flexible}
+
+
+\newcommand\Kwd[1]{{\sffamily\bfseries{#1}}}
+\newcommand\EOf[4]{{#1}\vdash_{#2}{#3}:{#4}}
+\newcommand\MOf[4]{{#1}\vdash_{#2}{#3}\div{#4}}
+\newcommand\IsProc[3]{{#1}\vdash_{#2}{#3}\ \mathsf{proc}}
+\newcommand\IsAction[3]{{#1}\vdash_{#2}{#3}\ \mathsf{action}}
+
+\title{Implementing DNS in C0}
+\author{Jonathan Sterling \and Klaas Pruiksma \and Farzaneh Derakhshan}
+
+
+\begin{document}
+
+\frame{
+   \begin{center}
+    \huge{Implementing DNS in C0}\\
+    \vspace{48pt}
+    \Large{15-712 Project}\\
+    \vspace{24pt}
+    \large{\today}
+  \end{center}
+}
+
+\frame{\frametitle{Background-DNS}
+ \begin{center}
+
+  {\bf \red Map domain names to IP addresses in a distributed manner. Consists of: }
+ \end{center} 
+\begin{itemize}
+\item Domain name space with reource records, a tree-like data structure with a root, and nodes labeled with at most 63 characters.
+\item Name servers keep information about a complete sub-tree of the domain name. They may also cache pointers to other name servers.
+\item Resolvers that provide an interface between applications and DNS in the process of name resolution
+\end{itemize}
+}
+\frame{\frametitle{DNS-Name Resolution}
+\begin{itemize}
+\item A user program sends a name query to the resolver of the DNS client.
+
+\item The DNS resolver looks up the local domain name cache for a match. If a match is found, it sends the corresponding IP address back. If not, it sends a query to the DNS server.
+
+\item The DNS server looks up the corresponding IP address of the domain name in its DNS database. If no match is found, it sends a query to a higher level DNS server. This process continues until a result, whether successful or not, is returned.
+
+\item The DNS client returns the resolution result to the application after receiving a response from the DNS server.
+ \end{itemize}
+}
+\frame{\frametitle{Background-C0}
+ \begin{center}
+
+  {\bf \red C0 programming language is a restricted subset of C, that provides:}
+\begin{itemize}
+\item Implicit {\bf memory safety}.\\
+\item Restrictions on {\bf pointer arithmetic} and {\bf casting}: 
+\begin{itemize}
+\item prevent any attempt to access an array out of its
+bounds.\\
+\end{itemize}
+\item {\bf Garbage-collection} 
+\begin{itemize} 
+\item no need for error-prone manual memory management.\\
+\end{itemize}
+\item {\bf Contracts}: dynamically checks correctness conditions for programs\\
+\end{itemize}
+ \end{center}
+}
+
+\frame{\frametitle{Related Work-Nail}
+{\bf \red Nail}: A specialized language for specifying low-level data formats, have been used to develop a {\bf \red “authoritative DNS server”.} \vspace{12pt}
+
+ The most error-prone aspects are out of Nail's scope:\\
+\begin{itemize}
+\item {\bf Internal implementation of Nail} written in {\bf C}. 
+\begin{itemize}
+\item “Semantics” of C code is informal and indefinite.
+\end{itemize}
+\item {\bf User-provided implementation} of compression and decompression functions. 
+\begin{itemize}
+\item An operator precedence bug in the Nail's DNS demo .
+\end{itemize}
+\end{itemize}
+\vspace{12pt}
+
+Conntrary to Nail, we code parsers and formatters {\bf manually}, but in a {\bf memory-safe} and {\bf type-safe language}.
+
+\begin{center} 
+{\bf \red While functional correctness is not guaranteed, safety is guaranteed.}
+ \end{center}
+}
+\frame{\frametitle{Related Work-Fox}
+{\bf \red Fox }: Implementation of the DNS protocol in a safe and formally specified language,
+\begin{itemize}
+\item undertaken at Carnegie Mellon University in the 1990s.\\
+\item The FoXNet library implemented
+
+\begin{center} An array of low-level network infrastructure (TCP, IP, ARP and DNS) in the Standard ML language.\end{center}
+\item Unlike our development, FoxNet had a highly modular character.
+\end{itemize}
+}
+
+
+\frame{\frametitle{Our Project}
+ \begin{center}
+  {\bf \red Developing an implementation of the DNS protocol in the memory-safe C0 language}
+ \end{center}
+Two principal components:
+\begin{itemize}
+\item Network Interface
+\item Marshalling and Unmarshalling
+\end{itemize}
+
+}
+
+\frame{\frametitle{Network Interface}
+C0 has a very limited standard library.
+ \begin{itemize}
+   \item We write a networking library for C0.\vspace{12pt}
+   \item Due to limitations of the language, This library cannot be written entirely in C0.\vspace{12pt}
+\item We write an interface between C0 code and the C sockets library with a collection of small functions in C.\vspace{12pt}
+\item Add on top of that, the C0 portion of the library, to provide a higher-level interface for network communication.\vspace{12pt}
+  \end{itemize}
+\vspace{12pt}}
+\frame{\frametitle{Network Interface-Cont'd}
+\begin{center}
+{\bf \red ensure that any memory safety violations occur outside of our project}
+\end{center}
+\begin{itemize}
+\item  Keep the C portion limited in scope and size:
+\begin{itemize}
+\item  By checking that there are no calls to malloc or similar functions.
+\end{itemize}
+\item Any accesses to C0-allocated memory are done so safely.(less easily checked)
+\begin{itemize}
+\item By using a collection of functions for safe memory access provided to libraries by the C0 runtime.
+\end{itemize}
+\end{itemize}
+}
+\frame{\frametitle{Network Interface-Cont'd}  
+\begin{center}
+limited in the scope to DNS, so we
+\end{center}
+\begin{itemize}
+\item Focus on the functions for datagram-based sockets,
+\item Do not expose the full functionality of the sockets library, 
+\item A limited interface to the poll function of the C standard library in the same way to avoid busy-waiting.\\
+\end{itemize}
+\begin{center}
+Sufficient to implement our nameserver\\
+Additional library functionality can be added using these methods.
+\end{center}
+}
+
+\frame{\frametitle{Marshalling and Unmarshalling}
+
+ \begin{itemize}
+   \item C0 has only a single type (32-bit) integers.\vspace{12pt}
+   \item The requests and responses to the network interface formatted as arrays of 32-bit integers.\vspace{12pt}
+\item The marshalling-and-unmarshalling module unpack this data into structured representations of core DNS datatypes.\vspace{24pt}
+  \end{itemize}}
+\frame{\frametitle{Marshalling and Unmarshalling-cont'd}
+This figure shows the bit-level layout of DNS message headers:
+\begin{figure}
+  \centering
+  \begin{bytefield}[bitwidth=1.5em]{16}
+    \wordbox{1}{\texttt{ID}}
+    \\
+    \bitbox{1}{\texttt{QR}}
+    \bitbox{4}{\texttt{Opcode}}
+    \bitbox{1}{\texttt{AA}}
+    \bitbox{1}{\texttt{TC}}
+    \bitbox{1}{\texttt{RD}}
+    \bitbox{1}{\texttt{RA}}
+    \bitbox{3}{\texttt{Z}}
+    \bitbox{4}{\texttt{RCODE}}
+    \\
+    \wordbox{1}{\texttt{QDCOUNT}}
+    \\
+    \wordbox{1}{\texttt{ANCOUNT}}
+    \\
+    \wordbox{1}{\texttt{NSCOUNT}}
+    \\
+    \wordbox{1}{\texttt{ARCOUNT}}
+  \end{bytefield}
+  \caption{The layout specification of message headers in
+    DNS.}\label{fig:layout-message-header}
+\end{figure}}
+
+\begin{frame}[fragile]\frametitle{Marshalling and Unmarshalling}
+ How we code the header structure in our $C0$ implementation:{\tiny
+\begin{figure}
+  \begin{lstlisting}[frame=single]
+struct header {
+  int id;
+  int qr;
+  int opcode;
+  int aa;
+  int tc;
+  int rd;
+  int ra;
+  int z;
+  int rcode;
+  int qdcount;
+  int ancount;
+  int nscount;
+  int arcount;
+};
+typedef struct header* header;
+  \end{lstlisting}
+
+  
+\caption{Example DNS data structures in our C0 implementation.}\label{fig:c0-data-structures}
+\end{figure}}
+\end{frame}
+\begin {frame}[fragile]\frametitle{Marshalling and Unmarshalling}
+\begin{itemize}
+\item To convert between these two we implement functions of the following kind:
+\end{itemize}
+{\small
+\begin{lstlisting}
+domain_name parse_domain_name(cursor cur, int[] data);
+resource_record parse_resource_record(cursor cur, int[] data);
+header parse_header(cursor cur, int[] data);
+\end{lstlisting}}
+
+\end{frame}
+\frame{\frametitle{Marshalling and Unmarshalling-Cont'd}
+\begin{itemize}
+   \item To enable a less error-prone style of coding than manual cursor-passing, we implemented {\bf an abstract type of imperative
+cursors}.
+\item A cursor can be advanced or retreated by a certain number of bits. \\
+\item Then, our low-level bit arithmetic utilities can be used to read (or write) a certain number of bits at a certain offset from (resp. to) our stream of words.\\
+\item cursors are bit-indices rather than indices into the 32-bit cells of the message.
+\item Because specific parts of DNS data structures may only be a few bits long, so their parsers cannot move the cursor forward a full word’s length.
+  \end{itemize}
+We have implemented marshalling and unmarshalling for a sizable fragment of the DNS protocol, omitting only some rare or experimental resource record types.\\
+Our parser for domain names supports compression\\
+During formatting we do not attempt to re-compress domain names. 
+}
+
+
+\frame{\frametitle{Evaluation-correctness and safety}
+
+\begin{center}
+we enjoy certain safety guarantees that are either impossible or intractable to achieve for mainstream C-based implementations.
+\end{center}
+
+ \begin{itemize}
+ \item writing the majority of our DNS server in the memory- and type- safe C0 language, 
+\item In return, we have sacrified some performance. 
+\begin{itemize}
+\item Hard to tell how much of our performance trade-off was due to garbage collection vs. the unoptimized character of our implementation
+\end{itemize}
+  \end{itemize}
+\vspace{12pt}}
+\begin{frame}[fragile]\frametitle{Evaluation-correctness and safety-Contracts}
+ invaluable notion of {\bf contract}:\\
+Here, we used contracts to ensure that we would not suffer from bit shift range
+errors. 
+a lightweight form of assertion which wraps the input and output boundaries of procedures.\\
+{\small \begin{lstlisting}
+int get_mask(int index, int size)
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
+{
+    return ((1 << size) - 1) << index;
+}
+int get_bits(int index, int size, int data)
+//@requires size < 32 && size >= 0;
+//@requires index < 32 && index >= 0;
+{
+    return (data & get_mask(index, size)) >> index;
+}
+
+
+\end{lstlisting}}
+
+ 
+\end{frame}
+
+\frame{\frametitle{Evaluation-correctness}
+
+  The code did not begin with these contracts, but in the course of debugging,
+these contracts were introduced; in every instance, introducing contracts (shifting
+blame closer and closer to call-sites) enabled us to easily determine and liquidate bugs.\vspace{12pt}
+   \begin{itemize}
+   \item The C0 compiler can be instructed to check contracts dynamically during execution,
+or to generate code which ignores them. This is helpful, since it is important to have
+debuggable errors when developing, but in production one may not wish to incur the
+cost of dynamic contract checks. While dynamic execution of contract checks is already
+very useful, we feel that more advanced techniques such as abstract interpretation and
+its special case, symbolic execution, would be even more useful.\vspace{12pt}
+  \end{itemize}
+}
+\frame{\frametitle{Evaluation-Performance}
+
+}
+
+
+\end{document}
