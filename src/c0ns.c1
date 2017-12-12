@@ -1,13 +1,18 @@
 #use <args>
 #use <socket>
+#use <conio>
 
 #use "message.c1"
 
-int TIMEOUT() { return 1000; }
+// TODO: What should the timeout be?
+int TIMEOUT() { return 10000; }
 
 int ROUND_TO_4(int x) {
     return ((x + 3) / 4) * 4;
 }
+
+// I miss #defines.
+int AF_INET() { return 2; }
 
 int main () {
     /* Parse arguments:
@@ -17,18 +22,20 @@ int main () {
      */
     // TODO actually parse arguments insteadof hardcoding.
 
-    // TODO: What is AF_INET's value?
-    int remote_family = 0;
-    int remote_ip = 0x08080808;
+    int remote_family = AF_INET();
+    // TODO For actual use, set this up with a proper remote IP and port.
+    int remote_ip = 0x7f000001;
     int remote_port = 53;
 
     // Set up sockets.
     socket_t client_sock = dgram_socket();
+    // TODO: Probably this should listen on port 53 as is default for DNS.
+    // That requires being run as root, though, so this is good for testing.
+    c0_bind(client_sock, 1337);
     socket_t remote_sock = dgram_socket();
 
     while(true) {
         // Receive client message
-        // TODO: What should the timeout be?
         if(poll_read(client_sock, TIMEOUT()) == 0) {
             continue;
         }
@@ -55,9 +62,9 @@ int main () {
         // Send remote message
         while(poll_write(remote_sock, TIMEOUT()) != 1) {}
         int send_msglen = c0_sendto(remote_sock, msg_to_remote->bytes,
-                                    msg_to_remote->length,
+                                    message_octets(msg),
                                     remote_family, remote_port, remote_ip);
-        //@assert (send_msglen == msg_to_remote->length);
+        //@assert (send_msglen == message_octets(msg));
 
 
         // Receive remote message

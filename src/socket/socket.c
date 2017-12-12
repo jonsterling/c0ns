@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <errno.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -32,20 +33,35 @@ socket_t dgram_socket() {
     if (sock < 0) {
         c0_abort("Socket creation failed.");
     }
-
     return sock;
+}
+
+c0_int c0_bind(socket_t sock, c0_int port) {
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    int rv = bind(sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in));
+
+    if (rv < 0) {
+        c0_abort("Socket bind failed.");
+    }
+
+    return rv;
 }
 
 c0_int recv_msglen (socket_t sock) {
     struct sockaddr src_addr;
     socklen_t addrlen;
-    size_t len = 0;
+    size_t len = 512;
+    char buf[512];
     int flags = MSG_TRUNC | MSG_PEEK;
 
-    ssize_t pkt_size = recvfrom(sock, NULL, len, flags, &src_addr, &addrlen);
-    if (-1 == pkt_size) {
+    ssize_t pkt_size = recvfrom(sock, buf, len, flags, &src_addr, &addrlen);
+    if (pkt_size < 0) {
         c0_error("recv_msglen failed.");
     }
+    assert(0 <= pkt_size);
     assert(pkt_size <= INT32_T_MAX);
 
     c0_int rv = (c0_int) pkt_size;
@@ -216,7 +232,7 @@ c0_int c0_ntohs(c0_int netshort) {
 
     c0_int rv = ntohs(netshort);
     
-    assert (INT16_T_MIN <= rv && rv <= INT16_T_MAX);
+    assert (0 <= (uint16_t) rv && (uint16_t) rv <= 0xFFFF);
     return rv;
 }
 
@@ -230,10 +246,10 @@ c0_int c0_htonl(c0_int hostlong) {
 }
 
 c0_int c0_htons(c0_int hostshort) {
-    assert (INT16_T_MIN <= hostshort && hostshort <= INT16_T_MAX);
+    assert (0 <= (uint16_t) hostshort && (uint16_t) hostshort <= 0xFFFF);
 
     c0_int rv = htons(hostshort);
 
-    assert (0 <= rv && rv <= 0xFFFF);
+    assert (0 <= (uint16_t) rv && (uint16_t) rv <= 0xFFFF);
     return rv;
 }
