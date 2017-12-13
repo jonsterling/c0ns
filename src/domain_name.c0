@@ -11,7 +11,7 @@ typedef struct domain_name* domain_name;
 
 int domain_octets(domain_name name) {
     if (name == NULL) {
-        return 2;
+        return 1;
     }
 
     // include length octet!
@@ -32,8 +32,7 @@ domain_name domain_cons(string lbl, domain_name name) {
 
 domain_name parse_domain_name(cursor cur, int[] data)
 //@requires cur != NULL;
-// TODO NEXT LINE FAILS SOMETIMES
-//@requires cursor_get(cur) <= \length(data) * 32;
+//@requires cursor_get(cur) < \length(data) * 32;
 //@requires cursor_get(cur) % 8 == 0;
 {
     int orig_ix = cursor_get(cur);
@@ -47,7 +46,9 @@ domain_name parse_domain_name(cursor cur, int[] data)
         // case: pointer
         // read the last 14 bits of this byte as a pointer into the message (in octets)
         cursor_set(cur, orig_ix);
-        int ptr = c0_ntohs(read_bits(cur, data, 16));
+        // TODO: Make this less terrible --- this relies on the fact that we know that
+        // ptr is positive
+        int ptr = c0_ntohs(read_bits(cur, data, 16) & 0xFFFF);
         //@assert ((ptr & 0xc000) == 0xc000);
         ptr &= 0x3fff;
 
