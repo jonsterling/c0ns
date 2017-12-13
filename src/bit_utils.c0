@@ -48,7 +48,8 @@ int read_bits(cursor cur, int[] bytes, int numBits)
     return get_bits(rem, numBits, bytes[index]);
 }
 
-void write_bits(cursor cur, int[] bytes, int numBits, int data)
+void write_bits(cursor cur, int[] bytes, int numBits, int data) 
+//@requires cursor_get(cur) + numBits <= \length(bytes) * 32;
 //@requires cur != NULL;
 {
     int indexBits = cursor_get(cur);
@@ -61,15 +62,21 @@ void write_bits(cursor cur, int[] bytes, int numBits, int data)
         int data1 = get_bits(0, len1, data);
         int data2 = get_bits(len1, len2, data);
 
+        //@assert 0 <= index;
+        //@assert index + 1 < \length(bytes);
         bytes[index] = set_bits(bytes[index], rem, len1, data1);
         bytes[index+1] = set_bits(bytes[index], 0, len2, data2);
     }
 
     else if (rem == 0 && numBits == 32) {
+        //@assert 0 <= index;
+        //@assert index < \length(bytes);
         bytes[index] = data;
     }
 
     else {
+        //@assert 0 <= index;
+        //@assert index < \length(bytes);
         bytes[index] = set_bits(bytes[index], rem, numBits, data);
     }
 
