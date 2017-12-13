@@ -106,6 +106,7 @@ rr_soa parse_soa(cursor cur, int[] data)
     dest->refresh = c0_ntohl(read_bits(cur, data, 32));
     dest->retry = c0_ntohl(read_bits(cur, data, 32));
     dest->expire = c0_ntohl(read_bits(cur, data, 32));
+    dest->minimum = c0_ntohl(read_bits(cur, data, 32));
     return dest;
 }
 
@@ -167,6 +168,8 @@ void* parse_rdata(cursor cur, int[] data, type_ type, int len)
         error("TODO: wks");
     }
     else {
+        printint(type);
+        println(" not supported.");
         error("parse_rdata: Unsupported RR type");
     }
 }
@@ -199,15 +202,22 @@ void write_rdata(cursor cur, int[] data, type_ type, void* rdata)
         write_domain_name(cur, data, ((rr_mx)rdata)->exchange);
     }
     else if (type == type_ptr()) {
+        int tmp = cursor_get(cur);
         write_domain_name(cur, data, (domain_name)rdata);
+        //@assert cursor_get(cur) == tmp + (8 * domain_octets((domain_name)rdata));
     }
     else if (type == type_soa()) {
+        int tmp = cursor_get(cur);
         write_domain_name(cur, data, ((rr_soa)rdata)->mname);
+        //@assert cursor_get(cur) == tmp + (8 * domain_octets(((rr_soa)rdata)->mname));
+        tmp = cursor_get(cur);
         write_domain_name(cur, data, ((rr_soa)rdata)->rname);
+        //@assert cursor_get(cur) == tmp + (8 * domain_octets(((rr_soa)rdata)->rname));
         write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->serial));
         write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->refresh));
         write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->retry));
         write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->expire));
+        write_bits(cur, data, 32, c0_htonl(((rr_soa)rdata)->minimum));
     }
 
     else if (type == type_txt()) {
@@ -228,12 +238,16 @@ void write_resource_record(cursor cur, int[] data, resource_record rr)
 //@requires rr != NULL;
 //@requires cursor_get(cur) <= \length(data) * 32;
 {
+    int tmp = cursor_get(cur);
     write_domain_name(cur, data, rr->name);
+    //@assert cursor_get(cur) == tmp + (8 * domain_octets(rr->name));
     write_bits(cur, data, 16, c0_htons(rr->type));
     write_bits(cur, data, 16, c0_htons(rr->class));
     write_bits(cur, data, 32, c0_htonl(rr->ttl));
     write_bits(cur, data, 16, c0_htons(rr->rd_length));
+    tmp = cursor_get(cur);
     write_rdata(cur, data, rr->type, rr->rdata);
+    //@assert cursor_get(cur) == tmp + (8 * rr->rd_length);
 }
 
 resource_record parse_resource_record(cursor cur, int[] data)
@@ -248,6 +262,31 @@ resource_record parse_resource_record(cursor cur, int[] data)
     rr->rd_length = c0_ntohs(read_bits(cur, data, 16));
     rr->rdata = parse_rdata(cur, data, rr->type, rr->rd_length);
     return rr;
+}
+
+void update_rdlength(resource_record rr) {
+    type_ type = rr->type;
+    if (type == type_cname()) {
+        rr->rd_length = domain_octets((domain_name)rr->rdata);
+    } else if (type == type_hinfo()) {
+        // TODO Can we do anything in this case? Should we?
+    } else if (type == type_mx()) {
+        rr->rd_length = 2 + domain_octets(((rr_mx)rr->rdata)->exchange);
+    } else if (type == type_ptr()) {
+        rr->rd_length = domain_octets((domain_name)rr->rdata);
+    } else if (type == type_soa()) {
+        rr->rd_length = 20;
+        rr->rd_length += domain_octets(((rr_soa)rr->rdata)->mname);
+        rr->rd_length += domain_octets(((rr_soa)rr->rdata)->rname);
+    } else if (type == type_txt()) {
+        // TODO Can we do anything in this case? Should we?
+    } else if (type == type_A()) {
+        rr->rd_length = 4;
+    } else if (type == type_wks()) {
+        error("TODO: wks");
+    } else {
+        error("parse_rdata: Unsupported RR type");
+    }
 }
 
 int resource_record_octets(resource_record rr)
