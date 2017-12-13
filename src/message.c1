@@ -72,6 +72,15 @@ bytearray write_message(message msg)
 //@ensures \result != NULL;
 {
     header hd = msg->header;
+    for(int i = 0; i < hd->ancount; i++) {
+        update_rdlength(msg->answer[i]);
+    }
+    for(int i = 0; i < hd->nscount; i++) {
+        update_rdlength(msg->authority[i]);
+    }
+    for(int i = 0; i < hd->arcount; i++) {
+        update_rdlength(msg->additional[i]);
+    }
     int octets = message_octets(msg);
     int bytes = (octets / 4) + (octets % 4 > 0 ? 1 : 0);
 
@@ -80,17 +89,29 @@ bytearray write_message(message msg)
     cursor cur = cursor_new(0);
     write_header(cur, bs, msg->header);
 
-    for (int i = 0; i < hd->qdcount; i++)
+    for (int i = 0; i < hd->qdcount; i++) {
+        int tmp = cursor_get(cur);
         write_question(cur, bs, msg->question[i]);
+        //@assert cursor_get(cur) == tmp + 8 * question_octets(msg->question[i]);
+    }
 
-    for (int i = 0; i < hd->ancount; i++)
+    for (int i = 0; i < hd->ancount; i++) {
+        int tmp = cursor_get(cur);
         write_resource_record(cur, bs, msg->answer[i]);
+        //@assert cursor_get(cur) == tmp + 8 * resource_record_octets(msg->answer[i]);
+    }
 
-    for (int i = 0; i < hd->nscount; i++)
+    for (int i = 0; i < hd->nscount; i++) {
+        int tmp = cursor_get(cur);
         write_resource_record(cur, bs, msg->authority[i]);
+        //@assert cursor_get(cur) == tmp + 8 * resource_record_octets(msg->authority[i]);
+    }
 
-    for (int i = 0; i < hd->arcount; i++)
+    for (int i = 0; i < hd->arcount; i++) {
+        int tmp = cursor_get(cur);
         write_resource_record(cur, bs, msg->additional[i]);
+        //@assert cursor_get(cur) == tmp + 8 * resource_record_octets(msg->additional[i]);
+    }
 
     return bytearray_new(bytes, bs);
 }
