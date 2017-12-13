@@ -6,4 +6,4 @@ checked: $(DEPS)
 	$(CC) -d -o c0ns_checked c0ns.c1
 
 unchecked: $(DEPS)
-	$(CC) -0 c0ns c0ns.c1
+	$(CC) -o c0ns c0ns.c1
