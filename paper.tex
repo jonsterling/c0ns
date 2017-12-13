@@ -2,6 +2,7 @@
 \usepackage[tt=false]{libertine}
 \usepackage{mathpartir}
 \usepackage{amsthm}
+\usepackage{graphicx}
 \usepackage[colorlinks=true, citecolor=red]{hyperref}
 \usepackage{bytefield}
 \usepackage{listings}
@@ -420,7 +421,17 @@ would be even more useful.
 
 \subsection{Performance}\label{sec:performance}
 
-\textit{Klaas, please write this.}
+\begin{figure}[h]
+    \includegraphics[width=0.5\textwidth]{checked_rate.png}
+    \includegraphics[width=0.5\textwidth]{checked_latency.png}
+    \caption{Performance of the checked version of c0ns}
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=0.5\textwidth]{unchecked_rate.png}
+    \includegraphics[width=0.5\textwidth]{unchecked_latency.png}
+    \caption{Performance of the unchecked version of c0ns}
+\end{figure}
 
 % \section{Goals and Progress}
 
