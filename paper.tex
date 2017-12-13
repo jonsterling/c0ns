@@ -421,17 +421,33 @@ would be even more useful.
 
 \subsection{Performance}\label{sec:performance}
 
-\begin{figure}[h]
-    \includegraphics[width=0.5\textwidth]{checked_rate.png}
-    \includegraphics[width=0.5\textwidth]{checked_latency.png}
-    \caption{Performance of the checked version of c0ns}
-\end{figure}
+In order to evaluate the performance of our nameserver (\Kwd{c0ns}), we used \Kwd{resperf}, from the freely available set of DNS benchmarking tools provided by~\cite{github:dnsperf2}. Since our nameserver is recursive, rather than authoritative (that is, it relies on remote nameservers for the ground truth), \Kwd{resperf} was a more suitable performance tool than \Kwd{dnsperf}.
+
+As we were unable to find any existing data sets with realistic loads for testing, we created a data set of approximately 700,000 entries of A queries (which appear to be the most common) by turning each word in the system dictionary into three URLs to query. We believe that this meets the criteria suggested for performance testing in that it has a good mixture of real and nonexistent domain names, and as we need to be able to read resource records other than A when receiving messages from the remote servers that we query. Ideally, we would like to use a more varied dataset that reflects real-world usage, but this appears to work well enough for performance testing. One other issue with our dataset is that all queries in it are unique. While this does not matter for our nameserver, as it does not cache, were we to add caching, we would like to use a dataset with repetitions in order to test the effect of caching on performance.
+
+We began by testing with the default settings of \Kwd{resperf}, wherein the number of queries being sent per second increases linearly from 0 to 100,000 over the course of a minute. We found, however, that this did not yield useful results, as the throughput capacity of \Kwd{c0ns} is so low by comparison. After adjusting parameters to get useful data, we found that setting a maximum of 100 queries per second over the same time interval of 60 seconds was suitable. We then tested both the checked (safe) and unchecked (not safe) versions of \Kwd{c0ns} with these parameters. Interestingly, the difference between the performance of the checked version (shown in Figure~\cite{fig:checked-perf}) and the performance of the unchecked version (shown in Figure~\cite{fig:unchecked-perf}) was minimal, suggesting that contract-checking provides little to no overhead at these speeds (though it is likely that with higher base throughput, the difference would become more evident).
+
+We also note that our latency remains low up until about 20 seconds into the test, at which point the number of queries per second is around 33. The latency graphs thus support the conclusion that we can maintain sustained loads of around 30 queries per second (as suggested as well by the throughput graph), but past that point, we appear to have saturated the server, as latency continues to increase up to 45 seconds (at which point \Kwd{resperf} considers queries to have failed).
+
+Because of the low throughput of our system, we did not find it useful to test against commercial nameservers, relying instead on previous work such as \cite{fagin2017making}, which suggests that commercial nameservers can handle loads on the order of 20,000 to 80,000 queries per second. With such a large magnitude of difference, even if commercial nameservers perform substantially worse on our benchmark than on the benchmarks that others have used, we still have around 1,000-3,000 times less throughput. 
 
 \begin{figure}[h]
     \includegraphics[width=0.5\textwidth]{unchecked_rate.png}
     \includegraphics[width=0.5\textwidth]{unchecked_latency.png}
-    \caption{Performance of the unchecked version of c0ns}
+    \caption{Performance of the unchecked version of \Kwd{c0ns}}\label{fig:unchecked-perf}
 \end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=0.5\textwidth]{checked_rate.png}
+    \includegraphics[width=0.5\textwidth]{checked_latency.png}
+    \caption{Performance of the checked version of \Kwd{c0ns}}\label{fig:checked-perf}
+\end{figure}
+
+\section{Goals and Attainment}
+
+We believe that this project meets our 75\% goal very solidly, but falls short of the 100\% goal. The primary obstacle to finishing the 100\% goal was that we underestimated the amount of time it would take to clear up bugs relating to network byte order, which were the source of much debugging time. While we believe that adding caching would not be particularly difficult, given the structure of our nameserver, there simply was not enough time to do so.
+
+Moreover, from our testing, it appears that there are more pressing issues to fix with \Kwd{c0ns}. In particular, we ran into some issues while testing in that while we implement all of the resource record types that we expect to get from a client, sometimes we get unexpected resource record types from the remote nameserver that we query. In particular, we do not handle NS resource records, which are used to inform recursive nameservers of which server is authoritative for the query that was made if the remote server is not authoritative. Adding support for these seems to be a much higher priority than adding caching. Additionally, our low performance even on benchmarks that do not benefit at all from caching suggests that perhaps we should focus on performance on unique queries before adding support for caching. In particular, we believe that performance could be greatly improved by adding support for concurrently processing requests, since resolving a query is network-bound (while we wait for the remote server to get back to us), and so should not block CPU-bound tasks like parsing other incoming queries.
 
 % \section{Goals and Progress}
 
@@ -485,6 +501,7 @@ would be even more useful.
 % randomized way, but do not have a good sense of how to make these
 % files accurately reflect realistic usage.
 
+\clearpage
 
 \bibliographystyle{abbrvnat}
 \bibliography{bibtex-references/refs,project}
