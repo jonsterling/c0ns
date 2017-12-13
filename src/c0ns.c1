@@ -5,7 +5,7 @@
 #use "message.c1"
 
 // TODO: What should the timeout be?
-int TIMEOUT() { return 10000; }
+int TIMEOUT() { return 50; }
 
 int ROUND_TO_4(int x) {
     return ((x + 3) / 4) * 4;
@@ -60,7 +60,11 @@ int main () {
 
     
         // Send remote message
-        while(poll_write(remote_sock, TIMEOUT()) != 1) {}
+        if(poll_write(remote_sock, TIMEOUT()) != 1) {
+            // If any of these polls fail to succeed in a TIMEOUT, we should just
+            // fail and try a new request.
+            continue;
+        }
         int send_msglen = c0_sendto(remote_sock, msg_to_remote->bytes,
                                     message_octets(msg),
                                     remote_family, remote_port, remote_ip);
@@ -68,7 +72,9 @@ int main () {
 
 
         // Receive remote message
-        while(poll_read(remote_sock, TIMEOUT()) != 1) {}
+        if(poll_read(remote_sock, TIMEOUT()) != 1) {
+            continue;
+        }
         msg_bytes = recv_msglen(remote_sock);
         msg_words = ROUND_TO_4(msg_bytes) / 4;
 
@@ -89,7 +95,9 @@ int main () {
 
 
         // Send client message
-        while(poll_write(client_sock, TIMEOUT()) != 1) {}
+        if(poll_write(client_sock, TIMEOUT()) != 1) {
+            continue;
+        }
         send_msglen = c0_sendto(client_sock, msg_to_client->bytes,
                                 message_octets(msg),
                                 *src_sin_family, *src_sin_port, *src_sin_addr);
