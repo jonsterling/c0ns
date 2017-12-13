@@ -445,7 +445,19 @@ Because of the low throughput of our system, we did not find it useful to test a
 
 \section{Goals and Attainment}
 
-We believe that this project meets our 75\% goal very solidly, but falls short of the 100\% goal. The primary obstacle to finishing the 100\% goal was that we underestimated the amount of time it would take to clear up bugs relating to network byte order, which were the source of much debugging time. While we believe that adding caching would not be particularly difficult, given the structure of our nameserver, there simply was not enough time to do so.
+We believe that this project meets our 75\% goal very solidly, but
+falls short of the 100\% goal.\footnote{Our 75\% goal was to simply implement
+  a working \Kwd{DNS} server; our 100\% goal was to extend this basic
+  server with support for caching, and for further resource record
+  types; we would also have liked to support compressing domain
+  names. In our implementation, we supported only \emph{decompressing}
+  domain names, which is allowed by the \Kwd{DNS} specification, but
+  is not optimal~\citep{rfc:1035}.} The primary obstacle to finishing
+the 100\% goal was that we underestimated the amount of time it would
+take to clear up bugs relating to network byte order, which were the
+source of much debugging time. While we believe that adding caching
+would not be particularly difficult, given the structure of our
+nameserver, there simply was not enough time to do so.
 
 Moreover, from our testing, it appears that there are more pressing issues to fix with \Kwd{c0ns}. In  particular, our low performance even on benchmarks which do not benefit at all from caching suggests that perhaps we should focus on performance on unique queries before adding support for caching. In particular, we believe that performance could be greatly improved by adding support for concurrently processing requests, since resolving a query is network-bound (while we wait for the remote server to get back to us), and so should not block CPU-bound tasks like parsing other incoming queries.
 
