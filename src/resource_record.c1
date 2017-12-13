@@ -167,6 +167,9 @@ void* parse_rdata(cursor cur, int[] data, type_ type, int len)
     else if (type == type_wks()) {
         error("TODO: wks");
     }
+    else if (type == type_ns()) {
+        return (void*)parse_domain_name(cur, data);
+    }
     else {
         printint(type);
         println(" not supported.");
@@ -228,6 +231,9 @@ void write_rdata(cursor cur, int[] data, type_ type, void* rdata)
     }
     else if (type == type_wks()) {
         error("TODO: wks");
+    }
+    else if (type == type_ns()) {
+        write_domain_name(cur, data, (domain_name)rdata);
     }
     else {
         error("write_rdata: Unsupported RR type");
