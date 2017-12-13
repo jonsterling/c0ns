@@ -290,6 +290,8 @@ void update_rdlength(resource_record rr) {
         rr->rd_length = 4;
     } else if (type == type_wks()) {
         error("TODO: wks");
+    } else if (type == type_ns()) {
+        rr->rd_length = domain_octets((domain_name)rr->rdata);
     } else {
         error("parse_rdata: Unsupported RR type");
     }
