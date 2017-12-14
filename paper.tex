@@ -431,7 +431,9 @@ We began by testing with the default settings of \Kwd{resperf}, wherein the numb
 
 We also note that our latency remains low up until about 20 seconds into the test, at which point the number of queries per second is around 33. The latency graphs thus support the conclusion that we can maintain sustained loads of around 30 queries per second (as suggested as well by the throughput graph), but past that point, we appear to have saturated the server, as latency continues to increase up to 45 seconds (at which point \Kwd{resperf} considers queries to have failed).
 
-Because of the low throughput of our system, we did not find it useful to test against commercial nameservers, relying instead on previous work such as \cite{fagin2017making}, which suggests that commercial nameservers can handle loads on the order of 20,000 to 80,000 queries per second. With such a large magnitude of difference, even if commercial nameservers perform substantially worse on our benchmark than on the benchmarks that others have used, we still have around 1,000-3,000 times less throughput.
+Because of the low throughput of our system, we did not find it useful to test directly against commercial nameservers, relying instead on previous work such as \cite{fagin2017making}, which suggests that commercial authoritative nameservers can handle loads on the order of 20,000 to 80,000 queries per second, while (at least some) commercial recursive nameservers behave well up to at least 4000 queries per second (See Figure~\ref{fig:commercial-perf}). With such a large magnitude of difference, even if commercial nameservers perform substantially worse on our benchmark than on the benchmarks that others have used, we still have around 100-200 times less throughput. Additionally, considering latency shows that commercial nameservers tend to have consistent latency once under sufficiently high load, where \Kwd{c0ns}' latency continues to increase with load until it fails to return results within a reasonable amount of time.
+
+We believe that both of these performance issues in \Kwd{c0ns} have the same root cause --- that we only have a single thread, and so incoming requests are processed one at a time. In particular, new requests are blocked while we wait for network communication with the remote resolver in order to answer old requests, drastically increasing latency the higher the load on the system. Due to the single thread, latency and throughput are directly related as long as there are no failures, so this increased latency also manifests itself as decreased throughput.
 
 \begin{figure}[h]
     \includegraphics[width=0.5\textwidth]{unchecked_rate.png}
@@ -443,6 +445,12 @@ Because of the low throughput of our system, we did not find it useful to test a
     \includegraphics[width=0.5\textwidth]{checked_rate.png}
     \includegraphics[width=0.5\textwidth]{checked_latency.png}
     \caption{Performance of the checked version of \Kwd{c0ns}}\label{fig:checked-perf}
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=0.9\textwidth]{Fagin_rate.png}
+    \includegraphics[width=0.9\textwidth]{Fagin_latency.png}
+    \caption{Performance of commercial nameservers. Graphs from \cite{fagin2017making}.}\label{fig:commercial-perf}
 \end{figure}
 
 \section{Goals and Attainment}
